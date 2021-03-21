@@ -194,7 +194,7 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         if(left_expansion_possible)
         {
             const rect_i scan_area = { r.tl + vec2i{-2,-1}, r.tl + vec2i{-1,r.size().y} };
-            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.tl.x <=0 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 left_expansion_possible = false;
             }
@@ -204,7 +204,7 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         if (top_expansion_possible)
         {
             const rect_i scan_area = { r.tl + vec2i{-1,-2}, r.tl + vec2i{r.size().x,-1} };
-            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.tl.y<=0 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 top_expansion_possible = false;
             }
@@ -214,7 +214,7 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         if (right_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} };
-            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.x >= getSize().x-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 right_expansion_possible = false;
             }
@@ -224,7 +224,7 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         if (bottom_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} };
-            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.y >= getSize().y-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 bottom_expansion_possible = false;
             }
