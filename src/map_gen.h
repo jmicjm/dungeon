@@ -11,13 +11,16 @@ enum class TILE_TYPE
     WALL, ROOM, HALLWAY
 };
 
-
-
 class map
 {
     std::vector<std::vector<TILE_TYPE>> tiles;
 
 public:
+    enum class DIRECTION
+    {
+        LEFT, RIGHT, UP, DOWN
+    };
+
     void setSize(const vec2i size);
     vec2i getSize();
 
@@ -35,7 +38,7 @@ public:
     bool isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check);
 
     void generate(const gen_params params);
-    void generateHallway(const vec2i start_p, const gen_params params, const int direction);
+    void generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction);
     void generateRoom(const vec2i start_p, const gen_params params);
     
 

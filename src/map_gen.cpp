@@ -135,7 +135,7 @@ bool map::isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check)
     }
 }
 
-void map::generateHallway(const vec2i start_p, const gen_params params, const int direction)
+void map::generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction)
 {
     vec2i c_pos = start_p;
 
@@ -148,16 +148,16 @@ void map::generateHallway(const vec2i start_p, const gen_params params, const in
             at(c_pos) = TILE_TYPE::HALLWAY;
             switch (direction)
             {
-            case 0:
+            case DIRECTION::LEFT:
                 c_pos.x--;
                 break;
-            case 1:
+            case DIRECTION::UP:
                 c_pos.y--;
                 break;
-            case 2:
+            case DIRECTION::RIGHT:
                 c_pos.x++;
                 break;
-            case 3:
+            case DIRECTION::DOWN:
                 c_pos.y++;
             }
         }
@@ -259,19 +259,19 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
 
         if (isPositionValid({ r.tl.x - 1, r.tl.y }))
         {
-            generateHallway({ r.tl.x - 1, r.tl.y }, params, 0);
+            generateHallway({ r.tl.x - 1, r.tl.y }, params, DIRECTION::LEFT);
         }
         if (isPositionValid({ r.tl.x, r.tl.y - 1 }))
         {
-            generateHallway({ r.tl.x, r.tl.y - 1 }, params, 1);
+            generateHallway({ r.tl.x, r.tl.y - 1 }, params, DIRECTION::UP);
         }
         if (isPositionValid({ r.br.x + 1, r.br.y }))
         {
-            generateHallway({ r.br.x + 1, r.br.y }, params, 2);
+            generateHallway({ r.br.x + 1, r.br.y }, params, DIRECTION::RIGHT);
         }
         if (isPositionValid({ r.br.x, r.br.y + 1 }))
         {
-            generateHallway({ r.br.x, r.br.y + 1 }, params, 3);
+            generateHallway({ r.br.x, r.br.y + 1 }, params, DIRECTION::DOWN);
         }
     }
 
