@@ -180,68 +180,55 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         return;
     }
 
-    vec2i max_size = 
+    const vec2i max_size = 
     { 
         rand(params.min_room_size.x, params.max_room_size.x),
         rand(params.min_room_size.y, params.max_room_size.y) 
     };
 
-    bool left_expansion_possible = true;
-    bool top_expansion_possible = true;
-    bool right_expansion_possible = true;
+    bool left_expansion_possible   = true;
+    bool top_expansion_possible    = true;
+    bool right_expansion_possible  = true;
     bool bottom_expansion_possible = true;
 
     while (r.size().x < max_size.x || r.size().y < max_size.y)
     {
         if(left_expansion_possible)
         {
-            for (vec2i exp = r.tl - vec2i{1,0}; exp.y <= r.br.y; exp.y++)
+            const rect_i scan_area = { r.tl + vec2i{-2,-1}, r.tl + vec2i{-1,r.size().y} };
+            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
-                if (!isTileAdjacentOnlyTo(exp, TILE_TYPE::WALL, false))
-                {
-                    left_expansion_possible = false;
-                    break;
-                }
+                left_expansion_possible = false;
             }
         }
         if (left_expansion_possible && r.size().x < max_size.x) { r.tl.x--; }
 
         if (top_expansion_possible)
         {
-            for (vec2i exp = r.tl - vec2i{0,1}; exp.x <= r.br.x; exp.x++)
+            const rect_i scan_area = { r.tl + vec2i{-1,-2}, r.tl + vec2i{r.size().x,-1} };
+            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
-                if (!isTileAdjacentOnlyTo(exp, TILE_TYPE::WALL, false))
-                {
-                    top_expansion_possible = false;
-                    break;
-                }
+                top_expansion_possible = false;
             }
         }
         if (top_expansion_possible && r.size().y < max_size.y) { r.tl.y--; }
 
         if (right_expansion_possible)
         {
-            for (vec2i exp = r.br + vec2i{1,0}; exp.y >= r.tl.y; exp.y--)
+            const rect_i scan_area = { r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} };
+            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
-                    
-                if (!isTileAdjacentOnlyTo(exp, TILE_TYPE::WALL, false))
-                {
-                    right_expansion_possible = false;
-                    break;
-                }
+                right_expansion_possible = false;
             }
         }
         if (right_expansion_possible && r.size().x < max_size.x) { r.br.x++; }
 
         if (bottom_expansion_possible)
         {
-            for (vec2i exp = r.br + vec2i{0,1}; exp.x >= r.tl.x; exp.x--)
+            const rect_i scan_area = { r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} };
+            if (tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
-                if (!isTileAdjacentOnlyTo(exp, TILE_TYPE::WALL, false))
-                {
-                    bottom_expansion_possible = false;
-                    break;
-                }
+                bottom_expansion_possible = false;
             }
         }
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
