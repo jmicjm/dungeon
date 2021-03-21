@@ -135,11 +135,11 @@ bool map::isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check)
     }
 }
 
-void map::generateHallway(const vec2i start_p, const unsigned int max_length, vec2i max_room_size, int direction)
+void map::generateHallway(const vec2i start_p, const gen_params params, const int direction)
 {
     vec2i c_pos = start_p;
 
-    unsigned int m_len = rand(1, max_length);
+    unsigned int m_len = rand(params.min_hallway_length, params.max_hallway_length);
 
     for (unsigned int len = 0; len < m_len; len++)
     {
@@ -167,11 +167,11 @@ void map::generateHallway(const vec2i start_p, const unsigned int max_length, ve
 
     if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
     {
-        generateRoom(c_pos, max_room_size, max_length);
+        generateRoom(c_pos, params);
     }
 }
 
-void map::generateRoom(const vec2i start_p, const vec2i max_room_size, unsigned int max_hallway_length)
+void map::generateRoom(const vec2i start_p, const gen_params params)
 {
     rect_i r = { start_p,start_p };
 
@@ -180,7 +180,11 @@ void map::generateRoom(const vec2i start_p, const vec2i max_room_size, unsigned 
         return;
     }
 
-    vec2i max_size = { rand(2, max_room_size.x), rand(2, max_room_size.y) };
+    vec2i max_size = 
+    { 
+        rand(params.min_room_size.x, params.max_room_size.x),
+        rand(params.min_room_size.y, params.max_room_size.y) 
+    };
 
     bool left_expansion_possible = true;
     bool top_expansion_possible = true;
@@ -249,35 +253,35 @@ void map::generateRoom(const vec2i start_p, const vec2i max_room_size, unsigned 
         }
     }
 
-    if (r.size().x >= 2 && r.size().y >= 2)
+    if (r.size().x >= params.min_room_size.x && r.size().y >= params.min_room_size.y)
     {
         setTiles(r,TILE_TYPE::ROOM);
 
         if (isPositionValid({ r.tl.x - 1, r.tl.y }))
         {
-            generateHallway({ r.tl.x - 1, r.tl.y }, max_hallway_length, max_room_size, 0);
+            generateHallway({ r.tl.x - 1, r.tl.y }, params, 0);
         }
         if (isPositionValid({ r.tl.x, r.tl.y - 1 }))
         {
-            generateHallway({ r.tl.x, r.tl.y - 1 }, max_hallway_length, max_room_size, 1);
+            generateHallway({ r.tl.x, r.tl.y - 1 }, params, 1);
         }
         if (isPositionValid({ r.br.x + 1, r.br.y }))
         {
-            generateHallway({ r.br.x + 1, r.br.y }, max_hallway_length, max_room_size, 2);
+            generateHallway({ r.br.x + 1, r.br.y }, params, 2);
         }
         if (isPositionValid({ r.br.x, r.br.y + 1 }))
         {
-            generateHallway({ r.br.x, r.br.y + 1 }, max_hallway_length, max_room_size, 3);
+            generateHallway({ r.br.x, r.br.y + 1 }, params, 3);
         }
     }
 
 }
 
-void map::generate(vec2i max_room_size, unsigned int max_hallway_length)
+void map::generate(const gen_params params)
 {
     fill(TILE_TYPE::WALL);
 
-    generateRoom({ rand(0,getSize().x), rand(0, getSize().y) }, max_room_size, max_hallway_length);
+    generateRoom({ rand(0,getSize().x), rand(0, getSize().y) }, params);
 }
 
 unsigned int map::tileCount(const rect_i r)

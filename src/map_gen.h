@@ -1,6 +1,7 @@
 #pragma once
 #include "vec2.h"
 #include "rect.h"
+#include "gen_params.h"
 
 #include <vector>
 #include <string>
@@ -9,6 +10,8 @@ enum class TILE_TYPE
 {
     WALL, ROOM, HALLWAY
 };
+
+
 
 class map
 {
@@ -31,9 +34,9 @@ public:
     bool isTileAdjacentTo(const vec2i pos, TILE_TYPE t, bool diag_check);
     bool isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check);
 
-    void generate(vec2i max_room_size, unsigned int max_hallway_length);
-    void generateHallway(const vec2i start_p, const unsigned int max_length, vec2i max_room_size, int direction);
-    void generateRoom(const vec2i start_p, const vec2i max_room_size, unsigned int max_hallway_length);
+    void generate(const gen_params params);
+    void generateHallway(const vec2i start_p, const gen_params params, const int direction);
+    void generateRoom(const vec2i start_p, const gen_params params);
     
 
     unsigned int tileCount(const rect_i r);
