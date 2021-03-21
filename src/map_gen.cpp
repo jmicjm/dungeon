@@ -82,57 +82,6 @@ void map::setTiles(const rect_i r, const TILE_TYPE tile)
     }
 }
 
-bool map::isTileAdjacentTo(const vec2i pos, TILE_TYPE t, bool diag_check)
-{
-    switch (diag_check)
-    {
-    case true:
-    {
-        for (int x = pos.x-1; x <= pos.x + 1; x++)
-        {
-            for (int y = pos.y-1; y <= pos.y + 1; y++)
-            {
-                if (vec2i{ x,y } != pos && isPositionValid({x,y}))
-                {
-                    if (at({x,y}) == t) { return true; }
-                }
-            }
-        }
-        return false;
-    }
-    case false:
-        return (isPositionValid(pos - vec2i{ 1,0 }) ? at(pos - vec2i{ 1,0 }) == t : false)
-            || (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) == t : false)
-            || (isPositionValid(pos - vec2i{ 0,1 }) ? at(pos - vec2i{ 0,1 }) == t : false)
-            || (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) == t : false);
-    }
-}
-bool map::isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check)
-{
-    switch (diag_check)
-    {
-    case true:
-    {
-        for (int x = pos.x - 1; x <= pos.x + 1; x++)
-        {
-            for (int y = pos.y - 1; y <= pos.y + 1; y++)
-            {
-                if (vec2i{ x,y } != pos && isPositionValid({ x,y }))
-                {
-                    if (at({ x,y }) != t) { return false; }
-                }
-            }
-        }
-        return true;
-    }
-    case false:
-        return (isPositionValid(pos - vec2i{ 1,0 }) ? at(pos - vec2i{ 1,0 }) == t : true)
-            && (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) == t : true)
-            && (isPositionValid(pos - vec2i{ 0,1 }) ? at(pos - vec2i{ 0,1 }) == t : true)
-            && (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) == t : true);
-    }
-}
-
 void map::generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction)
 {
     vec2i c_pos = start_p;
@@ -169,15 +118,14 @@ void map::generateHallway(const vec2i start_p, const gen_params params, const DI
     }
 }
 
-void map::generateRoom(const vec2i start_p, const gen_params params)
+bool map::generateRoom(const vec2i start_p, const gen_params params)
 {
-    rect_i r = { start_p,start_p };
-
-    if(isTileAdjacentTo(r.tl, TILE_TYPE::ROOM, true))
+    if(adjacentTileCount(start_p, true, TILE_TYPE::ROOM) > 0)
     {
-        return;
+        return false;
     }
 
+    rect_i r = { start_p,start_p };
     const vec2i max_size = 
     { 
         rand(params.min_room_size.x, params.max_room_size.x),
@@ -231,8 +179,8 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
         }
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
             
-        if (   ((!left_expansion_possible && !right_expansion_possible) || r.size().x >= max_size.x)
-            && ((!top_expansion_possible && !bottom_expansion_possible) || r.size().y >= max_size.y))
+        if (   ((!left_expansion_possible && !right_expansion_possible)  || r.size().x >= max_size.x)
+            && ((!top_expansion_possible  && !bottom_expansion_possible) || r.size().y >= max_size.y))
         {
             break; 
         }
@@ -240,7 +188,7 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
 
     if (r.size().x >= params.min_room_size.x && r.size().y >= params.min_room_size.y)
     {
-        setTiles(r,TILE_TYPE::ROOM);
+        setTiles(r, TILE_TYPE::ROOM);
 
         if (isPositionValid({ r.tl.x - 1, r.tl.y }))
         {
@@ -259,7 +207,9 @@ void map::generateRoom(const vec2i start_p, const gen_params params)
             generateHallway({ r.br.x, r.br.y + 1 }, params, DIRECTION::DOWN);
         }
     }
+    else return false;
 
+    return true;
 }
 
 void map::generate(const gen_params params)
@@ -291,6 +241,62 @@ unsigned int map::tileCount(const rect_i r, const TILE_TYPE ttype)
         {
             if (isPositionValid({ x,y }) && at({x,y}) == ttype) { c++; }
         }
+    }
+    return c;
+}
+
+unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check)
+{
+    unsigned int c = 0;
+    switch (diag_check)
+    {
+    case true:
+    {
+        for (int x = pos.x - 1; x <= pos.x + 1; x++)
+        {
+            for (int y = pos.y - 1; y <= pos.y + 1; y++)
+            {
+                if (vec2i{ x,y } != pos && isPositionValid({ x,y }))
+                {
+                    c++;
+                }
+            }
+        }
+        break;
+    }
+    case false:
+        c+= isPositionValid(pos - vec2i{ 1,0 })
+          + isPositionValid(pos + vec2i{ 1,0 })
+          + isPositionValid(pos - vec2i{ 0,1 })
+          + isPositionValid(pos + vec2i{ 0,1 });
+    }
+    return c;
+}
+
+unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
+{
+    unsigned int c = 0;
+    switch (diag_check)
+    {
+    case true:
+    {
+        for (int x = pos.x - 1; x <= pos.x + 1; x++)
+        {
+            for (int y = pos.y - 1; y <= pos.y + 1; y++)
+            {
+                if (vec2i{ x,y } != pos && isPositionValid({ x,y }) && at({x,y}) == ttype)
+                {
+                    c++;
+                }
+            }
+        }
+        break;
+    }
+    case false:
+        c += (isPositionValid(pos - vec2i{ 1,0 }) ? at(pos - vec2i{ 1,0 }) == ttype : 0)
+           + (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) == ttype : 0)
+           + (isPositionValid(pos - vec2i{ 0,1 }) ? at(pos - vec2i{ 0,1 }) == ttype : 0)
+           + (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) == ttype : 0);
     }
     return c;
 }

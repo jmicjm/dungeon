@@ -34,14 +34,13 @@ public:
 
     void setTiles(const rect_i r, const TILE_TYPE tile);
 
-    bool isTileAdjacentTo(const vec2i pos, TILE_TYPE t, bool diag_check);
-    bool isTileAdjacentOnlyTo(const vec2i pos, TILE_TYPE t, bool diag_check);
-
     void generate(const gen_params params);
     void generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction);
-    void generateRoom(const vec2i start_p, const gen_params params);
-    
+    bool generateRoom(const vec2i start_p, const gen_params params);
 
     unsigned int tileCount(const rect_i r);
     unsigned int tileCount(const rect_i r, const TILE_TYPE ttype);
+
+    unsigned int adjacentTileCount(const vec2i pos, const bool diag_check);
+    unsigned int adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype);
 };
