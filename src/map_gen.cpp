@@ -5,14 +5,12 @@
 #include <stdlib.h>
 
 
-
-
 int rand(int min, int max)
 {
     static int seed = time(0);
     srand(seed++);
 
-    return min + rand() % abs(max - min);
+    return min + rand() % abs(max+1 - min);
 }
 
 
@@ -268,7 +266,7 @@ void map::generate(const gen_params params)
 {
     fill(TILE_TYPE::WALL);
 
-    generateRoom({ rand(0,getSize().x), rand(0, getSize().y) }, params);
+    generateRoom({ rand(0,getSize().x-1), rand(0, getSize().y-1) }, params);
 }
 
 unsigned int map::tileCount(const rect_i r)
