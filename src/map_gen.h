@@ -35,7 +35,7 @@ public:
     void setTiles(const rect_i r, const TILE_TYPE tile);
 
     void generate(const gen_params params);
-    void generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction);
+    void generateHallway(const vec2i start_p, const gen_params params);
     bool generateRoom(const vec2i start_p, const gen_params params);
 
     unsigned int tileCount(const rect_i r);

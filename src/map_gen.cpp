@@ -1,9 +1,11 @@
 #include "map_gen.h"
 
+#include <algorithm>
 #include <fstream>
 #include <time.h>
 #include <stdlib.h>
 
+#include <iostream>
 
 int rand(int min, int max)
 {
@@ -82,39 +84,114 @@ void map::setTiles(const rect_i r, const TILE_TYPE tile)
     }
 }
 
-void map::generateHallway(const vec2i start_p, const gen_params params, const DIRECTION direction)
+void map::generateHallway(const vec2i start_p, const gen_params params)
 {
-    vec2i c_pos = start_p;
-
-    unsigned int m_len = rand(params.min_hallway_length, params.max_hallway_length);
-
-    for (unsigned int len = 0; len < m_len; len++)
+    auto oppositeDir = [](const DIRECTION dir)
     {
-        if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
+        switch (dir)
         {
-            at(c_pos) = TILE_TYPE::HALLWAY;
-            switch (direction)
+        case DIRECTION::LEFT:
+            return DIRECTION::RIGHT;
+        case DIRECTION::UP:
+            return DIRECTION::DOWN;
+        case DIRECTION::RIGHT:
+            return DIRECTION::LEFT;
+        case DIRECTION::DOWN:
+            return DIRECTION::UP;
+        }
+    };
+    auto randomDir = [&](const DIRECTION dir, const DIRECTION forbidden_dir)
+    {
+        std::vector<DIRECTION> dirs = { DIRECTION::LEFT, DIRECTION::UP, DIRECTION::RIGHT, DIRECTION::DOWN };
+        for (int i = 0; i < dirs.size(); i++)
+        {
+            if (dirs[i] == oppositeDir(dir)) { dirs.erase(dirs.begin() + i); break; }
+        }
+        for (int i = 0; i < dirs.size(); i++)
+        {
+            if (dirs[i] == forbidden_dir) { dirs.erase(dirs.begin() + i); break; }
+        }
+        return dirs[rand(0, dirs.size() - 1)];
+    };
+    auto adjacentHallwayValidC = [&](const vec2i pos, const DIRECTION dir)
+    {
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+        case DIRECTION::RIGHT:
+            return (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) != TILE_TYPE::HALLWAY : true)
+                && (isPositionValid(pos + vec2i{ 0,-1 }) ? at(pos + vec2i{ 0,-1 }) != TILE_TYPE::HALLWAY : true);
+        case DIRECTION::UP:
+        case DIRECTION::DOWN:
+            return (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) != TILE_TYPE::HALLWAY : true)
+                && (isPositionValid(pos + vec2i{ -1,0 }) ? at(pos + vec2i{ -1,0 }) != TILE_TYPE::HALLWAY : true);
+        }
+    };
+    auto initDir = [&]()
+    {
+        if (isPositionValid(start_p + vec2i{ -1,  0 }) && at(start_p + vec2i{ -1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
+        if (isPositionValid(start_p + vec2i{  1,  0 }) && at(start_p + vec2i{  1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::LEFT; }
+        if (isPositionValid(start_p + vec2i{  0, -1 }) && at(start_p + vec2i{  0, -1 }) != TILE_TYPE::WALL) { return DIRECTION::DOWN; }
+        if (isPositionValid(start_p + vec2i{  0,  1 }) && at(start_p + vec2i{  0,  1 }) != TILE_TYPE::WALL) { return DIRECTION::UP; }
+        return DIRECTION::UP;
+    };
+
+    if (adjacentTileCount(start_p, false, TILE_TYPE::HALLWAY) > 0)
+    {
+        return;
+    }
+    DIRECTION dir = initDir();
+    const DIRECTION forbidden_dir = oppositeDir(dir);
+
+    vec2i c_pos = start_p;
+    const unsigned int m_segment_count = 
+        params.max_hallway_segment_count >= params.min_hallway_segment_count
+        ? rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1
+        : 0;
+
+    unsigned int total_len = 0;
+    for (int seg = m_segment_count; seg >= 0; seg--)
+    {
+        const unsigned int m_seg_len = rand(params.min_hallway_segment_length, params.max_hallway_segment_length);
+
+        for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
+        {
+            if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
             {
-            case DIRECTION::LEFT:
-                c_pos.x--;
-                break;
-            case DIRECTION::UP:
-                c_pos.y--;
-                break;
-            case DIRECTION::RIGHT:
-                c_pos.x++;
-                break;
-            case DIRECTION::DOWN:
-                c_pos.y++;
+                at(c_pos) = TILE_TYPE::HALLWAY;
+                if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
+                if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
+                if (len >= 1 && !adjacentHallwayValidC(c_pos, dir)) { return; }
+
+                switch (dir)
+                {
+                case DIRECTION::LEFT:
+                    c_pos.x--;
+                    break;
+                case DIRECTION::UP:
+                    c_pos.y--;
+                    break;
+                case DIRECTION::RIGHT:
+                    c_pos.x++;
+                    break;
+                case DIRECTION::DOWN:
+                    c_pos.y++;
+                }
+            }
+            else return;
+        }
+
+        if (seg == 0)
+        {
+            if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
+            {
+                if (!generateRoom(c_pos, params))
+                {
+                    seg++;
+                }
             }
         }
-        else break;
-            
-    }
-
-    if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
-    {
-        generateRoom(c_pos, params);
+        dir = randomDir(dir, forbidden_dir);
     }
 }
 
@@ -190,21 +267,42 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
     {
         setTiles(r, TILE_TYPE::ROOM);
 
-        if (isPositionValid({ r.tl.x - 1, r.tl.y }))
+        const unsigned int max_door_c = rand(params.min_door_count, params.max_door_count);      
+        std::vector<vec2i> possible_door_pos;
+
+        for (int x = 0; x < r.size().x; x++)
         {
-            generateHallway({ r.tl.x - 1, r.tl.y }, params, DIRECTION::LEFT);
+           possible_door_pos.push_back(r.tl + vec2i{ x,-1 });
+           possible_door_pos.push_back(r.tl + vec2i{ x,r.size().y });
         }
-        if (isPositionValid({ r.tl.x, r.tl.y - 1 }))
+        for (int y = 0; y < r.size().y; y++)
         {
-            generateHallway({ r.tl.x, r.tl.y - 1 }, params, DIRECTION::UP);
+            possible_door_pos.push_back(r.tl + vec2i{ -1,y });
+            possible_door_pos.push_back(r.tl + vec2i{ r.size().x,y });
         }
-        if (isPositionValid({ r.br.x + 1, r.br.y }))
+        for (int i = possible_door_pos.size()-1; i > 0; i--)
         {
-            generateHallway({ r.br.x + 1, r.br.y }, params, DIRECTION::RIGHT);
+            if (isPositionValid(possible_door_pos[i]))
+            {
+                if (at(possible_door_pos[i]) == TILE_TYPE::HALLWAY)
+                {
+                    possible_door_pos.erase(possible_door_pos.begin() + i);
+                }
+            }
+            else { possible_door_pos.erase(possible_door_pos.begin() + i); }
         }
-        if (isPositionValid({ r.br.x, r.br.y + 1 }))
+
+        std::vector<vec2i> door_pos;
+        for (int i = 0; i < max_door_c && possible_door_pos.size()>0; i++)
         {
-            generateHallway({ r.br.x, r.br.y + 1 }, params, DIRECTION::DOWN);
+            int r_pos = rand(0, possible_door_pos.size() - 1);
+            door_pos.push_back(possible_door_pos[r_pos]);
+            possible_door_pos.erase(possible_door_pos.begin() + r_pos);
+        }
+
+        for (int i = 0; i < door_pos.size(); i++)
+        {
+            generateHallway(door_pos[i], params);
         }
     }
     else return false;
@@ -216,7 +314,7 @@ void map::generate(const gen_params params)
 {
     fill(TILE_TYPE::WALL);
 
-    generateRoom({ rand(0,getSize().x-1), rand(0, getSize().y-1) }, params);
+    generateRoom(getSize()/2, params);
 }
 
 unsigned int map::tileCount(const rect_i r)
