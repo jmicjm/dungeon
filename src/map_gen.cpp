@@ -9,13 +9,17 @@
 
 int rand(int min, int max)
 {
-    static int seed = time(0);
+    auto initSeed = []()
+    {
+        int s = time(0);
+        std::ofstream("seed.txt") << s;
+        return s;
+    };
+    static int seed = initSeed();
     srand(seed++);
 
     return min + rand() % abs(max+1 - min);
 }
-
-
 
 
 void map::setSize(const vec2i size)
@@ -83,7 +87,6 @@ void map::setTiles(const rect_i r, const TILE_TYPE tile)
         }
     }
 }
-
 void map::generateHallway(const vec2i start_p, const gen_params params)
 {
     auto oppositeDir = [](const DIRECTION dir)
@@ -100,17 +103,33 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
             return DIRECTION::UP;
         }
     };
-    auto randomDir = [&](const DIRECTION dir, const DIRECTION forbidden_dir)
+    auto randomDir = [&](const DIRECTION dir, const DIRECTION forbidden_dir, const vec2i pos)
     {
         std::vector<DIRECTION> dirs = { DIRECTION::LEFT, DIRECTION::UP, DIRECTION::RIGHT, DIRECTION::DOWN };
-        for (int i = 0; i < dirs.size(); i++)
+        auto remDir = [&](const DIRECTION dir)
         {
-            if (dirs[i] == oppositeDir(dir)) { dirs.erase(dirs.begin() + i); break; }
-        }
-        for (int i = 0; i < dirs.size(); i++)
+            if (dirs.size() > 1)
+            {
+                for (int i = 0; i < dirs.size(); i++)
+                {
+                    if (dirs[i] == dir) { dirs.erase(dirs.begin() + i); break; }
+                }
+            }
+        };
+        remDir(oppositeDir(dir));
+
+        if (   !(pos.x <= 0               && pos.y <= 0            )
+            && !(pos.x <= 0               && pos.y >= getSize().y-1)
+            && !(pos.x >= getSize().x - 1 && pos.y <= 0            )
+            && !(pos.x >= getSize().x - 1 && pos.y >= getSize().y-1))//ignore forbidden_dir in corners
         {
-            if (dirs[i] == forbidden_dir) { dirs.erase(dirs.begin() + i); break; }
+            remDir(forbidden_dir);
         }
+        if (pos.x >= getSize().x - 1) { remDir(DIRECTION::RIGHT); }
+        if (pos.x <= 0) { remDir(DIRECTION::LEFT); }
+        if (pos.y >= getSize().y - 1) { remDir(DIRECTION::DOWN); }
+        if (pos.y <= 0) { remDir(DIRECTION::UP); }
+
         return dirs[rand(0, dirs.size() - 1)];
     };
     auto adjacentHallwayValidC = [&](const vec2i pos, const DIRECTION dir)
@@ -156,29 +175,36 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
 
         for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
         {
-            if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
+            if (   !(c_pos.x <= 0             && dir == DIRECTION::LEFT )
+                && !(c_pos.y <= 0             && dir == DIRECTION::UP   )
+                && !(c_pos.x >= getSize().x-1 && dir == DIRECTION::RIGHT)
+                && !(c_pos.y >= getSize().y-1 && dir == DIRECTION::DOWN ))
             {
-                at(c_pos) = TILE_TYPE::HALLWAY;
-                if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
-                if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
-                if (len >= 1 && !adjacentHallwayValidC(c_pos, dir)) { return; }
-
-                switch (dir)
+                if (at(c_pos) == TILE_TYPE::WALL)
                 {
-                case DIRECTION::LEFT:
-                    c_pos.x--;
-                    break;
-                case DIRECTION::UP:
-                    c_pos.y--;
-                    break;
-                case DIRECTION::RIGHT:
-                    c_pos.x++;
-                    break;
-                case DIRECTION::DOWN:
-                    c_pos.y++;
+                    at(c_pos) = TILE_TYPE::HALLWAY;
+                    if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
+                    if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
+                    if (len >= 1 && !adjacentHallwayValidC(c_pos, dir)) { return; }
+
+                    switch (dir)
+                    {
+                    case DIRECTION::LEFT:
+                        c_pos.x--;
+                        break;
+                    case DIRECTION::UP:
+                        c_pos.y--;
+                        break;
+                    case DIRECTION::RIGHT:
+                        c_pos.x++;
+                        break;
+                    case DIRECTION::DOWN:
+                        c_pos.y++;
+                    }
                 }
+                else return;
             }
-            else return;
+            else break;
         }
 
         if (seg == 0)
@@ -191,7 +217,7 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
                 }
             }
         }
-        dir = randomDir(dir, forbidden_dir);
+        dir = randomDir(dir, forbidden_dir, c_pos);
     }
 }
 
