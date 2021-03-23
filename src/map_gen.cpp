@@ -132,20 +132,6 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
 
         return dirs[rand(0, dirs.size() - 1)];
     };
-    auto adjacentHallwayValidC = [&](const vec2i pos, const DIRECTION dir)
-    {
-        switch (dir)
-        {
-        case DIRECTION::LEFT:
-        case DIRECTION::RIGHT:
-            return (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) != TILE_TYPE::HALLWAY : true)
-                && (isPositionValid(pos + vec2i{ 0,-1 }) ? at(pos + vec2i{ 0,-1 }) != TILE_TYPE::HALLWAY : true);
-        case DIRECTION::UP:
-        case DIRECTION::DOWN:
-            return (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) != TILE_TYPE::HALLWAY : true)
-                && (isPositionValid(pos + vec2i{ -1,0 }) ? at(pos + vec2i{ -1,0 }) != TILE_TYPE::HALLWAY : true);
-        }
-    };
     auto initDir = [&]()
     {
         if (isPositionValid(start_p + vec2i{ -1,  0 }) && at(start_p + vec2i{ -1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
@@ -185,7 +171,6 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
                     at(c_pos) = TILE_TYPE::HALLWAY;
                     if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
                     if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
-                    if (len >= 1 && !adjacentHallwayValidC(c_pos, dir)) { return; }
 
                     switch (dir)
                     {
