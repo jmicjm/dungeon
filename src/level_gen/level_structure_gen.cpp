@@ -1,94 +1,49 @@
-#include "map_gen.h"
+#include "level_structure_gen.h"
+#include "../utils/rand.h"
 
-#include <algorithm>
-#include <fstream>
-#include <time.h>
-#include <stdlib.h>
 
-#include <iostream>
-
-int rand(int min, int max)
+void level_structure_gen::setLevelStructure(level_structure& l)
 {
-    auto initSeed = []()
-    {
-        int s = time(0);
-        std::ofstream("seed.txt") << s;
-        return s;
-    };
-    static int seed = initSeed();
-    srand(seed++);
-
-    return min + rand() % abs(max+1 - min);
+    ls = &l;
 }
 
-
-void map::setSize(const vec2i size)
+void level_structure_gen::setGenParams(gen_params p)
 {
-    tiles.resize(size.x);
-    for (auto& i : tiles)
-    {
-        i.resize(size.y);
-    }
+    params = p;
 }
-vec2i map::getSize() { return tiles.size() > 0 ? vec2i{(int)tiles.size(), (int)tiles[0].size()} : vec2i{0, 0}; }
 
-TILE_TYPE& map::at(const vec2i pos) { return tiles[pos.x][pos.y]; }
-
-void map::fill(const TILE_TYPE ttype)
+void level_structure_gen::fill(const TILE_TYPE ttype)
 {
-    for (auto& i : tiles)
+    for (int x = 0; x < ls->getSize().x; x++)
     {
-        for (auto& j : i)
+        for (int y = 0; y < ls->getSize().y; y++)
         {
-            j = ttype;
+            ls->at({ x,y }) = ttype;
         }
     }
 }
 
-void map::printToFile(const std::string& fname)
-{
-    std::ofstream out(fname);
-    for (int y = 0; y < getSize().y; y++)
-    {
-        for (int x = 0; x < getSize().x; x++)
-        {
-            switch (at({ x,y }))
-            {
-            case TILE_TYPE::WALL:
-                out << '.';
-                break;
-            case TILE_TYPE::ROOM:
-                out << 'R';
-                break;
-            case TILE_TYPE::HALLWAY:
-                out << 'H';
-            }
-        }
-        out << '\n';
-    }
-    out.close();
-}
-
-bool map::isPositionValid(const vec2i pos)
-{
-    return pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y;
-}
-
-void map::setTiles(const rect_i r, const TILE_TYPE tile)
+void level_structure_gen::setTiles(const rect_i r, const TILE_TYPE tile)
 {
     for (int x = r.tl.x; x<= r.br.x;x++)
     {
         for (int y = r.tl.y;y<= r.br.y;y++)
         {
-            if (isPositionValid({ x,y }))
+            if (ls->isPositionValid({ x,y }))
             {
-                at({ x,y }) = tile;
+                ls->at({ x,y }) = tile;
             }
         }
     }
 }
-void map::generateHallway(const vec2i start_p, const gen_params params)
+
+void level_structure_gen::generateHallway(const vec2i start_p)
 {
+    enum class DIRECTION
+    {
+        LEFT, RIGHT, UP, DOWN
+    };
+
     auto oppositeDir = [](const DIRECTION dir)
     {
         switch (dir)
@@ -118,26 +73,26 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
         };
         remDir(oppositeDir(dir));
 
-        if (   !(pos.x <= 0               && pos.y <= 0            )
-            && !(pos.x <= 0               && pos.y >= getSize().y-1)
-            && !(pos.x >= getSize().x - 1 && pos.y <= 0            )
-            && !(pos.x >= getSize().x - 1 && pos.y >= getSize().y-1))//ignore forbidden_dir in corners
+        if (   !(pos.x <= 0                 && pos.y <= 0                )
+            && !(pos.x <= 0                 && pos.y >= ls->getSize().y-1)
+            && !(pos.x >= ls->getSize().x-1 && pos.y <= 0                )
+            && !(pos.x >= ls->getSize().x-1 && pos.y >= ls->getSize().y-1))//ignore forbidden_dir in corners
         {
             remDir(forbidden_dir);
         }
-        if (pos.x >= getSize().x - 1) { remDir(DIRECTION::RIGHT); }
+        if (pos.x >= ls->getSize().x - 1) { remDir(DIRECTION::RIGHT); }
         if (pos.x <= 0) { remDir(DIRECTION::LEFT); }
-        if (pos.y >= getSize().y - 1) { remDir(DIRECTION::DOWN); }
+        if (pos.y >= ls->getSize().y - 1) { remDir(DIRECTION::DOWN); }
         if (pos.y <= 0) { remDir(DIRECTION::UP); }
 
         return dirs[rand(0, dirs.size() - 1)];
     };
     auto initDir = [&]()
     {
-        if (isPositionValid(start_p + vec2i{ -1,  0 }) && at(start_p + vec2i{ -1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
-        if (isPositionValid(start_p + vec2i{  1,  0 }) && at(start_p + vec2i{  1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::LEFT; }
-        if (isPositionValid(start_p + vec2i{  0, -1 }) && at(start_p + vec2i{  0, -1 }) != TILE_TYPE::WALL) { return DIRECTION::DOWN; }
-        if (isPositionValid(start_p + vec2i{  0,  1 }) && at(start_p + vec2i{  0,  1 }) != TILE_TYPE::WALL) { return DIRECTION::UP; }
+        if (ls->isPositionValid(start_p + vec2i{ -1,  0 }) && ls->at(start_p + vec2i{ -1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
+        if (ls->isPositionValid(start_p + vec2i{  1,  0 }) && ls->at(start_p + vec2i{  1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::LEFT; }
+        if (ls->isPositionValid(start_p + vec2i{  0, -1 }) && ls->at(start_p + vec2i{  0, -1 }) != TILE_TYPE::WALL) { return DIRECTION::DOWN; }
+        if (ls->isPositionValid(start_p + vec2i{  0,  1 }) && ls->at(start_p + vec2i{  0,  1 }) != TILE_TYPE::WALL) { return DIRECTION::UP; }
         return DIRECTION::UP;
     };
 
@@ -145,7 +100,8 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
     {
         return;
     }
-    DIRECTION dir = initDir();
+
+    DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
     const DIRECTION forbidden_dir = oppositeDir(dir);
 
     vec2i c_pos = start_p;
@@ -161,14 +117,14 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
 
         for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
         {
-            if (   !(c_pos.x <= 0             && dir == DIRECTION::LEFT )
-                && !(c_pos.y <= 0             && dir == DIRECTION::UP   )
-                && !(c_pos.x >= getSize().x-1 && dir == DIRECTION::RIGHT)
-                && !(c_pos.y >= getSize().y-1 && dir == DIRECTION::DOWN ))
+            if (   !(c_pos.x <= 0                 && dir == DIRECTION::LEFT )
+                && !(c_pos.y <= 0                 && dir == DIRECTION::UP   )
+                && !(c_pos.x >= ls->getSize().x-1 && dir == DIRECTION::RIGHT)
+                && !(c_pos.y >= ls->getSize().y-1 && dir == DIRECTION::DOWN ))
             {
-                if (at(c_pos) == TILE_TYPE::WALL)
+                if (ls->at(c_pos) == TILE_TYPE::WALL)
                 {
-                    at(c_pos) = TILE_TYPE::HALLWAY;
+                    ls->at(c_pos) = TILE_TYPE::HALLWAY;
                     if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
                     if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
 
@@ -194,9 +150,9 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
 
         if (seg == 0)
         {
-            if (isPositionValid(c_pos) && at(c_pos) == TILE_TYPE::WALL)
+            if (ls->isPositionValid(c_pos) && ls->at(c_pos) == TILE_TYPE::WALL)
             {
-                if (!generateRoom(c_pos, params))
+                if (!generateRoom(c_pos))
                 {
                     seg++;
                 }
@@ -206,7 +162,7 @@ void map::generateHallway(const vec2i start_p, const gen_params params)
     }
 }
 
-bool map::generateRoom(const vec2i start_p, const gen_params params)
+bool level_structure_gen::generateRoom(const vec2i start_p)
 {
     if(adjacentTileCount(start_p, true, TILE_TYPE::ROOM) > 0)
     {
@@ -250,7 +206,7 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
         if (right_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} };
-            if (r.br.x >= getSize().x-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.x >= ls->getSize().x-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 right_expansion_possible = false;
             }
@@ -260,7 +216,7 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
         if (bottom_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} };
-            if (r.br.y >= getSize().y-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.y >= ls->getSize().y-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 bottom_expansion_possible = false;
             }
@@ -293,9 +249,9 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
         }
         for (int i = possible_door_pos.size()-1; i > 0; i--)
         {
-            if (isPositionValid(possible_door_pos[i]))
+            if (ls->isPositionValid(possible_door_pos[i]))
             {
-                if (at(possible_door_pos[i]) == TILE_TYPE::HALLWAY)
+                if (ls->at(possible_door_pos[i]) == TILE_TYPE::HALLWAY)
                 {
                     possible_door_pos.erase(possible_door_pos.begin() + i);
                 }
@@ -313,7 +269,7 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
 
         for (int i = 0; i < door_pos.size(); i++)
         {
-            generateHallway(door_pos[i], params);
+            generateHallway(door_pos[i]);
         }
     }
     else return false;
@@ -321,40 +277,43 @@ bool map::generateRoom(const vec2i start_p, const gen_params params)
     return true;
 }
 
-void map::generate(const gen_params params)
+void level_structure_gen::generate()
 {
-    fill(TILE_TYPE::WALL);
+    if (ls != nullptr)
+    {
+        fill(TILE_TYPE::WALL);
 
-    generateRoom(getSize()/2, params);
+        generateRoom(ls->getSize() / 2);
+    }
 }
 
-unsigned int map::tileCount(const rect_i r)
+unsigned int level_structure_gen::tileCount(const rect_i r)
 {
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (isPositionValid({ x,y })) { c++; }
+            if (ls->isPositionValid({ x,y })) { c++; }
         }
     }
     return c;
 }
 
-unsigned int map::tileCount(const rect_i r, const TILE_TYPE ttype)
+unsigned int level_structure_gen::tileCount(const rect_i r, const TILE_TYPE ttype)
 {
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (isPositionValid({ x,y }) && at({x,y}) == ttype) { c++; }
+            if (ls->isPositionValid({ x,y }) && ls->at({x,y}) == ttype) { c++; }
         }
     }
     return c;
 }
 
-unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check)
+unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool diag_check)
 {
     unsigned int c = 0;
     switch (diag_check)
@@ -365,7 +324,7 @@ unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check)
         {
             for (int y = pos.y - 1; y <= pos.y + 1; y++)
             {
-                if (vec2i{ x,y } != pos && isPositionValid({ x,y }))
+                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }))
                 {
                     c++;
                 }
@@ -374,15 +333,15 @@ unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check)
         break;
     }
     case false:
-        c+= isPositionValid(pos - vec2i{ 1,0 })
-          + isPositionValid(pos + vec2i{ 1,0 })
-          + isPositionValid(pos - vec2i{ 0,1 })
-          + isPositionValid(pos + vec2i{ 0,1 });
+        c+= ls->isPositionValid(pos - vec2i{ 1,0 })
+          + ls->isPositionValid(pos + vec2i{ 1,0 })
+          + ls->isPositionValid(pos - vec2i{ 0,1 })
+          + ls->isPositionValid(pos + vec2i{ 0,1 });
     }
     return c;
 }
 
-unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
+unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
 {
     unsigned int c = 0;
     switch (diag_check)
@@ -393,7 +352,7 @@ unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check, cons
         {
             for (int y = pos.y - 1; y <= pos.y + 1; y++)
             {
-                if (vec2i{ x,y } != pos && isPositionValid({ x,y }) && at({x,y}) == ttype)
+                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }) && ls->at({x,y}) == ttype)
                 {
                     c++;
                 }
@@ -402,10 +361,10 @@ unsigned int map::adjacentTileCount(const vec2i pos, const bool diag_check, cons
         break;
     }
     case false:
-        c += (isPositionValid(pos - vec2i{ 1,0 }) ? at(pos - vec2i{ 1,0 }) == ttype : 0)
-           + (isPositionValid(pos + vec2i{ 1,0 }) ? at(pos + vec2i{ 1,0 }) == ttype : 0)
-           + (isPositionValid(pos - vec2i{ 0,1 }) ? at(pos - vec2i{ 0,1 }) == ttype : 0)
-           + (isPositionValid(pos + vec2i{ 0,1 }) ? at(pos + vec2i{ 0,1 }) == ttype : 0);
+        c += (ls->isPositionValid(pos - vec2i{ 1,0 }) ? ls->at(pos - vec2i{ 1,0 }) == ttype : 0)
+           + (ls->isPositionValid(pos + vec2i{ 1,0 }) ? ls->at(pos + vec2i{ 1,0 }) == ttype : 0)
+           + (ls->isPositionValid(pos - vec2i{ 0,1 }) ? ls->at(pos - vec2i{ 0,1 }) == ttype : 0)
+           + (ls->isPositionValid(pos + vec2i{ 0,1 }) ? ls->at(pos + vec2i{ 0,1 }) == ttype : 0);
     }
     return c;
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "vec2.h"
+#include "../utils/vec2.h"
 
 struct gen_params
 {
