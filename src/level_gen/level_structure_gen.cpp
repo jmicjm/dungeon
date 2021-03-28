@@ -96,7 +96,11 @@ void level_structure_gen::generateHallway(const vec2i start_p)
         return DIRECTION::UP;
     };
 
-    if (adjacentTileCount(start_p, false, TILE_TYPE::HALLWAY) > 0)
+    if (   adjacentTileCount(start_p, false, TILE_TYPE::HALLWAY) > 0
+        || start_p.x <= 0
+        || start_p.y <= 0
+        || start_p.x >= ls->getSize().x-1
+        || start_p.y >= ls->getSize().y-1)
     {
         return;
     }
