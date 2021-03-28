@@ -18,7 +18,7 @@ void level_structure_gen::fill(const TILE_TYPE ttype)
     {
         for (int y = 0; y < ls->getSize().y; y++)
         {
-            ls->at({ x,y }) = ttype;
+            ls->at({ x,y }).type = ttype;
         }
     }
 }
@@ -31,7 +31,7 @@ void level_structure_gen::setTiles(const rect_i r, const TILE_TYPE tile)
         {
             if (ls->isPositionValid({ x,y }))
             {
-                ls->at({ x,y }) = tile;
+                ls->at({ x,y }).type = tile;
             }
         }
     }
@@ -89,10 +89,10 @@ void level_structure_gen::generateHallway(const vec2i start_p)
     };
     auto initDir = [&]()
     {
-        if (ls->isPositionValid(start_p + vec2i{ -1,  0 }) && ls->at(start_p + vec2i{ -1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
-        if (ls->isPositionValid(start_p + vec2i{  1,  0 }) && ls->at(start_p + vec2i{  1,  0 }) != TILE_TYPE::WALL) { return DIRECTION::LEFT; }
-        if (ls->isPositionValid(start_p + vec2i{  0, -1 }) && ls->at(start_p + vec2i{  0, -1 }) != TILE_TYPE::WALL) { return DIRECTION::DOWN; }
-        if (ls->isPositionValid(start_p + vec2i{  0,  1 }) && ls->at(start_p + vec2i{  0,  1 }) != TILE_TYPE::WALL) { return DIRECTION::UP; }
+        if (ls->isPositionValid(start_p + vec2i{ -1,  0 }) && ls->at(start_p + vec2i{ -1,  0 }).type != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
+        if (ls->isPositionValid(start_p + vec2i{  1,  0 }) && ls->at(start_p + vec2i{  1,  0 }).type != TILE_TYPE::WALL) { return DIRECTION::LEFT;  }
+        if (ls->isPositionValid(start_p + vec2i{  0, -1 }) && ls->at(start_p + vec2i{  0, -1 }).type != TILE_TYPE::WALL) { return DIRECTION::DOWN;  }
+        if (ls->isPositionValid(start_p + vec2i{  0,  1 }) && ls->at(start_p + vec2i{  0,  1 }).type != TILE_TYPE::WALL) { return DIRECTION::UP;    }
         return DIRECTION::UP;
     };
 
@@ -122,9 +122,9 @@ void level_structure_gen::generateHallway(const vec2i start_p)
                 && !(c_pos.x >= ls->getSize().x-1 && dir == DIRECTION::RIGHT)
                 && !(c_pos.y >= ls->getSize().y-1 && dir == DIRECTION::DOWN ))
             {
-                if (ls->at(c_pos) == TILE_TYPE::WALL)
+                if (ls->at(c_pos).type == TILE_TYPE::WALL)
                 {
-                    ls->at(c_pos) = TILE_TYPE::HALLWAY;
+                    ls->at(c_pos).type = TILE_TYPE::HALLWAY;
                     if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
                     if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
 
@@ -150,7 +150,7 @@ void level_structure_gen::generateHallway(const vec2i start_p)
 
         if (seg == 0)
         {
-            if (ls->isPositionValid(c_pos) && ls->at(c_pos) == TILE_TYPE::WALL)
+            if (ls->isPositionValid(c_pos) && ls->at(c_pos).type == TILE_TYPE::WALL)
             {
                 if (!generateRoom(c_pos))
                 {
@@ -252,7 +252,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
         {
             if (ls->isPositionValid(possible_door_pos[i]))
             {
-                if (ls->at(possible_door_pos[i]) == TILE_TYPE::HALLWAY)
+                if (ls->at(possible_door_pos[i]).type == TILE_TYPE::HALLWAY)
                 {
                     possible_door_pos.erase(possible_door_pos.begin() + i);
                 }
@@ -308,7 +308,7 @@ unsigned int level_structure_gen::tileCount(const rect_i r, const TILE_TYPE ttyp
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (ls->isPositionValid({ x,y }) && ls->at({x,y}) == ttype) { c++; }
+            if (ls->isPositionValid({ x,y }) && ls->at({x,y}).type == ttype) { c++; }
         }
     }
     return c;
@@ -353,7 +353,7 @@ unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool 
         {
             for (int y = pos.y - 1; y <= pos.y + 1; y++)
             {
-                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }) && ls->at({x,y}) == ttype)
+                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }) && ls->at({x,y}).type == ttype)
                 {
                     c++;
                 }
@@ -362,10 +362,10 @@ unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool 
         break;
     }
     case false:
-        c += (ls->isPositionValid(pos - vec2i{ 1,0 }) ? ls->at(pos - vec2i{ 1,0 }) == ttype : 0)
-           + (ls->isPositionValid(pos + vec2i{ 1,0 }) ? ls->at(pos + vec2i{ 1,0 }) == ttype : 0)
-           + (ls->isPositionValid(pos - vec2i{ 0,1 }) ? ls->at(pos - vec2i{ 0,1 }) == ttype : 0)
-           + (ls->isPositionValid(pos + vec2i{ 0,1 }) ? ls->at(pos + vec2i{ 0,1 }) == ttype : 0);
+        c += (ls->isPositionValid(pos - vec2i{ 1,0 }) ? ls->at(pos - vec2i{ 1,0 }).type == ttype : 0)
+           + (ls->isPositionValid(pos + vec2i{ 1,0 }) ? ls->at(pos + vec2i{ 1,0 }).type == ttype : 0)
+           + (ls->isPositionValid(pos - vec2i{ 0,1 }) ? ls->at(pos - vec2i{ 0,1 }).type == ttype : 0)
+           + (ls->isPositionValid(pos + vec2i{ 0,1 }) ? ls->at(pos + vec2i{ 0,1 }).type == ttype : 0);
     }
     return c;
 }
