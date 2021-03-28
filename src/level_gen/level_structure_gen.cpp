@@ -233,6 +233,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
     if (r.size().x >= params.min_room_size.x && r.size().y >= params.min_room_size.y)
     {
         setTiles(r, TILE_TYPE::ROOM);
+        ls->room_rects.push_back(r);
 
         const unsigned int max_door_c = rand(params.min_door_count, params.max_door_count);      
         std::vector<vec2i> possible_door_pos;

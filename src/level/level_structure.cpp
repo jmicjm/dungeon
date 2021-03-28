@@ -25,6 +25,16 @@ bool level_structure::isPositionValid(const vec2i pos)
     return pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x&& pos.y < getSize().y;
 }
 
+size_t level_structure::roomCount()
+{
+    return room_rects.size();
+}
+
+rect_i level_structure::getRoomRect(size_t room_idx)
+{
+    return room_rects[room_idx];
+}
+
 void level_structure::printToFile(const std::string& fname)
 {
     std::ofstream out(fname);
