@@ -1,4 +1,5 @@
 #pragma once
+#include "tile_sprite_id_enum.h"
 
 enum class TILE_TYPE
 {
@@ -8,6 +9,9 @@ enum class TILE_TYPE
 struct tile
 {
 	TILE_TYPE type = TILE_TYPE::WALL;
+
+	TILE_SPRITE_ID::tile_sprite_id_t id;
+	unsigned int variety;
 	/*
 	bool revealed;
 	sprite etc
