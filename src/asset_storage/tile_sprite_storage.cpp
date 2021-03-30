@@ -19,7 +19,7 @@ void tile_sprite_storage::loadSprites()
 	struct s_data
 	{
 		struct spr { std::string path; sf::IntRect rect; };
-		tile_sprite_id_t tile_type_bitmask;
+		tile_sprite_id_t tile_type_id;
 		std::vector<spr> variants;
 	};
 	static std::vector<s_data> data =
@@ -39,7 +39,7 @@ void tile_sprite_storage::loadSprites()
 			sprite.setTextureRect(j.rect);
 			tmp_spr_vec.push_back(sprite);
 		}
-		sprite_map.insert({ i.tile_type_bitmask, tmp_spr_vec });
+		sprite_map.insert({ i.tile_type_id, tmp_spr_vec });
 	}
 }
 

@@ -1,7 +1,7 @@
 { 
 	ROCK|FLOOR, //tile id
 	{ 
-		{"stone_floor_1.png", sf::IntRect(0,0,64,64)}, //tile id variety
+		{"stone_floor_1.png", sf::IntRect(0,0,64,64)}, //tile id variant
 		{"stone_floor_2.png", sf::IntRect(0,0,64,64)} 
 	}
 },
@@ -15,13 +15,13 @@
 	}
 },
 {
-	WOOD|FLOOR|TL|L|BL,
+	WOOD|FLOOR|L,
 	{
 		{"wooden_floor_left.png", sf::IntRect(0,0,64,64)}
 	}
 },
 {
-	WOOD|FLOOR|TR|R|BR,
+	WOOD|FLOOR|R,
 	{
 		{"wooden_floor_right.png", sf::IntRect(0,0,64,64)}
 	}

@@ -11,7 +11,7 @@ struct tile
 	TILE_TYPE type = TILE_TYPE::WALL;
 
 	TILE_SPRITE_ID::tile_sprite_id_t id;
-	unsigned int variety;
+	unsigned int id_variant;
 	/*
 	bool revealed;
 	sprite etc
