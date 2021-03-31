@@ -4,27 +4,51 @@
 #include "SFML/Graphics/Rect.hpp"
 
 #include <string>
-
+#include <iostream>
 
 tile_sprite_storage::tile_sprite_map tile_sprite_storage::sprite_map = tile_sprite_map();
 
-void tile_sprite_storage::expandTileSet()
+void tile_sprite_storage::expandTile(std::pair<const TILE_SPRITE_ID::tile_sprite_id_t, std::vector<sf::Sprite>>& i)
 {
 	using namespace TILE_SPRITE_ID;
-	for (auto& i : sprite_map)
+
+	const tile_sprite_id_t id = i.first;
+	if (id & (TL|TR|BR|BL))
 	{
-		const tile_sprite_id_t id = i.first;
-		if (id & (TL|TR|BR|BL))
+		//expansion of conflicting tiles
+		for (int j = 0; j < 16; j++)
 		{
-			for (int j = 0; j < 16; j++)
+			const tile_sprite_id_t id2 = id | j << 4;
+			if (id2 != id)
 			{
-				auto it = sprite_map.find(id | j << 4);
-				if (it == sprite_map.end())
+				auto it = sprite_map.find(id2);
+				if (it != sprite_map.end())
 				{
-					sprite_map.insert({id | j << 4, i.second });
+					expandTile(*it);
 				}
 			}
 		}
+
+		for (int j = 0; j < 16; j++)
+		{
+			const tile_sprite_id_t id2 = id | j << 4;
+			if (id2 != id)
+			{
+				auto it = sprite_map.find(id2);
+				if (it == sprite_map.end())
+				{
+					sprite_map.insert({ id2, i.second });
+				}
+			}
+		}
+	}
+}
+
+void tile_sprite_storage::expandTileSet()
+{	
+	for (auto& i : sprite_map)
+	{
+		expandTile(i);
 	}
 }
 
