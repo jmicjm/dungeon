@@ -8,22 +8,26 @@ namespace TILE_SPRITE_ID
 	enum SURROUNDINGS : tile_sprite_id_t
 	{
 		/*
-		   | T |   
+		TL | T | TR  
 		---|---|---
 		L  | X |  R
 		---|---|---
-		   | B |   
+		BL | B | BR  
 		*/
-		T = 1 << 3,
-		R = 1 << 2,
-		B = 1 << 1,
-		L = 1
+		TL = 1 << 7,
+		T  = 1 << 6,
+		TR = 1 << 5,
+		R  = 1 << 4,
+		BR = 1 << 3,
+		B  = 1 << 2,
+		BL = 1 << 1,
+		L  = 1
 	};
 
 	enum TILE_SUBTYPE : tile_sprite_id_t
 	{
-		ROCK = 1 << 4,
-		WOOD = 2 << 4
+		ROCK = 1 << 8,
+		WOOD = 2 << 8
 	};
 
 	enum TILE_TYPE : tile_sprite_id_t

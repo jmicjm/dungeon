@@ -1,5 +1,7 @@
 #pragma once
 #include "tile_sprite_id_enum.h"
+#include "SFML/Graphics/Sprite.hpp"
+
 
 enum class TILE_TYPE
 {
@@ -12,8 +14,9 @@ struct tile
 
 	TILE_SPRITE_ID::tile_sprite_id_t id;
 	unsigned int id_variant;
+
+	sf::Sprite* sprite;
 	/*
 	bool revealed;
-	sprite etc
 	*/
 };

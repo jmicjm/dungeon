@@ -52,6 +52,6 @@ std::vector<sf::Sprite>* tile_sprite_storage::getSprite(TILE_SPRITE_ID::tile_spr
 	}
 	else
 	{
-		//throw;
+		return nullptr;
 	}
 }
