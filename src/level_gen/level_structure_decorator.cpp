@@ -5,7 +5,18 @@
 
 TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(const vec2i pos)
 {
-	TILE_SPRITE_ID::tile_sprite_id_t id;
+	auto isSame = [&](const vec2i pos, const TILE_TYPE ttype)
+	{
+		if (ls->isPositionValid(pos))
+		{
+			return ls->at(pos).type == ttype;
+		}
+		return true;
+	};
+
+	using namespace TILE_SPRITE_ID;
+
+	tile_sprite_id_t id;
 	const TILE_TYPE ttype = ls->at(pos).type;
 	switch (ttype)
 	{
@@ -16,65 +27,16 @@ TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(cons
 	case TILE_TYPE::WALL:
 		id = TILE_SPRITE_ID::WALL;
 	}
-	if (ls->isPositionValid(pos + vec2i{ 0, -1 }))
-	{
-		if (ls->at(pos + vec2i{ 0, -1 }).type != ttype)
-		{
-			id |= TILE_SPRITE_ID::T;
-		}
-	}
-	if (ls->isPositionValid(pos + vec2i{ -1, 0 }))
-	{
-		if (ls->at(pos + vec2i{ -1, 0 }).type != ttype)
-		{
-			id |= TILE_SPRITE_ID::L;
-		}
-	}
-	if (ls->isPositionValid(pos + vec2i{ 0, 1 }))
-	{
-		if (ls->at(pos + vec2i{ 0, 1 }).type != ttype)
-		{
-			id |= TILE_SPRITE_ID::B;
-		}
-	}
-	if (ls->isPositionValid(pos + vec2i{ 1, 0 }))
-	{
-		if (ls->at(pos + vec2i{ 1, 0 }).type != ttype)
-		{
-			id |= TILE_SPRITE_ID::R;
-		}
-	}
-	if (ttype == TILE_TYPE::WALL)
-	{
-		if (ls->isPositionValid(pos + vec2i{ -1, -1 }))
-		{
-			if (ls->at(pos + vec2i{ -1, -1 }).type != ttype)
-			{
-				id |= TILE_SPRITE_ID::TL;
-			}
-		}
-		if (ls->isPositionValid(pos + vec2i{ 1, -1 }))
-		{
-			if (ls->at(pos + vec2i{ 1, -1 }).type != ttype)
-			{
-				id |= TILE_SPRITE_ID::TR;
-			}
-		}
-		if (ls->isPositionValid(pos + vec2i{ -1, 1 }))
-		{
-			if (ls->at(pos + vec2i{ -1, 1 }).type != ttype)
-			{
-				id |= TILE_SPRITE_ID::BL;
-			}
-		}
-		if (ls->isPositionValid(pos + vec2i{ 1, 1 }))
-		{
-			if (ls->at(pos + vec2i{ 1, 1 }).type != ttype)
-			{
-				id |= TILE_SPRITE_ID::BR;
-			}
-		}
-	}
+
+	id |= !isSame(pos + vec2i{  0, -1 }, ttype) * T;
+	id |= !isSame(pos + vec2i{ -1,  0 }, ttype) * L;
+	id |= !isSame(pos + vec2i{  0,  1 }, ttype) * B;
+	id |= !isSame(pos + vec2i{  1,  0 }, ttype) * R;
+
+	id |= !isSame(pos + vec2i{ -1, -1 }, ttype) * TL;
+	id |= !isSame(pos + vec2i{  1, -1 }, ttype) * TR;
+	id |= !isSame(pos + vec2i{ -1,  1 }, ttype) * BL;
+	id |= !isSame(pos + vec2i{  1,  1 }, ttype) * BR;
 
 	return id;
 }

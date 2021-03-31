@@ -5,7 +5,7 @@ namespace TILE_SPRITE_ID
 {
 	using tile_sprite_id_t = uint32_t;
 
-	enum SURROUNDINGS : tile_sprite_id_t
+	enum TILE_SPRITE_SURROUNDINGS : tile_sprite_id_t
 	{
 		/*
 		TL | T | TR  
@@ -24,13 +24,13 @@ namespace TILE_SPRITE_ID
 		L  = 1
 	};
 
-	enum TILE_SUBTYPE : tile_sprite_id_t
+	enum TILE_SPRITE_SUBTYPE : tile_sprite_id_t
 	{
 		ROCK = 1 << 8,
 		WOOD = 2 << 8
 	};
 
-	enum TILE_TYPE : tile_sprite_id_t
+	enum TILE_SPRITE_TYPE : tile_sprite_id_t
 	{
 		WALL    = 1 << 28,
 		FLOOR   = 2 << 28,
