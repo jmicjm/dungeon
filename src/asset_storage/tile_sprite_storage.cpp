@@ -8,9 +8,24 @@
 
 tile_sprite_storage::tile_sprite_map tile_sprite_storage::sprite_map = tile_sprite_map();
 
-void tile_sprite_storage::createRotations()
+void tile_sprite_storage::expandTileSet()
 {
-
+	using namespace TILE_SPRITE_ID;
+	for (auto& i : sprite_map)
+	{
+		const tile_sprite_id_t id = i.first;
+		if (id & (TL|TR|BR|BL))
+		{
+			for (int j = 0; j < 16; j++)
+			{
+				auto it = sprite_map.find(id | j << 4);
+				if (it == sprite_map.end())
+				{
+					sprite_map.insert({id | j << 4, i.second });
+				}
+			}
+		}
+	}
 }
 
 void tile_sprite_storage::loadSprites()
@@ -41,6 +56,8 @@ void tile_sprite_storage::loadSprites()
 		}
 		sprite_map.insert({ i.tile_type_id, tmp_spr_vec });
 	}
+
+	expandTileSet();
 }
 
 std::vector<sf::Sprite>* tile_sprite_storage::getSprite(TILE_SPRITE_ID::tile_sprite_id_t key)

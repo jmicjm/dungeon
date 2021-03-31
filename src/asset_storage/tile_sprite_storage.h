@@ -13,7 +13,7 @@ class tile_sprite_storage
 	using tile_sprite_map = std::map<TILE_SPRITE_ID::tile_sprite_id_t, std::vector<sf::Sprite>>;
 	static tile_sprite_map sprite_map;
 
-	static void createRotations();
+	static void expandTileSet();
 
 public:
 	static void loadSprites();

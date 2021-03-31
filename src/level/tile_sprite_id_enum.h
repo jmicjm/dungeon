@@ -14,14 +14,15 @@ namespace TILE_SPRITE_ID
 		---|---|---
 		BL | B | BR  
 		*/
-		TL = 1 << 7,
-		T  = 1 << 6,
+		L  = 1,
+		B  = 1 << 1,
+		R  = 1 << 2,
+		T  = 1 << 3,
+
+		TL = 1 << 4,
 		TR = 1 << 5,
-		R  = 1 << 4,
-		BR = 1 << 3,
-		B  = 1 << 2,
-		BL = 1 << 1,
-		L  = 1
+		BR = 1 << 6,
+		BL = 1 << 7
 	};
 
 	enum TILE_SPRITE_SUBTYPE : tile_sprite_id_t
