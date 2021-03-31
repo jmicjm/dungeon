@@ -12,10 +12,10 @@ struct tile
 {
 	TILE_TYPE type = TILE_TYPE::WALL;
 
-	TILE_SPRITE_ID::tile_sprite_id_t id;
-	unsigned int id_variant;
+	TILE_SPRITE_ID::tile_sprite_id_t id = 0;
+	unsigned int id_variant = 0;
 
-	sf::Sprite* sprite;
+	sf::Sprite* sprite = nullptr;
 	/*
 	bool revealed;
 	*/
