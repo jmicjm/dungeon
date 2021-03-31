@@ -9,7 +9,7 @@
 
 class level_structure
 {
-    friend class level_structure_gen;
+    friend class level_structure_generator;
 
     std::vector<std::vector<tile>> tiles;
     std::vector<rect_i> room_rects;

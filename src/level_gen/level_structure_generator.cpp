@@ -1,18 +1,18 @@
-#include "level_structure_gen.h"
+#include "level_structure_generator.h"
 #include "../utils/rand.h"
 
 
-void level_structure_gen::setLevelStructure(level_structure& l)
+void level_structure_generator::setLevelStructure(level_structure& l)
 {
     ls = &l;
 }
 
-void level_structure_gen::setGenParams(gen_params p)
+void level_structure_generator::setGenParams(gen_params p)
 {
     params = p;
 }
 
-void level_structure_gen::fill(const TILE_TYPE ttype)
+void level_structure_generator::fill(const TILE_TYPE ttype)
 {
     for (int x = 0; x < ls->getSize().x; x++)
     {
@@ -23,7 +23,7 @@ void level_structure_gen::fill(const TILE_TYPE ttype)
     }
 }
 
-void level_structure_gen::setTiles(const rect_i r, const TILE_TYPE tile)
+void level_structure_generator::setTiles(const rect_i r, const TILE_TYPE tile)
 {
     for (int x = r.tl.x; x<= r.br.x;x++)
     {
@@ -37,7 +37,7 @@ void level_structure_gen::setTiles(const rect_i r, const TILE_TYPE tile)
     }
 }
 
-void level_structure_gen::generateHallway(const vec2i start_p)
+void level_structure_generator::generateHallway(const vec2i start_p)
 {
     enum class DIRECTION
     {
@@ -73,17 +73,17 @@ void level_structure_gen::generateHallway(const vec2i start_p)
         };
         remDir(oppositeDir(dir));
 
-        if (   !(pos.x <= 0                 && pos.y <= 0                )
-            && !(pos.x <= 0                 && pos.y >= ls->getSize().y-1)
-            && !(pos.x >= ls->getSize().x-1 && pos.y <= 0                )
-            && !(pos.x >= ls->getSize().x-1 && pos.y >= ls->getSize().y-1))//ignore forbidden_dir in corners
+        if (   !(pos.x <= 1                 && pos.y <= 1                )
+            && !(pos.x <= 1                 && pos.y >= ls->getSize().y-2)
+            && !(pos.x >= ls->getSize().x-2 && pos.y <= 1                )
+            && !(pos.x >= ls->getSize().x-2 && pos.y >= ls->getSize().y-2))//ignore forbidden_dir in corners
         {
             remDir(forbidden_dir);
         }
-        if (pos.x >= ls->getSize().x - 1) { remDir(DIRECTION::RIGHT); }
-        if (pos.x <= 0) { remDir(DIRECTION::LEFT); }
-        if (pos.y >= ls->getSize().y - 1) { remDir(DIRECTION::DOWN); }
-        if (pos.y <= 0) { remDir(DIRECTION::UP); }
+        if (pos.x >= ls->getSize().x - 2) { remDir(DIRECTION::RIGHT); }
+        if (pos.x <= 1) { remDir(DIRECTION::LEFT); }
+        if (pos.y >= ls->getSize().y - 2) { remDir(DIRECTION::DOWN); }
+        if (pos.y <= 1) { remDir(DIRECTION::UP); }
 
         return dirs[rand(0, dirs.size() - 1)];
     };
@@ -97,10 +97,10 @@ void level_structure_gen::generateHallway(const vec2i start_p)
     };
 
     if (   adjacentTileCount(start_p, false, TILE_TYPE::HALLWAY) > 0
-        || start_p.x <= 0
-        || start_p.y <= 0
-        || start_p.x >= ls->getSize().x-1
-        || start_p.y >= ls->getSize().y-1)
+        || start_p.x <= 1
+        || start_p.y <= 1
+        || start_p.x >= ls->getSize().x-2
+        || start_p.y >= ls->getSize().y-2)
     {
         return;
     }
@@ -121,10 +121,10 @@ void level_structure_gen::generateHallway(const vec2i start_p)
 
         for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
         {
-            if (   !(c_pos.x <= 0                 && dir == DIRECTION::LEFT )
-                && !(c_pos.y <= 0                 && dir == DIRECTION::UP   )
-                && !(c_pos.x >= ls->getSize().x-1 && dir == DIRECTION::RIGHT)
-                && !(c_pos.y >= ls->getSize().y-1 && dir == DIRECTION::DOWN ))
+            if (   !(c_pos.x <= 1                 && dir == DIRECTION::LEFT )
+                && !(c_pos.y <= 1                 && dir == DIRECTION::UP   )
+                && !(c_pos.x >= ls->getSize().x-2 && dir == DIRECTION::RIGHT)
+                && !(c_pos.y >= ls->getSize().y-2 && dir == DIRECTION::DOWN ))
             {
                 if (ls->at(c_pos).type == TILE_TYPE::WALL)
                 {
@@ -166,7 +166,7 @@ void level_structure_gen::generateHallway(const vec2i start_p)
     }
 }
 
-bool level_structure_gen::generateRoom(const vec2i start_p)
+bool level_structure_generator::generateRoom(const vec2i start_p)
 {
     if(adjacentTileCount(start_p, true, TILE_TYPE::ROOM) > 0)
     {
@@ -190,7 +190,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
         if(left_expansion_possible)
         {
             const rect_i scan_area = { r.tl + vec2i{-2,-1}, r.tl + vec2i{-1,r.size().y} };
-            if (r.tl.x <=0 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.tl.x <=1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 left_expansion_possible = false;
             }
@@ -200,7 +200,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
         if (top_expansion_possible)
         {
             const rect_i scan_area = { r.tl + vec2i{-1,-2}, r.tl + vec2i{r.size().x,-1} };
-            if (r.tl.y<=0 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.tl.y<=1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 top_expansion_possible = false;
             }
@@ -210,7 +210,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
         if (right_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} };
-            if (r.br.x >= ls->getSize().x-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.x >= ls->getSize().x-2 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 right_expansion_possible = false;
             }
@@ -220,7 +220,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
         if (bottom_expansion_possible)
         {
             const rect_i scan_area = { r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} };
-            if (r.br.y >= ls->getSize().y-1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
+            if (r.br.y >= ls->getSize().y-2 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
             {
                 bottom_expansion_possible = false;
             }
@@ -282,7 +282,7 @@ bool level_structure_gen::generateRoom(const vec2i start_p)
     return true;
 }
 
-void level_structure_gen::generate()
+void level_structure_generator::generate()
 {
     if (ls != nullptr)
     {
@@ -292,7 +292,7 @@ void level_structure_gen::generate()
     }
 }
 
-unsigned int level_structure_gen::tileCount(const rect_i r)
+unsigned int level_structure_generator::tileCount(const rect_i r)
 {
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
@@ -305,7 +305,7 @@ unsigned int level_structure_gen::tileCount(const rect_i r)
     return c;
 }
 
-unsigned int level_structure_gen::tileCount(const rect_i r, const TILE_TYPE ttype)
+unsigned int level_structure_generator::tileCount(const rect_i r, const TILE_TYPE ttype)
 {
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
@@ -318,7 +318,7 @@ unsigned int level_structure_gen::tileCount(const rect_i r, const TILE_TYPE ttyp
     return c;
 }
 
-unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool diag_check)
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const bool diag_check)
 {
     unsigned int c = 0;
     switch (diag_check)
@@ -346,7 +346,7 @@ unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool 
     return c;
 }
 
-unsigned int level_structure_gen::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
 {
     unsigned int c = 0;
     switch (diag_check)

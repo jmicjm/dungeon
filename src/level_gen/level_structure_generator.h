@@ -8,7 +8,7 @@
 #include <string>
 
 
-class level_structure_gen
+class level_structure_generator
 {
     level_structure* ls = nullptr;
     gen_params params;
@@ -26,8 +26,8 @@ class level_structure_gen
     unsigned int adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype);
 
 public:
-    level_structure_gen() {}
-    level_structure_gen(level_structure& ls, gen_params params) : ls(&ls), params(params) {}
+    level_structure_generator() {}
+    level_structure_generator(level_structure& ls, gen_params params) : ls(&ls), params(params) {}
 
     void setLevelStructure(level_structure& l);
     void setGenParams(gen_params p);  
