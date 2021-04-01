@@ -13,7 +13,7 @@ class level_structure_generator
     level_structure* ls = nullptr;
     gen_params params;
 
-    void fill(const TILE_TYPE ttype);
+    void fill(const tile t);
     void setTiles(const rect_i r, const TILE_TYPE tile);
 
     void generateHallway(const vec2i start_p);

@@ -12,13 +12,13 @@ void level_structure_generator::setGenParams(gen_params p)
     params = p;
 }
 
-void level_structure_generator::fill(const TILE_TYPE ttype)
+void level_structure_generator::fill(const tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
     {
         for (int y = 0; y < ls->getSize().y; y++)
         {
-            ls->at({ x,y }).type = ttype;
+            ls->at({ x,y }) = t;
         }
     }
 }
@@ -286,7 +286,7 @@ void level_structure_generator::generate()
 {
     if (ls != nullptr)
     {
-        fill(TILE_TYPE::WALL);
+        fill(tile());
 
         generateRoom(ls->getSize() / 2);
     }
