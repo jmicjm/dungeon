@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 
 class level_structure_generator
@@ -22,8 +23,12 @@ class level_structure_generator
     unsigned int tileCount(const rect_i r);
     unsigned int tileCount(const rect_i r, const TILE_TYPE ttype);
 
-    unsigned int adjacentTileCount(const vec2i pos, const bool diag_check);
-    unsigned int adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype);
+    enum ADJACENT_AREA : uint8_t
+    {
+        AXIS = 0b01,
+        DIAG = 0b10
+    };
+    unsigned int adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype);
 
 public:
     level_structure_generator() {}

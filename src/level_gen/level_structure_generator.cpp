@@ -1,6 +1,8 @@
 #include "level_structure_generator.h"
 #include "../utils/rand.h"
 
+#include <functional>
+
 
 void level_structure_generator::setLevelStructure(level_structure& l)
 {
@@ -96,7 +98,7 @@ void level_structure_generator::generateHallway(const vec2i start_p)
         return DIRECTION::UP;
     };
 
-    if (   adjacentTileCount(start_p, false, TILE_TYPE::HALLWAY) > 0
+    if (   adjacentTileCount(start_p, AXIS, TILE_TYPE::HALLWAY) > 0
         || start_p.x <= 1
         || start_p.y <= 1
         || start_p.x >= ls->getSize().x-2
@@ -129,8 +131,8 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                 if (ls->at(c_pos).type == TILE_TYPE::WALL)
                 {
                     ls->at(c_pos).type = TILE_TYPE::HALLWAY;
-                    if (adjacentTileCount(c_pos, false, TILE_TYPE::HALLWAY) > 1) { return; }
-                    if (total_len >= 1 && adjacentTileCount(c_pos, false, TILE_TYPE::ROOM) > 0) { return; }
+                    if (adjacentTileCount(c_pos, AXIS, TILE_TYPE::HALLWAY) > 1) { return; }
+                    if (total_len >= 1 && adjacentTileCount(c_pos, AXIS, TILE_TYPE::ROOM) > 0) { return; }
 
                     switch (dir)
                     {
@@ -168,7 +170,7 @@ void level_structure_generator::generateHallway(const vec2i start_p)
 
 bool level_structure_generator::generateRoom(const vec2i start_p)
 {
-    if(adjacentTileCount(start_p, true, TILE_TYPE::ROOM) > 0)
+    if(adjacentTileCount(start_p, AXIS|DIAG, TILE_TYPE::ROOM) > 0)
     {
         return false;
     }
@@ -318,58 +320,29 @@ unsigned int level_structure_generator::tileCount(const rect_i r, const TILE_TYP
     return c;
 }
 
-unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const bool diag_check)
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype)
 {
-    unsigned int c = 0;
-    switch (diag_check)
+    auto tile_check = [&](const vec2i p) 
     {
-    case true:
-    {
-        for (int x = pos.x - 1; x <= pos.x + 1; x++)
-        {
-            for (int y = pos.y - 1; y <= pos.y + 1; y++)
-            {
-                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }))
-                {
-                    c++;
-                }
-            }
-        }
-        break;
-    }
-    case false:
-        c+= ls->isPositionValid(pos - vec2i{ 1,0 })
-          + ls->isPositionValid(pos + vec2i{ 1,0 })
-          + ls->isPositionValid(pos - vec2i{ 0,1 })
-          + ls->isPositionValid(pos + vec2i{ 0,1 });
-    }
-    return c;
-}
+        return ls->isPositionValid(p) && ls->at(p).type == ttype; 
+    };
 
-unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const bool diag_check, const TILE_TYPE ttype)
-{
     unsigned int c = 0;
-    switch (diag_check)
+
+    if (area & AXIS)
     {
-    case true:
+        c += tile_check(pos + vec2i{ -1, 0 })
+           + tile_check(pos + vec2i{  1, 0 })
+           + tile_check(pos + vec2i{  0,-1 })
+           + tile_check(pos + vec2i{  0, 1 });
+    }
+    if (area & DIAG)
     {
-        for (int x = pos.x - 1; x <= pos.x + 1; x++)
-        {
-            for (int y = pos.y - 1; y <= pos.y + 1; y++)
-            {
-                if (vec2i{ x,y } != pos && ls->isPositionValid({ x,y }) && ls->at({x,y}).type == ttype)
-                {
-                    c++;
-                }
-            }
-        }
-        break;
+        c += tile_check(pos + vec2i{ -1,-1 })
+           + tile_check(pos + vec2i{  1,-1 })
+           + tile_check(pos + vec2i{  1, 1 })
+           + tile_check(pos + vec2i{ -1, 1 });
     }
-    case false:
-        c += (ls->isPositionValid(pos - vec2i{ 1,0 }) ? ls->at(pos - vec2i{ 1,0 }).type == ttype : 0)
-           + (ls->isPositionValid(pos + vec2i{ 1,0 }) ? ls->at(pos + vec2i{ 1,0 }).type == ttype : 0)
-           + (ls->isPositionValid(pos - vec2i{ 0,1 }) ? ls->at(pos - vec2i{ 0,1 }).type == ttype : 0)
-           + (ls->isPositionValid(pos + vec2i{ 0,1 }) ? ls->at(pos + vec2i{ 0,1 }).type == ttype : 0);
-    }
+
     return c;
 }
