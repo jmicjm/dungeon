@@ -33,7 +33,7 @@ void animation::updateFrameIdx()
 		if (increase > 0)
 		{
 			current_frame_idx = (current_frame_idx + increase) % frames->size();
-			frame_start_point = current_point;
+			frame_start_point += frame_time * increase;
 		}
 	}
 }
