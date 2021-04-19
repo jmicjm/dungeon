@@ -13,6 +13,7 @@ class animation : public sf::Drawable
 	std::shared_ptr<std::vector<sf::Sprite>> frames;
 	unsigned int current_frame_idx = 0;
 	sf::Vector2f position;
+	sf::Vector2f scale;
 
 	std::chrono::milliseconds frame_time = std::chrono::milliseconds(1000)/30;
 	std::chrono::steady_clock::time_point frame_start_point;
@@ -35,6 +36,8 @@ public:
 
 	void setPosition(sf::Vector2f pos);
 	sf::Vector2f getPosition() const;
+	void setScale(sf::Vector2f scale);
+	sf::Vector2f getScale() const;
 
 	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 };

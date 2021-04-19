@@ -48,11 +48,22 @@ sf::Vector2f animation::getPosition() const
 	return position;
 }
 
+void animation::setScale(sf::Vector2f scl)
+{
+	scale = scl;
+}
+
+sf::Vector2f animation::getScale() const
+{
+	return scale;
+}
+
 void animation::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
 	if (frames && current_frame_idx < frames->size())
 	{
 		(*frames)[current_frame_idx].setPosition(position);
+		(*frames)[current_frame_idx].setScale(scale);
 		rt.draw((*frames)[current_frame_idx], st);
 	}
 }
