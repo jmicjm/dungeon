@@ -27,8 +27,9 @@ namespace TILE_SPRITE_ID
 
 	enum TILE_SPRITE_SUBTYPE : tile_sprite_id_t
 	{
-		ROCK = 1 << 8,
-		WOOD = 2 << 8
+		ROCK   = 1 << 8,
+		WOOD   = 2 << 8,
+		CARPET = 3 << 8
 	};
 
 	enum TILE_SPRITE_TYPE : tile_sprite_id_t
@@ -37,4 +38,6 @@ namespace TILE_SPRITE_ID
 		FLOOR   = 2 << 28,
 		HALLWAY = 3 << 28
 	};
+
+	constexpr tile_sprite_id_t OVERLAY = 1 << 31;
 }

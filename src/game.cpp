@@ -5,6 +5,9 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <iostream>
+
+#include "gfx/animation.h"
 
 int main()
 {
@@ -19,6 +22,8 @@ int main()
     g_params.max_door_count = 5;
 
     
+    std::cout << sizeof(animation) << "\n";
+
     vec2i l_size = {100,100};
 
     level_structure l_s;
@@ -33,8 +38,22 @@ int main()
     l_dec.decorate();
 
 
+    std::shared_ptr<std::vector<sf::Sprite>> frames = std::make_shared<std::vector<sf::Sprite>>();
+
+    sf::Texture tex;
+    tex.loadFromFile("wild_mage_frames.png");
+    for (int i = 0; i < 16; i++)
+    {
+        frames->push_back(sf::Sprite(tex, sf::IntRect(i * 64, 0, 64, 64)));
+    }
+
+    animation anim(frames, 14);
+    anim.setScale({ 4.0f, 4.0f });
+
+
     sf::RenderWindow window(sf::VideoMode(1600, 900), "");
-    window.setVerticalSyncEnabled(true);
+    window.setVerticalSyncEnabled(false);
+    window.setFramerateLimit(75);
 
     auto ws = [&]() -> vec2i
     {
@@ -103,15 +122,20 @@ int main()
         {
             for (int y = std::max(first_t.y, 0); y < l_s.getSize().y && spos({0,y}).y <= ws().y; y++)
             {
-                if (l_s.at({ x,y }).sprite != nullptr)
+                for (auto& i : l_s.at({ x,y }).sprites)
                 {
-                    l_s.at({ x,y }).sprite->setPosition(sf::Vector2f(spos({ x,y }).x, spos({x,y}).y));
-                    window.draw(*l_s.at({ x,y }).sprite);
+                    if (i.sprite != nullptr)
+                    {
+                        i.sprite->setPosition(sf::Vector2f(spos({ x,y }).x, spos({ x,y }).y));
+                        window.draw(*i.sprite);
+                    }
                 }
             }
         }
 
+        anim.updateFrameIdx();
+        window.draw(anim);
         window.display();
     }
-
+    l_s.printToFile("mapa.txt");
 }

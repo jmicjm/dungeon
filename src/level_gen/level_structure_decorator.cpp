@@ -29,16 +29,55 @@ TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(cons
 	}
 
 	id |= !isSame(pos + vec2i{  0, -1 }, ttype) * T;
-	id |= !isSame(pos + vec2i{ -1,  0 }, ttype) * L;
-	id |= !isSame(pos + vec2i{  0,  1 }, ttype) * B;
 	id |= !isSame(pos + vec2i{  1,  0 }, ttype) * R;
+	id |= !isSame(pos + vec2i{  0,  1 }, ttype) * B;
+	id |= !isSame(pos + vec2i{ -1,  0 }, ttype) * L;
 
 	id |= !isSame(pos + vec2i{ -1, -1 }, ttype) * TL;
 	id |= !isSame(pos + vec2i{  1, -1 }, ttype) * TR;
-	id |= !isSame(pos + vec2i{ -1,  1 }, ttype) * BL;
 	id |= !isSame(pos + vec2i{  1,  1 }, ttype) * BR;
+	id |= !isSame(pos + vec2i{ -1,  1 }, ttype) * BL;
 
 	return id;
+}
+
+bool level_structure_decorator::addSprite(const vec2i pos, const TILE_SPRITE_ID::tile_sprite_id_t id)
+{
+	using namespace TILE_SPRITE_ID;
+
+	std::vector<sf::Sprite>* sprites = tile_sprite_storage::getSprite(id);
+	if (sprites == nullptr)
+	{	
+		sprites = tile_sprite_storage::getSprite(id & ~(TL | TR | BL | BR));//fallback to generic
+		if (sprites == nullptr)
+		{
+			sprites = tile_sprite_storage::getSprite(id & ~(TL | T | TR | R | BL | B | BR | L));//fallback to generic
+		}
+	}
+	if (sprites != nullptr && sprites->size() > 0)
+	{
+		unsigned int variant = rand(0, sprites->size() - 1);
+		ls->at(pos).sprites.push_back({ id, variant, &(*sprites)[variant] });
+
+		return true;
+	}
+	return false;
+}
+
+void level_structure_decorator::placeCarpet(const rect_i area)
+{
+	for (int x = area.tl.x; x <= area.br.x; x++)
+	{
+		for (int y = area.tl.y; y <= area.br.y; y++)
+		{
+			using namespace TILE_SPRITE_ID;
+
+			TILE_SPRITE_ID::tile_sprite_id_t id = getTileSpriteId({ x,y });
+			id |= OVERLAY | CARPET;
+
+			addSprite({ x,y }, id);
+		}
+	}
 }
 
 void level_structure_decorator::setLevelStructure(level_structure& l)
@@ -69,25 +108,15 @@ void level_structure_decorator::decorate()
 				id |= TILE_SPRITE_ID::ROCK;
 			}
 
-			ls->at({ x,y }).id = id;
-
-			std::vector<sf::Sprite>* sprites = tile_sprite_storage::getSprite(id);
-			if (sprites == nullptr)
-			{
-				using namespace TILE_SPRITE_ID;
-				sprites = tile_sprite_storage::getSprite(id & ~(TL|TR|BL|BR));//fallback to generic
-				if (sprites == nullptr)
-				{
-					sprites = tile_sprite_storage::getSprite(id & ~(TL|T|TR|R|BL|B|BR|L));//fallback to generic
-				}
-			}
-			if (sprites != nullptr && sprites->size() > 0)
-			{
-				unsigned int variant = rand(0, sprites->size() - 1);
-
-				ls->at({ x,y }).sprite = &(*sprites)[variant];
-				ls->at({ x,y }).id_variant = variant;
-			}	
+			addSprite({ x,y }, id);
+		}	
+	}
+	//place carpets in random rooms
+	for (int i = 0; i < ls->roomCount(); i++)
+	{
+		if (!rand(0, 10))
+		{
+			placeCarpet(ls->getRoomRect(i));
 		}
 	}
 }

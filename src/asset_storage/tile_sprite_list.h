@@ -349,3 +349,57 @@
 		{"stone_wall_bx_tx.png", sf::IntRect(3008,0,64,64)}
 	}
 },
+{
+	FLOOR | OVERLAY | CARPET,
+	{
+		{"carpet_overlay.png", sf::IntRect(0,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | L | T,
+	{
+		{"carpet_overlay.png", sf::IntRect(64,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | R | T,
+	{
+		{"carpet_overlay.png", sf::IntRect(128,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | L | B,
+	{
+		{"carpet_overlay.png", sf::IntRect(192,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | R | B,
+	{
+		{"carpet_overlay.png", sf::IntRect(256,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | T,
+	{
+		{"carpet_overlay.png", sf::IntRect(320,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | B,
+	{
+		{"carpet_overlay.png", sf::IntRect(384,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | L,
+	{
+		{"carpet_overlay.png", sf::IntRect(448,0,64,64)}
+	}
+},
+{
+	FLOOR | OVERLAY | CARPET | R,
+	{
+		{"carpet_overlay.png", sf::IntRect(512,0,64,64)}
+	}
+},
