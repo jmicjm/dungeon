@@ -305,6 +305,7 @@ void level_structure_generator::generate()
     if (ls != nullptr)
     {
         fill(tile());
+        ls->room_rects.clear();
 
         generateRoom(ls->getSize() / 2);
     }
