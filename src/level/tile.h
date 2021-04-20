@@ -7,7 +7,7 @@
 
 enum class TILE_TYPE
 {
-	WALL, ROOM, HALLWAY
+	WALL, ROOM, HALLWAY, DOORWAY
 };
 
 struct tile

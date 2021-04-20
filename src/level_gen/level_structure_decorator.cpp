@@ -21,6 +21,7 @@ TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(cons
 	switch (ttype)
 	{
 	case TILE_TYPE::HALLWAY:
+	case TILE_TYPE::DOORWAY:
 	case TILE_TYPE::ROOM:
 		id = TILE_SPRITE_ID::FLOOR;
 		break;

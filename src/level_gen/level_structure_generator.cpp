@@ -98,7 +98,7 @@ void level_structure_generator::generateHallway(const vec2i start_p)
         return DIRECTION::UP;
     };
 
-    if (   adjacentTileCount(start_p, AXIS, TILE_TYPE::HALLWAY) > 0
+    if (   adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
         || start_p.x <= 1
         || start_p.y <= 1
         || start_p.x >= ls->getSize().x-2
@@ -110,7 +110,8 @@ void level_structure_generator::generateHallway(const vec2i start_p)
     DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
     const DIRECTION forbidden_dir = oppositeDir(dir);
 
-    vec2i c_pos = start_p;
+    vec2i curr_pos = start_p;
+    vec2i prev_pos = start_p;
     const unsigned int m_segment_count = 
         params.max_hallway_segment_count >= params.min_hallway_segment_count
         ? rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1
@@ -123,30 +124,39 @@ void level_structure_generator::generateHallway(const vec2i start_p)
 
         for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
         {
-            if (   !(c_pos.x <= 1                 && dir == DIRECTION::LEFT )
-                && !(c_pos.y <= 1                 && dir == DIRECTION::UP   )
-                && !(c_pos.x >= ls->getSize().x-2 && dir == DIRECTION::RIGHT)
-                && !(c_pos.y >= ls->getSize().y-2 && dir == DIRECTION::DOWN ))
+            if (   !(curr_pos.x <= 1                 && dir == DIRECTION::LEFT )
+                && !(curr_pos.y <= 1                 && dir == DIRECTION::UP   )
+                && !(curr_pos.x >= ls->getSize().x-2 && dir == DIRECTION::RIGHT)
+                && !(curr_pos.y >= ls->getSize().y-2 && dir == DIRECTION::DOWN ))
             {
-                if (ls->at(c_pos).type == TILE_TYPE::WALL)
+                if (ls->at(curr_pos).type == TILE_TYPE::WALL)
                 {
-                    ls->at(c_pos).type = TILE_TYPE::HALLWAY;
-                    if (adjacentTileCount(c_pos, AXIS, TILE_TYPE::HALLWAY) > 1) { return; }
-                    if (total_len >= 1 && adjacentTileCount(c_pos, AXIS, TILE_TYPE::ROOM) > 0) { return; }
+                    if (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0)
+                    {
+                        ls->at(curr_pos).type = TILE_TYPE::DOORWAY;
+                    }
+                    else
+                    {
+                        ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
+                    }
+                    
+                    if (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len>1)) { return; }
+                    if (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0) { return; }
 
+                    prev_pos = curr_pos;
                     switch (dir)
                     {
                     case DIRECTION::LEFT:
-                        c_pos.x--;
+                        curr_pos.x--;
                         break;
                     case DIRECTION::UP:
-                        c_pos.y--;
+                        curr_pos.y--;
                         break;
                     case DIRECTION::RIGHT:
-                        c_pos.x++;
+                        curr_pos.x++;
                         break;
                     case DIRECTION::DOWN:
-                        c_pos.y++;
+                        curr_pos.y++;
                     }
                 }
                 else return;
@@ -154,17 +164,23 @@ void level_structure_generator::generateHallway(const vec2i start_p)
             else break;
         }
 
+        //room placement
         if (seg == 0)
         {
-            if (ls->isPositionValid(c_pos) && ls->at(c_pos).type == TILE_TYPE::WALL)
+            if (ls->isPositionValid(curr_pos) && ls->at(curr_pos).type == TILE_TYPE::WALL)
             {
-                if (!generateRoom(c_pos))
+                ls->at(prev_pos).type = TILE_TYPE::DOORWAY;
+                if (!generateRoom(curr_pos))
                 {
+                    if (total_len > 1)
+                    {
+                        ls->at(prev_pos).type = TILE_TYPE::HALLWAY;
+                    }
                     seg++;
                 }
             }
         }
-        dir = randomDir(dir, forbidden_dir, c_pos);
+        dir = randomDir(dir, forbidden_dir, curr_pos);
     }
 }
 

@@ -52,6 +52,9 @@ void level_structure::printToFile(const std::string& fname)
                 break;
             case TILE_TYPE::HALLWAY:
                 out << 'H';
+                break;
+            case TILE_TYPE::DOORWAY:
+                out << 'D';
             }
         }
         out << '\n';
