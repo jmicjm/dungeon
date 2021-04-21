@@ -98,7 +98,32 @@ void level_structure_generator::generateHallway(const vec2i start_p)
         return DIRECTION::UP;
     };
 
+    auto sideTileCount = [&](const vec2i pos, const DIRECTION dir, const TILE_TYPE ttype)
+    {
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+        case DIRECTION::RIGHT:
+        {
+            const vec2i t = pos + vec2i{ 0,-1 };
+            const vec2i b = pos + vec2i{ 0, 1 };
+            return tileCount({ t,t }, ttype) + tileCount({ b, b }, ttype);
+        }
+        case DIRECTION::UP:
+        case DIRECTION::DOWN:
+        {
+            const vec2i l = pos + vec2i{ -1,0 };
+            const vec2i r = pos + vec2i{  1,0 };
+            return tileCount({ l,l }, ttype) + tileCount({ r, r }, ttype);
+        }
+        }
+    };
+
+    DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
+    const DIRECTION forbidden_dir = oppositeDir(dir);
+
     if (   adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
+        || sideTileCount(start_p, dir, TILE_TYPE::HALLWAY) > 0
         || start_p.x <= 1
         || start_p.y <= 1
         || start_p.x >= ls->getSize().x-2
@@ -106,9 +131,6 @@ void level_structure_generator::generateHallway(const vec2i start_p)
     {
         return;
     }
-
-    DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
-    const DIRECTION forbidden_dir = oppositeDir(dir);
 
     vec2i curr_pos = start_p;
     vec2i prev_pos = start_p;
@@ -140,8 +162,12 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                         ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
                     }
                     
-                    if (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len>1)) { return; }
-                    if (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0) { return; }
+                    if(   (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len > 1)    )
+                       || (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0   )
+                       || (total_len >  1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::DOORWAY) > 0))
+                    {
+                        return;
+                    }
 
                     prev_pos = curr_pos;
                     switch (dir)
