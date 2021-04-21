@@ -91,10 +91,30 @@ void level_structure_generator::generateHallway(const vec2i start_p)
     };
     auto initDir = [&]()
     {
-        if (ls->isPositionValid(start_p + vec2i{ -1,  0 }) && ls->at(start_p + vec2i{ -1,  0 }).type != TILE_TYPE::WALL) { return DIRECTION::RIGHT; }
-        if (ls->isPositionValid(start_p + vec2i{  1,  0 }) && ls->at(start_p + vec2i{  1,  0 }).type != TILE_TYPE::WALL) { return DIRECTION::LEFT;  }
-        if (ls->isPositionValid(start_p + vec2i{  0, -1 }) && ls->at(start_p + vec2i{  0, -1 }).type != TILE_TYPE::WALL) { return DIRECTION::DOWN;  }
-        if (ls->isPositionValid(start_p + vec2i{  0,  1 }) && ls->at(start_p + vec2i{  0,  1 }).type != TILE_TYPE::WALL) { return DIRECTION::UP;    }
+        auto tileCheck = [&](const vec2i pos, std::function<bool(const TILE_TYPE)> cmp)
+        {
+            return ls->isPositionValid(pos) && cmp(ls->at(pos).type);
+        };
+
+        if (adjacentTileCount(start_p, AXIS, TILE_TYPE::ROOM) > 0)
+        {
+            auto r_cmp = [](const TILE_TYPE ttype) {return ttype == TILE_TYPE::ROOM; };
+
+            if (tileCheck(start_p + vec2i{ -1,  0 }, r_cmp)) { return DIRECTION::RIGHT; }
+            if (tileCheck(start_p + vec2i{  1,  0 }, r_cmp)) { return DIRECTION::LEFT;  }
+            if (tileCheck(start_p + vec2i{  0, -1 }, r_cmp)) { return DIRECTION::DOWN;  }
+            if (tileCheck(start_p + vec2i{  0,  1 }, r_cmp)) { return DIRECTION::UP;    }
+        }
+        else
+        {
+            auto w_cmp = [](const TILE_TYPE ttype) {return ttype != TILE_TYPE::WALL; };
+
+            if (tileCheck(start_p + vec2i{ -1,  0 }, w_cmp)) { return DIRECTION::RIGHT; }
+            if (tileCheck(start_p + vec2i{  1,  0 }, w_cmp)) { return DIRECTION::LEFT;  }
+            if (tileCheck(start_p + vec2i{  0, -1 }, w_cmp)) { return DIRECTION::DOWN;  }
+            if (tileCheck(start_p + vec2i{  0,  1 }, w_cmp)) { return DIRECTION::UP;    }
+        }
+
         return DIRECTION::UP;
     };
 
@@ -162,9 +182,9 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                         ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
                     }
                     
-                    if(   (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len > 1)    )
-                       || (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0   )
-                       || (total_len >  1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::DOORWAY) > 0))
+                    if(   (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len > 1) )
+                       || (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0)
+                       || (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::DOORWAY) > !(total_len > 1)))
                     {
                         return;
                     }
