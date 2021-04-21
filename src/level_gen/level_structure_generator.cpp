@@ -205,48 +205,25 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
 
     while (r.size().x < max_size.x || r.size().y < max_size.y)
     {
-        if(left_expansion_possible)
+        auto expansionCheck = [&](const rect_i scan_area)
         {
-            const rect_i scan_area = { r.tl + vec2i{-2,-1}, r.tl + vec2i{-1,r.size().y} };
-            if (r.tl.x <=1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
-            {
-                left_expansion_possible = false;
-            }
-        }
+            return !(tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area));
+        };
+
+        left_expansion_possible = r.tl.x > 1 && expansionCheck({ r.tl + vec2i{-2,-1}, r.tl + vec2i{-1,r.size().y} });
         if (left_expansion_possible && r.size().x < max_size.x) { r.tl.x--; }
 
-        if (top_expansion_possible)
-        {
-            const rect_i scan_area = { r.tl + vec2i{-1,-2}, r.tl + vec2i{r.size().x,-1} };
-            if (r.tl.y<=1 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
-            {
-                top_expansion_possible = false;
-            }
-        }
+        top_expansion_possible = r.tl.y > 1 && expansionCheck({ r.tl + vec2i{-1,-2}, r.tl + vec2i{r.size().x,-1} });
         if (top_expansion_possible && r.size().y < max_size.y) { r.tl.y--; }
 
-        if (right_expansion_possible)
-        {
-            const rect_i scan_area = { r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} };
-            if (r.br.x >= ls->getSize().x-2 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
-            {
-                right_expansion_possible = false;
-            }
-        }
+        right_expansion_possible = r.br.x < ls->getSize().x-2 && expansionCheck({ r.br + vec2i{1,-r.size().y}, r.br + vec2i{2,1} });
         if (right_expansion_possible && r.size().x < max_size.x) { r.br.x++; }
 
-        if (bottom_expansion_possible)
-        {
-            const rect_i scan_area = { r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} };
-            if (r.br.y >= ls->getSize().y-2 || tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area))
-            {
-                bottom_expansion_possible = false;
-            }
-        }
+        bottom_expansion_possible = r.br.y < ls->getSize().y-2 && expansionCheck({ r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} });
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
             
-        if (   ((!left_expansion_possible && !right_expansion_possible)  || r.size().x >= max_size.x)
-            && ((!top_expansion_possible  && !bottom_expansion_possible) || r.size().y >= max_size.y))
+        if (   (!(left_expansion_possible || right_expansion_possible)  || r.size().x >= max_size.x)
+            && (!(top_expansion_possible  || bottom_expansion_possible) || r.size().y >= max_size.y))//further expansion impossible
         {
             break; 
         }
