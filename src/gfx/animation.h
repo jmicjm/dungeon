@@ -30,7 +30,7 @@ public:
 	void restart();
 
 	void updateFrameIdx();
-	void setFrameIdx(unsigned int idx);
+	void setFrameIdx(unsigned int idx, bool update_start_point = false);
 	unsigned int getFrameIdx() const;
 	unsigned int getFrameCount() const;
 

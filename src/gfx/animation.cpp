@@ -7,9 +7,13 @@ void animation::restart()
 	current_frame_idx = 0;
 }
 
-void animation::setFrameIdx(unsigned int idx)
+void animation::setFrameIdx(unsigned int idx, bool update_start_point)
 {
-	current_frame_idx = idx;
+	current_frame_idx = std::min(idx, getFrameCount()-1);
+	if (update_start_point)
+	{
+		frame_start_point = std::chrono::steady_clock::now();
+	}
 }
 
 unsigned int animation::getFrameIdx() const
@@ -24,7 +28,7 @@ unsigned int animation::getFrameCount() const
 
 void animation::updateFrameIdx()
 {
-	if (frames && frames->size() > 0)
+	if (frames && frames->size() > 1)
 	{
 		std::chrono::steady_clock::time_point current_point = std::chrono::steady_clock::now();
 
@@ -35,6 +39,10 @@ void animation::updateFrameIdx()
 			current_frame_idx = (current_frame_idx + increase) % frames->size();
 			frame_start_point += frame_time * increase;
 		}
+	}
+	else
+	{
+		current_frame_idx = 0;
 	}
 }
 
