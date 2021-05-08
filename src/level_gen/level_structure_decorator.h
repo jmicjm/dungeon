@@ -3,8 +3,6 @@
 #include "../utils/vec2.h"
 #include "../utils/rect.h"
 
-#include <vector>
-
 
 class level_structure_decorator
 {
@@ -18,10 +16,5 @@ class level_structure_decorator
     void placeCarpet(const rect_i area);
 
 public:
-    level_structure_decorator() {}
-    level_structure_decorator(level_structure& ls) : ls(&ls) {}
-
-    void setLevelStructure(level_structure& l);
-
-    void decorate();
+    void decorate(level_structure& l);
 };

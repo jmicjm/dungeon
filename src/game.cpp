@@ -29,13 +29,13 @@ int main()
     level_structure l_s;
     l_s.setSize(l_size);
 
-    level_structure_generator l_gen(l_s, g_params);
-    l_gen.generate();
+    level_structure_generator l_gen;
+    l_gen.generate(l_s, g_params);
 
     tile_sprite_storage::loadSprites();
 
-    level_structure_decorator l_dec(l_s);
-    l_dec.decorate();
+    level_structure_decorator l_dec;
+    l_dec.decorate(l_s);
 
 
     std::shared_ptr<std::vector<sf::Sprite>> frames = std::make_shared<std::vector<sf::Sprite>>();
@@ -81,8 +81,8 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
         {
-            l_gen.generate();
-            l_dec.decorate();
+            l_gen.generate(l_s, g_params);
+            l_dec.decorate(l_s);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {

@@ -3,17 +3,6 @@
 
 #include <functional>
 
-
-void level_structure_generator::setLevelStructure(level_structure& l)
-{
-    ls = &l;
-}
-
-void level_structure_generator::setGenParams(gen_params p)
-{
-    params = p;
-}
-
 void level_structure_generator::fill(const tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -323,15 +312,15 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
     return true;
 }
 
-void level_structure_generator::generate()
+void level_structure_generator::generate(level_structure& l, gen_params p)
 {
-    if (ls != nullptr)
-    {
-        fill(tile());
-        ls->room_rects.clear();
+    ls = &l;
+    params = p;
 
-        generateRoom(ls->getSize() / 2);
-    }
+    fill(tile());
+    ls->room_rects.clear();
+
+    generateRoom(ls->getSize() / 2);
 }
 
 unsigned int level_structure_generator::tileCount(const rect_i r)

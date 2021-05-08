@@ -81,13 +81,10 @@ void level_structure_decorator::placeCarpet(const rect_i area)
 	}
 }
 
-void level_structure_decorator::setLevelStructure(level_structure& l)
+void level_structure_decorator::decorate(level_structure& l)
 {
 	ls = &l;
-}
 
-void level_structure_decorator::decorate()
-{
 	for (int x = 0; x < ls->getSize().x; x++)
 	{
 		for (int y = 0; y < ls->getSize().y; y++)

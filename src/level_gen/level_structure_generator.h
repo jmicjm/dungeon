@@ -5,8 +5,6 @@
 #include "gen_params.h"
 
 #include <vector>
-#include <string>
-#include <functional>
 
 
 class level_structure_generator
@@ -31,11 +29,5 @@ class level_structure_generator
     unsigned int adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype);
 
 public:
-    level_structure_generator() {}
-    level_structure_generator(level_structure& ls, gen_params params) : ls(&ls), params(params) {}
-
-    void setLevelStructure(level_structure& l);
-    void setGenParams(gen_params p);  
-
-    void generate();
+    void generate(level_structure& l, gen_params p);
 };
