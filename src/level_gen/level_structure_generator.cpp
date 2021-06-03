@@ -171,11 +171,9 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                         ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
                     }
                     
-                    if(   (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::HALLWAY) > (total_len > 1) )
-                       || (total_len >= 1 && adjacentTileCount(curr_pos, AXIS, TILE_TYPE::ROOM) > 0)
-                       || (adjacentTileCount(curr_pos, AXIS, TILE_TYPE::DOORWAY) > !(total_len > 1)))
+                    if(adjacentTileCount(curr_pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(curr_pos, AXIS)-1)
                     {
-                        return;
+                       return;
                     }
 
                     prev_pos = curr_pos;
@@ -323,55 +321,79 @@ void level_structure_generator::generate(level_structure& l, gen_params p)
     generateRoom(ls->getSize() / 2);
 }
 
-unsigned int level_structure_generator::tileCount(const rect_i r)
+template<typename T>
+unsigned int level_structure_generator::tileCount(const rect_i r, const T& pred)
 {
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (ls->isPositionValid({ x,y })) { c++; }
+            if (pred({x,y})) { c++; }
         }
     }
     return c;
+}
+
+unsigned int level_structure_generator::tileCount(const rect_i r)
+{
+    auto pred = [&](const vec2i p)
+    {
+        return ls->isPositionValid(p);
+    };
+
+    return tileCount(r, pred);
 }
 
 unsigned int level_structure_generator::tileCount(const rect_i r, const TILE_TYPE ttype)
 {
-    unsigned int c = 0;
-    for (int x = r.tl.x; x <= r.br.x; x++)
+    auto pred = [&](const vec2i p)
     {
-        for (int y = r.tl.y; y <= r.br.y; y++)
-        {
-            if (ls->isPositionValid({ x,y }) && ls->at({x,y}).type == ttype) { c++; }
-        }
-    }
-    return c;
-}
-
-unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype)
-{
-    auto tile_check = [&](const vec2i p) 
-    {
-        return ls->isPositionValid(p) && ls->at(p).type == ttype; 
+        return ls->isPositionValid(p) && ls->at(p).type == ttype;
     };
 
+    return tileCount(r, pred);
+}
+
+template<typename T>
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const uint8_t area, const T& pred)
+{
     unsigned int c = 0;
 
     if (area & AXIS)
     {
-        c += tile_check(pos + vec2i{ -1, 0 })
-           + tile_check(pos + vec2i{  1, 0 })
-           + tile_check(pos + vec2i{  0,-1 })
-           + tile_check(pos + vec2i{  0, 1 });
+        c += pred(pos + vec2i{ -1, 0 })
+           + pred(pos + vec2i{  1, 0 })
+           + pred(pos + vec2i{  0,-1 })
+           + pred(pos + vec2i{  0, 1 });
     }
     if (area & DIAG)
     {
-        c += tile_check(pos + vec2i{ -1,-1 })
-           + tile_check(pos + vec2i{  1,-1 })
-           + tile_check(pos + vec2i{  1, 1 })
-           + tile_check(pos + vec2i{ -1, 1 });
+        c += pred(pos + vec2i{ -1,-1 })
+           + pred(pos + vec2i{  1,-1 })
+           + pred(pos + vec2i{  1, 1 })
+           + pred(pos + vec2i{ -1, 1 });
     }
 
     return c;
+}
+
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const uint8_t area)
+{
+    auto pred = [&](const vec2i p)
+    {
+        return ls->isPositionValid(p);
+    };
+
+    return adjacentTileCount(pos, area, pred);
+}
+
+unsigned int level_structure_generator::adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype)
+{
+    auto pred = [&](const vec2i p) 
+    {
+        return ls->isPositionValid(p) && ls->at(p).type == ttype; 
+    };
+
+    return adjacentTileCount(pos, area, pred);
 }
