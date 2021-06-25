@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "gfx/animation.h"
+#include "gfx/animated_sprite.h"
 
 int main()
 {
@@ -21,8 +21,6 @@ int main()
     g_params.min_door_count = 2;
     g_params.max_door_count = 5;
 
-    
-    std::cout << sizeof(animation) << "\n";
 
     vec2i l_size = {100,100};
 
@@ -47,8 +45,12 @@ int main()
         frames->push_back(sf::Sprite(tex, sf::IntRect(i * 64, 0, 64, 64)));
     }
 
-    animation anim(frames, 14);
+    animated_sprite anim(frames, 14);
     anim.setScale({ 4.0f, 4.0f });
+    anim.setRotation(180);
+    anim.setPosition({ 500,500 });
+    anim.setOrigin({ 32,32 });
+    //anim.setColor({ 255,0,0,255 });
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "");
