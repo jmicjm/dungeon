@@ -13,8 +13,11 @@ class level_structure_generator
     void fill(const tile t);
     void setTiles(const rect_i r, const TILE_TYPE ttype);
 
-    void generateHallway(const vec2i start_p);
+    bool generateHallway(const vec2i start_p);
     bool generateRoom(const vec2i start_p);
+
+    void fillEmptyAreas();
+    void fillEmprtyArea(rect_i area);
 
     template<typename T>
     unsigned int tileCount(const rect_i r, const T& pred);

@@ -28,7 +28,7 @@ void level_structure_generator::setTiles(const rect_i r, const TILE_TYPE tile)
     }
 }
 
-void level_structure_generator::generateHallway(const vec2i start_p)
+bool level_structure_generator::generateHallway(const vec2i start_p)
 {
     enum class DIRECTION
     {
@@ -131,14 +131,15 @@ void level_structure_generator::generateHallway(const vec2i start_p)
     DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
     const DIRECTION forbidden_dir = oppositeDir(dir);
 
-    if (   adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
+    if (   ls->at(start_p).type != TILE_TYPE::WALL
+        || adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
         || sideTileCount(start_p, dir, TILE_TYPE::HALLWAY) > 0
         || start_p.x <= 1
         || start_p.y <= 1
         || start_p.x >= ls->getSize().x-2
         || start_p.y >= ls->getSize().y-2)
     {
-        return;
+        return false;
     }
 
     vec2i curr_pos = start_p;
@@ -173,7 +174,7 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                     
                     if(adjacentTileCount(curr_pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(curr_pos, AXIS)-1)
                     {
-                       return;
+                       return true;
                     }
 
                     prev_pos = curr_pos;
@@ -192,7 +193,7 @@ void level_structure_generator::generateHallway(const vec2i start_p)
                         curr_pos.y++;
                     }
                 }
-                else return;
+                else return true;
             }
             else break;
         }
@@ -310,6 +311,75 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
     return true;
 }
 
+void level_structure_generator::fillEmptyAreas()
+{
+    for (int x = 1; x < ls->getSize().x - params.max_empty_area.x-1; x++)
+    {
+        for (int y = 1; y < ls->getSize().y - params.max_empty_area.y-1; y++)
+        {
+            const rect_i check_area = { vec2i{x,y}, vec2i{x,y} + params.max_empty_area };
+
+            while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
+            {
+                fillEmprtyArea(check_area);    
+            }
+        }
+    }
+}
+
+void level_structure_generator::fillEmprtyArea(rect_i area)
+{
+    while (area != rect_i{ {1, 1}, ls->getSize() - vec2i{2,2} })
+    {
+        for (int x = area.tl.x; x <= area.br.x; x++)
+        {
+            if (adjacentTileCount({ x, area.tl.y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ x, area.tl.y }, AXIS))
+            {
+                if (generateHallway({ x, area.tl.y }))
+                {
+                    return;
+                }
+            }
+            if (adjacentTileCount({ x, area.br.y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ x, area.br.y }, AXIS))
+            {
+                if (generateHallway({ x, area.br.y }))
+                {
+                    return;
+                }
+            }
+        }
+        for (int y = area.tl.y; y <= area.br.y; y++)
+        {
+            if (adjacentTileCount({ area.tl.x, y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ area.tl.x, y }, AXIS))
+            {
+                if (generateHallway({ area.tl.x, y }))
+                {
+                    return;
+                }
+            }
+            if (adjacentTileCount({ area.br.x, y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ area.br.x, y }, AXIS))
+            {
+                if (generateHallway({ area.br.x, y }))
+                {
+                    return;
+                }
+            }
+        }
+
+        area =
+        {
+            {
+            std::max(1, area.tl.x - 1),
+            std::max(1, area.tl.y - 1)
+            },
+            {
+            std::min(ls->getSize().x - 2, area.br.x + 1),
+            std::min(ls->getSize().y - 2, area.br.y + 1)
+            }
+        };
+    }
+}
+
 void level_structure_generator::generate(level_structure& l, gen_params p)
 {
     ls = &l;
@@ -319,6 +389,8 @@ void level_structure_generator::generate(level_structure& l, gen_params p)
     ls->room_rects.clear();
 
     generateRoom(ls->getSize() / 2);
+
+    fillEmptyAreas();
 }
 
 template<typename T>

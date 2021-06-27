@@ -26,5 +26,16 @@ struct rect
 	}
 };
 
+template<typename T>
+bool operator==(const rect<T>& a, const rect<T>& b)
+{
+	return a.tl == b.tl && a.br == b.br;
+}
+template<typename T>
+bool operator!=(const rect<T>& a, const rect<T>& b)
+{
+	return !(a == b);
+}
+
 using rect_i = rect<vec2i>;
 using rect_f = rect<vec2f>;
