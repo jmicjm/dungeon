@@ -308,49 +308,34 @@ void level_structure_generator::fillEmptyAreas()
 
             while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
             {
-                fillEmprtyArea(check_area);    
+                fillEmptyArea(check_area);    
             }
         }
     }
 }
 
-void level_structure_generator::fillEmprtyArea(rect_i area)
+void level_structure_generator::fillEmptyArea(rect_i area)
 {
+    auto tryGen = [&](const vec2i pos)
+    {
+        if (adjacentTileCount(pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(pos, AXIS))
+        {
+            return generateHallway(pos);
+        }
+        return false;
+    };
+
     while (area != rect_i{ {1, 1}, ls->getSize() - vec2i{2,2} })
     {
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
-            if (adjacentTileCount({ x, area.tl.y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ x, area.tl.y }, AXIS))
-            {
-                if (generateHallway({ x, area.tl.y }))
-                {
-                    return;
-                }
-            }
-            if (adjacentTileCount({ x, area.br.y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ x, area.br.y }, AXIS))
-            {
-                if (generateHallway({ x, area.br.y }))
-                {
-                    return;
-                }
-            }
+            if (tryGen({ x, area.tl.y })) return; 
+            if (tryGen({ x, area.br.y })) return; 
         }
         for (int y = area.tl.y; y <= area.br.y; y++)
         {
-            if (adjacentTileCount({ area.tl.x, y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ area.tl.x, y }, AXIS))
-            {
-                if (generateHallway({ area.tl.x, y }))
-                {
-                    return;
-                }
-            }
-            if (adjacentTileCount({ area.br.x, y }, AXIS, TILE_TYPE::WALL) < adjacentTileCount({ area.br.x, y }, AXIS))
-            {
-                if (generateHallway({ area.br.x, y }))
-                {
-                    return;
-                }
-            }
+            if (tryGen({ area.tl.x, y })) return; 
+            if (tryGen({ area.br.x, y })) return;
         }
 
         area =
