@@ -1,8 +1,6 @@
 #include "level_structure_generator.h"
 #include "../utils/rand.h"
 
-#include <functional>
-
 void level_structure_generator::fill(const tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -49,7 +47,7 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
             return DIRECTION::UP;
         }
     };
-    auto randomDir = [&](const DIRECTION dir, const DIRECTION forbidden_dir, const vec2i pos)
+    auto randomDir = [&](const DIRECTION dir, const vec2i pos)
     {
         std::vector<DIRECTION> dirs = { DIRECTION::LEFT, DIRECTION::UP, DIRECTION::RIGHT, DIRECTION::DOWN };
         auto remDir = [&](const DIRECTION dir)
@@ -64,13 +62,6 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
         };
         remDir(oppositeDir(dir));
 
-        if (   !(pos.x <= 1                 && pos.y <= 1                )
-            && !(pos.x <= 1                 && pos.y >= ls->getSize().y-2)
-            && !(pos.x >= ls->getSize().x-2 && pos.y <= 1                )
-            && !(pos.x >= ls->getSize().x-2 && pos.y >= ls->getSize().y-2))//ignore forbidden_dir in corners
-        {
-            remDir(forbidden_dir);
-        }
         if (pos.x >= ls->getSize().x - 2) { remDir(DIRECTION::RIGHT); }
         if (pos.x <= 1) { remDir(DIRECTION::LEFT); }
         if (pos.y >= ls->getSize().y - 2) { remDir(DIRECTION::DOWN); }
@@ -80,7 +71,7 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
     };
     auto initDir = [&]()
     {
-        auto tileCheck = [&](const vec2i pos, std::function<bool(const TILE_TYPE)> cmp)
+        auto tileCheck = [&](const vec2i pos, const auto& cmp)
         {
             return ls->isPositionValid(pos) && cmp(ls->at(pos).type);
         };
@@ -129,7 +120,6 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
     };
 
     DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
-    const DIRECTION forbidden_dir = oppositeDir(dir);
 
     if (   ls->at(start_p).type != TILE_TYPE::WALL
         || adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
@@ -144,10 +134,7 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
 
     vec2i curr_pos = start_p;
     vec2i prev_pos = start_p;
-    const unsigned int m_segment_count = 
-        params.max_hallway_segment_count >= params.min_hallway_segment_count
-        ? rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1
-        : 0;
+    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1;
 
     unsigned int total_len = 0;
     for (int seg = m_segment_count; seg >= 0; seg--)
@@ -214,7 +201,7 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
                 }
             }
         }
-        dir = randomDir(dir, forbidden_dir, curr_pos);
+        dir = randomDir(dir, curr_pos);
     }
 }
 
