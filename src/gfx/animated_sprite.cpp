@@ -13,12 +13,9 @@ void animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
 	if (m_frames && m_current_frame_idx < m_frames->size())
 	{
-		(*m_frames)[m_current_frame_idx].setPosition(m_position);
-		(*m_frames)[m_current_frame_idx].setScale(m_scale);
-		(*m_frames)[m_current_frame_idx].setOrigin(m_origin);
-		(*m_frames)[m_current_frame_idx].setRotation(m_rotation);
 		(*m_frames)[m_current_frame_idx].setColor(m_color);
 
+		st.transform *= getTransform();
 		rt.draw((*m_frames)[m_current_frame_idx], st);
 	}
 }
@@ -66,61 +63,6 @@ void animated_sprite::updateFrameIdx()
 	{
 		m_current_frame_idx = 0;
 	}
-}
-
-void animated_sprite::setPosition(sf::Vector2f pos)
-{
-	m_position = pos;
-}
-
-void animated_sprite::move(sf::Vector2f offset)
-{
-	m_position += offset;
-}
-
-sf::Vector2f animated_sprite::getPosition() const
-{
-	return m_position;
-}
-
-void animated_sprite::setScale(sf::Vector2f scale)
-{
-	m_scale = scale;
-}
-
-void animated_sprite::scale(sf::Vector2f scale)
-{
-	m_scale = { m_scale.x * scale.x, m_scale.y * scale.y };
-}
-
-sf::Vector2f animated_sprite::getScale() const
-{
-	return m_scale;
-}
-
-void animated_sprite::setRotation(float angle)
-{
-	m_rotation = angle;
-}
-
-void animated_sprite::rotate(float angle)
-{
-	m_rotation += angle;
-}
-
-float animated_sprite::getRotation() const
-{
-	return m_rotation;
-}
-
-void animated_sprite::setOrigin(sf::Vector2f origin)
-{
-	m_origin = origin;
-}
-
-sf::Vector2f animated_sprite::getOrigin() const
-{
-	return m_origin;
 }
 
 void animated_sprite::setColor(sf::Color color)
