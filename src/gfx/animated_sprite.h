@@ -1,4 +1,6 @@
 #pragma once
+#include "animated_sprite_frames.h"
+
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/Transformable.hpp"
@@ -11,7 +13,7 @@
 
 class animated_sprite : public sf::Drawable, public sf::Transformable
 {
-	std::shared_ptr<std::vector<sf::Sprite>> m_frames;
+	std::shared_ptr<animated_sprite_frames> m_frames;
 	unsigned int m_current_frame_idx = 0;
 
 	sf::Color m_color = {255,255,255,255};
@@ -22,8 +24,8 @@ class animated_sprite : public sf::Drawable, public sf::Transformable
 	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 	
 public:
-	animated_sprite(std::shared_ptr<std::vector<sf::Sprite>> frames, unsigned int fps);
-	animated_sprite(std::shared_ptr<std::vector<sf::Sprite>> frames, std::chrono::milliseconds frame_time);
+	animated_sprite(std::shared_ptr<animated_sprite_frames> frames, unsigned int fps);
+	animated_sprite(std::shared_ptr<animated_sprite_frames> frames, std::chrono::milliseconds frame_time);
 
 	void restart();
 

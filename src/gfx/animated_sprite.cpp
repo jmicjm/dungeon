@@ -1,9 +1,9 @@
 #include "animated_sprite.h"
 
-animated_sprite::animated_sprite(std::shared_ptr<std::vector<sf::Sprite>> frames, unsigned int fps)
+animated_sprite::animated_sprite(std::shared_ptr<animated_sprite_frames> frames, unsigned int fps)
 	: animated_sprite(frames, std::chrono::milliseconds(1000) / fps) {}
 
-animated_sprite::animated_sprite(std::shared_ptr<std::vector<sf::Sprite>> frames, std::chrono::milliseconds frame_time)
+animated_sprite::animated_sprite(std::shared_ptr<animated_sprite_frames> frames, std::chrono::milliseconds frame_time)
 	: m_frames(frames), m_frame_time(frame_time)
 {
 	restart();
@@ -11,12 +11,19 @@ animated_sprite::animated_sprite(std::shared_ptr<std::vector<sf::Sprite>> frames
 
 void animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-	if (m_frames && m_current_frame_idx < m_frames->size())
+	if (m_frames && m_current_frame_idx < m_frames->frame_rects.size())
 	{
-		(*m_frames)[m_current_frame_idx].setColor(m_color);
+		auto& vertices = m_frames->frame_rects[m_current_frame_idx].vertices;
+
+		for (auto& i : vertices)
+		{
+			i.color = m_color;
+		}
 
 		st.transform *= getTransform();
-		rt.draw((*m_frames)[m_current_frame_idx], st);
+		st.texture = m_frames->texture;
+
+		rt.draw(vertices, 4, sf::Quads, st);
 	}
 }
 
@@ -37,17 +44,17 @@ void animated_sprite::setFrameIdx(unsigned int idx, bool update_start_point)
 
 unsigned int animated_sprite::getFrameIdx() const
 {
-	m_current_frame_idx;
+	return m_current_frame_idx;
 }
 
 unsigned int animated_sprite::frameCount() const
 {
-	return m_frames ? m_frames->size() : 0;
+	return m_frames ? m_frames->frame_rects.size() : 0;
 }
 
 void animated_sprite::updateFrameIdx()
 {
-	if (m_frames && m_frames->size() > 1)
+	if (m_frames && m_frames->frame_rects.size() > 1)
 	{
 		std::chrono::steady_clock::time_point current_point = std::chrono::steady_clock::now();
 
@@ -55,7 +62,7 @@ void animated_sprite::updateFrameIdx()
 
 		if (increase > 0)
 		{
-			m_current_frame_idx = (m_current_frame_idx + increase) % m_frames->size();
+			m_current_frame_idx = (m_current_frame_idx + increase) % m_frames->frame_rects.size();
 			m_frame_start_point += m_frame_time * increase;
 		}
 	}
@@ -77,14 +84,18 @@ sf::Color animated_sprite::getColor() const
 
 sf::FloatRect animated_sprite::getLocalBounds() const
 {
-	return (m_frames && m_current_frame_idx < m_frames->size()) 
-		 ? (*m_frames)[m_current_frame_idx].getLocalBounds() 
-		 : sf::FloatRect{0,0,0,0};
+	if (m_frames && m_current_frame_idx < m_frames->frame_rects.size())
+	{
+		auto& vertices     = m_frames->frame_rects[m_current_frame_idx].vertices;
+		const float width  = vertices[3].position.x;
+		const float height = vertices[1].position.y;
+
+		return sf::FloatRect{ 0,0, width, height };
+	}
+	return sf::FloatRect{0,0,0,0};
 }
 
 sf::FloatRect animated_sprite::getGlobalBounds() const
 {
-	return (m_frames && m_current_frame_idx < m_frames->size()) 
-		 ? (*m_frames)[m_current_frame_idx].getGlobalBounds() 
-		 : sf::FloatRect{ 0,0,0,0 };
+	return getTransform().transformRect(getLocalBounds());
 }

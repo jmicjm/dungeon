@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "gfx/animated_sprite.h"
+#include "asset_storage/texture_bank.h"
 
 int main()
 {
@@ -18,9 +19,11 @@ int main()
     g_params.max_hallway_segment_length = 5;
     g_params.min_hallway_segment_count = 1;
     g_params.max_hallway_segment_count = 5;
-    g_params.min_door_count = 2;
-    g_params.max_door_count = 5;
+    g_params.min_door_count = 0;
+    g_params.max_door_count = 3;
+    g_params.max_empty_area = { 10,10 };
 
+    std::cout << sizeof(animated_sprite); 
 
     vec2i l_size = {100,100};
 
@@ -36,21 +39,30 @@ int main()
     l_dec.decorate(l_s);
 
 
-    std::shared_ptr<std::vector<sf::Sprite>> frames = std::make_shared<std::vector<sf::Sprite>>();
+    
 
-    sf::Texture tex;
-    tex.loadFromFile("wild_mage_frames.png");
+    const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
+   // tex.loadFromFile("wild_mage_frames.png");
+    std::vector<sf::IntRect> rects;
     for (int i = 0; i < 16; i++)
     {
-        frames->push_back(sf::Sprite(tex, sf::IntRect(i * 64, 0, 64, 64)));
+       rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
     }
+    std::shared_ptr<animated_sprite_frames> frames = std::make_shared<animated_sprite_frames>(tex, rects);
 
     animated_sprite anim(frames, 14);
     anim.setScale({ 4.0f, 4.0f });
-    anim.setRotation(180);
+    anim.setRotation(60);
     anim.setPosition({ 500,500 });
     anim.setOrigin({ 32,32 });
-    //anim.setColor({ 255,0,0,255 });
+    anim.setColor({ 255,0,0,255 });
+
+    animated_sprite anim2 = anim;
+    anim2.setScale({ 3.0f, 3.0f });
+    anim2.setRotation(-60);
+    anim2.setPosition({ 100,100 });
+    anim2.setColor({ 255,255,255,255 });
+
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "");
@@ -137,6 +149,8 @@ int main()
 
         anim.updateFrameIdx();
         window.draw(anim);
+        anim2.updateFrameIdx();
+        window.draw(anim2);
         window.display();
     }
     l_s.printToFile("mapa.txt");
