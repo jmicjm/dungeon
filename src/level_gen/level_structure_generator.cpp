@@ -199,6 +199,7 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
                     }
                     seg++;
                 }
+                else return true;
             }
         }
         dir = randomDir(dir, curr_pos);
