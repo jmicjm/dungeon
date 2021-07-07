@@ -208,7 +208,8 @@ bool level_structure_generator::generateHallway(const vec2i start_p)
 
 bool level_structure_generator::generateRoom(const vec2i start_p)
 {
-    if(adjacentTileCount(start_p, AXIS|DIAG, TILE_TYPE::ROOM) > 0)
+    if(    ls->at(start_p).type != TILE_TYPE::WALL
+        || adjacentTileCount(start_p, AXIS|DIAG, TILE_TYPE::ROOM) > 0)
     {
         return false;
     }
