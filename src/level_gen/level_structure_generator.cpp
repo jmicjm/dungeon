@@ -251,47 +251,10 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
         setTiles(r, TILE_TYPE::ROOM);
         ls->room_rects.push_back(r);
 
-        const unsigned int max_door_c = rand(params.min_door_count, params.max_door_count);      
-        std::vector<vec2i> possible_door_pos;
-
-        for (int x = 0; x < r.size().x; x++)
-        {
-           possible_door_pos.push_back(r.tl + vec2i{ x,-1 });
-           possible_door_pos.push_back(r.tl + vec2i{ x,r.size().y });
-        }
-        for (int y = 0; y < r.size().y; y++)
-        {
-            possible_door_pos.push_back(r.tl + vec2i{ -1,y });
-            possible_door_pos.push_back(r.tl + vec2i{ r.size().x,y });
-        }
-        for (int i = possible_door_pos.size()-1; i > 0; i--)
-        {
-            if (ls->isPositionValid(possible_door_pos[i]))
-            {
-                if (ls->at(possible_door_pos[i]).type == TILE_TYPE::HALLWAY)
-                {
-                    possible_door_pos.erase(possible_door_pos.begin() + i);
-                }
-            }
-            else { possible_door_pos.erase(possible_door_pos.begin() + i); }
-        }
-
-        std::vector<vec2i> door_pos;
-        for (int i = 0; i < max_door_c && possible_door_pos.size()>0; i++)
-        {
-            int r_pos = rand(0, possible_door_pos.size() - 1);
-            door_pos.push_back(possible_door_pos[r_pos]);
-            possible_door_pos.erase(possible_door_pos.begin() + r_pos);
-        }
-
-        for (int i = 0; i < door_pos.size(); i++)
-        {
-            generateHallway(door_pos[i]);
-        }
+        return true;
     }
-    else return false;
 
-    return true;
+    return false;
 }
 
 void level_structure_generator::fillEmptyAreas()
