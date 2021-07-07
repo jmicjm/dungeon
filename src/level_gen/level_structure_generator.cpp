@@ -225,7 +225,8 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
     bool right_expansion_possible  = true;
     bool bottom_expansion_possible = true;
 
-    while (r.size().x < max_size.x || r.size().y < max_size.y)
+    while (   (left_expansion_possible || right_expansion_possible ) && r.size().x < max_size.x
+           || (top_expansion_possible  || bottom_expansion_possible) && r.size().y < max_size.y)
     {
         auto expansionCheck = [&](const rect_i scan_area)
         {
@@ -243,12 +244,6 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
 
         bottom_expansion_possible = r.br.y < ls->getSize().y-2 && expansionCheck({ r.br + vec2i{-r.size().x, 1}, r.br + vec2i{1,2} });
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
-            
-        if (   (!(left_expansion_possible || right_expansion_possible)  || r.size().x >= max_size.x)
-            && (!(top_expansion_possible  || bottom_expansion_possible) || r.size().y >= max_size.y))//further expansion impossible
-        {
-            break; 
-        }
     }
 
     if (r.size().x >= params.min_room_size.x && r.size().y >= params.min_room_size.y)
