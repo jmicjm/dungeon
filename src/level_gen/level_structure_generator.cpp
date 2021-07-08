@@ -260,12 +260,12 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
 
 void level_structure_generator::fillEmptyAreas()
 {
-    vec2i tl = (ls->getSize() - params.max_empty_area) / 2;
+    vec2i tl = (ls->getSize() - params.max_empty_area_size) / 2;
     vec2i br = tl;
 
     auto fill = [&](const vec2i p)
     {
-        const rect_i check_area = { p, p + params.max_empty_area };
+        const rect_i check_area = { p, p + params.max_empty_area_size };
 
         while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
         {
@@ -274,7 +274,7 @@ void level_structure_generator::fillEmptyAreas()
     };
 
     const vec2i min_p = vec2i{ 1, 1 };
-    const vec2i max_p = ls->getSize() - params.max_empty_area - vec2i{ 2,2 };
+    const vec2i max_p = ls->getSize() - params.max_empty_area_size - vec2i{ 2,2 };
 
     while (tl != min_p || br != max_p)
     { 

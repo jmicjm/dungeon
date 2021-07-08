@@ -20,7 +20,7 @@ int main()
     g_params.max_hallway_segment_length = 5;
     g_params.min_hallway_segment_count = 1;
     g_params.max_hallway_segment_count = 5;
-    g_params.max_empty_area = { 10,10 };
+    g_params.max_empty_area_size = { 10,10 };
 
     std::cout << sizeof(animated_sprite); 
 

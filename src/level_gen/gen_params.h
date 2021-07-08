@@ -10,5 +10,5 @@ struct gen_params
 	unsigned int min_hallway_segment_length;
 	unsigned int max_hallway_segment_count;
 	unsigned int min_hallway_segment_count;
-	vec2i max_empty_area;
+	vec2i max_empty_area_size;
 };
