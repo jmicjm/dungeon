@@ -260,17 +260,45 @@ bool level_structure_generator::generateRoom(const vec2i start_p)
 
 void level_structure_generator::fillEmptyAreas()
 {
-    for (int x = 1; x < ls->getSize().x - params.max_empty_area.x-1; x++)
-    {
-        for (int y = 1; y < ls->getSize().y - params.max_empty_area.y-1; y++)
-        {
-            const rect_i check_area = { vec2i{x,y}, vec2i{x,y} + params.max_empty_area };
+    vec2i tl = (ls->getSize() - params.max_empty_area) / 2;
+    vec2i br = tl;
 
-            while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
-            {
-                fillEmptyArea(check_area);    
-            }
+    auto fill = [&](const vec2i p)
+    {
+        const rect_i check_area = { p, p + params.max_empty_area };
+
+        while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
+        {
+            fillEmptyArea(check_area);
         }
+    };
+
+    const vec2i min_p = vec2i{ 1, 1 };
+    const vec2i max_p = ls->getSize() - params.max_empty_area - vec2i{ 2,2 };
+
+    while (tl != min_p || br != max_p)
+    { 
+        for (int x = tl.x; x <= br.x; x++)
+        {
+            fill({ x, tl.y });
+            fill({ x, br.y });
+        }
+        for (int y = tl.y; y <= br.y; y++)
+        {
+            fill({ tl.x, y });
+            fill({ br.x, y });
+        }
+
+        tl =
+        {
+            std::max(min_p.x, tl.x-1),
+            std::max(min_p.y, tl.y-1)
+        };
+        br =
+        {
+            std::min(max_p.x, br.x+1),
+            std::min(max_p.y, br.y+1)
+        };
     }
 }
 
@@ -290,7 +318,10 @@ void level_structure_generator::fillEmptyArea(rect_i area)
     bool try_right  = true;
     bool try_bottom = true;
 
-    while (area != rect_i{ {1, 1}, ls->getSize() - vec2i{2,2} })
+    const vec2i min_p = vec2i{ 1, 1 };
+    const vec2i max_p = ls->getSize() - vec2i{ 2,2 };
+
+    while (area != rect_i{ min_p, max_p })
     {
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
@@ -307,12 +338,12 @@ void level_structure_generator::fillEmptyArea(rect_i area)
         area =
         {
             {
-            std::max(1, area.tl.x - 1),
-            std::max(1, area.tl.y - 1)
+            std::max(min_p.x, area.tl.x - 1),
+            std::max(min_p.y, area.tl.y - 1)
             },
             {
-            std::min(ls->getSize().x - 2, area.br.x + 1),
-            std::min(ls->getSize().y - 2, area.br.y + 1)
+            std::min(max_p.x, area.br.x + 1),
+            std::min(max_p.y, area.br.y + 1)
             }
         };
 
