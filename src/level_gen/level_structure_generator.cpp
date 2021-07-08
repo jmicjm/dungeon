@@ -285,19 +285,25 @@ void level_structure_generator::fillEmptyArea(rect_i area)
         return false;
     };
 
+    bool try_left   = true;
+    bool try_top    = true;
+    bool try_right  = true;
+    bool try_bottom = true;
+
     while (area != rect_i{ {1, 1}, ls->getSize() - vec2i{2,2} })
     {
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
-            if (tryGen({ x, area.tl.y })) return; 
-            if (tryGen({ x, area.br.y })) return; 
+            if (try_top    && tryGen({ x, area.tl.y })) return; 
+            if (try_bottom && tryGen({ x, area.br.y })) return; 
         }
         for (int y = area.tl.y; y <= area.br.y; y++)
         {
-            if (tryGen({ area.tl.x, y })) return; 
-            if (tryGen({ area.br.x, y })) return;
+            if (try_left   && tryGen({ area.tl.x, y })) return; 
+            if (try_right  && tryGen({ area.br.x, y })) return;
         }
 
+        const rect_i old_area = area;
         area =
         {
             {
@@ -309,6 +315,11 @@ void level_structure_generator::fillEmptyArea(rect_i area)
             std::min(ls->getSize().y - 2, area.br.y + 1)
             }
         };
+
+        try_left   = old_area.tl.x != area.tl.x;
+        try_top    = old_area.tl.y != area.tl.y;
+        try_right  = old_area.br.x != area.br.x;
+        try_bottom = old_area.br.y != area.br.y;
     }
 }
 
