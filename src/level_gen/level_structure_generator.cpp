@@ -359,6 +359,7 @@ void level_structure_generator::generate(level_structure& l, gen_params p)
     ls = &l;
     params = p;
 
+    ls->setSize(p.level_size);
     fill(tile());
     ls->room_rects.clear();
 

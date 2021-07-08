@@ -3,6 +3,7 @@
 
 struct gen_params
 {
+	vec2i level_size;
 	vec2i max_room_size;
 	vec2i min_room_size;
 	unsigned int max_hallway_segment_length;

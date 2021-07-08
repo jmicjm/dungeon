@@ -13,6 +13,7 @@
 int main()
 {
     gen_params g_params;
+    g_params.level_size = { 500,500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -23,20 +24,24 @@ int main()
 
     std::cout << sizeof(animated_sprite); 
 
-    vec2i l_size = {100,100};
-
     level_structure l_s;
-    l_s.setSize(l_size);
 
     level_structure_generator l_gen;
-    l_gen.generate(l_s, g_params);
+
+    auto b = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1; i++)
+    {
+        l_gen.generate(l_s, g_params);
+    }
+    auto e = std::chrono::high_resolution_clock::now();
+    std::cout << "t: " << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << " ms\n";
 
     tile_sprite_storage::loadSprites();
 
     level_structure_decorator l_dec;
     l_dec.decorate(l_s);
 
-
+    
     
 
     const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
@@ -95,6 +100,7 @@ int main()
         {
             l_gen.generate(l_s, g_params);
             l_dec.decorate(l_s);
+            std::cout << " " << l_s.roomCount();
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -146,10 +152,12 @@ int main()
         }
 
         anim.updateFrameIdx();
-        window.draw(anim);
+      //  window.draw(anim);
         anim2.updateFrameIdx();
-        window.draw(anim2);
+       // window.draw(anim2);
         window.display();
+        
+
     }
     l_s.printToFile("mapa.txt");
 }

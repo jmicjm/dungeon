@@ -14,8 +14,9 @@ class level_structure
     std::vector<std::vector<tile>> tiles;
     std::vector<rect_i> room_rects;
 
-public:
     void setSize(const vec2i size);
+
+public:
     vec2i getSize();
 
     tile& at(const vec2i pos);
