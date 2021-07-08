@@ -20,9 +20,10 @@ class level_structure_generator
     void fillEmptyArea(rect_i area);
 
     template<typename T>
-    unsigned int tileCount(const rect_i r, const T& pred);
-    unsigned int tileCount(const rect_i r);
+    unsigned int tileCount(rect_i r, const T& pred);
+    unsigned int tileCount(rect_i r);
     unsigned int tileCount(const rect_i r, const TILE_TYPE ttype);
+    void clipRectToLevelSize(rect_i& r);
 
     enum ADJACENT_AREA : uint8_t
     {

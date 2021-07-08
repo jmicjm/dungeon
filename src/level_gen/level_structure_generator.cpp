@@ -337,37 +337,51 @@ void level_structure_generator::generate(level_structure& l, gen_params p)
 }
 
 template<typename T>
-unsigned int level_structure_generator::tileCount(const rect_i r, const T& pred)
+unsigned int level_structure_generator::tileCount(rect_i r, const T& pred)
 {
+    clipRectToLevelSize(r);
+
     unsigned int c = 0;
     for (int x = r.tl.x; x <= r.br.x; x++)
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (pred({x,y})) { c++; }
+            c += pred({ x,y });
         }
     }
     return c;
 }
 
-unsigned int level_structure_generator::tileCount(const rect_i r)
+unsigned int level_structure_generator::tileCount(rect_i r)
 {
-    auto pred = [&](const vec2i p)
-    {
-        return ls->isPositionValid(p);
-    };
+    clipRectToLevelSize(r);
 
-    return tileCount(r, pred);
+    return r.size().x * r.size().y;
 }
 
 unsigned int level_structure_generator::tileCount(const rect_i r, const TILE_TYPE ttype)
 {
     auto pred = [&](const vec2i p)
     {
-        return ls->isPositionValid(p) && ls->at(p).type == ttype;
+        return ls->at(p).type == ttype;
     };
 
     return tileCount(r, pred);
+}
+
+void level_structure_generator::clipRectToLevelSize(rect_i& r)
+{
+    r =
+    {
+        {
+        std::clamp(r.tl.x, 0, ls->getSize().x-1),
+        std::clamp(r.tl.y, 0, ls->getSize().y-1)
+        },
+        {
+        std::clamp(r.br.x, 0, ls->getSize().x-1),
+        std::clamp(r.br.y, 0, ls->getSize().y-1)
+        }
+    };
 }
 
 template<typename T>
