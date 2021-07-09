@@ -46,16 +46,16 @@ void level_tile_map::populate(const level_structure& ls, const sf::Vector2f& til
 
 				texture_vertex_array& va = getVertexArray(tsd.texture);
 
-				if (sprite_data.id & TILE_SPRITE_ID::OVERLAY)//put overlays on top
-				{
-					std::swap(vertex_arrays.back(), va);
-				}
-
 				for (auto vertex : tsd.vertices)
 				{
 					vertex.position += sf::Vector2f(tile_size.x*x, tile_size.y*y);
 
 					va.vertices.append(vertex);
+				}
+
+				if (sprite_data.id & TILE_SPRITE_ID::OVERLAY)//put overlays on top
+				{
+					std::swap(vertex_arrays.back(), va);
 				}
 			}
 		}
