@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-sf::VertexArray& level_tile_map::getVertexArray(const sf::Texture* texture)
+level_tile_map::texture_vertex_array& level_tile_map::getVertexArray(const sf::Texture* texture)
 {
 	auto it = std::find_if(
 		vertex_arrays.begin(),
@@ -13,13 +13,13 @@ sf::VertexArray& level_tile_map::getVertexArray(const sf::Texture* texture)
 	);
 	if (it != vertex_arrays.end()) 
 	{
-		return it->vertices; 
+		return *it; 
 	}
 	else
 	{
 		vertex_arrays.push_back(texture);
 		vertex_arrays.back().vertices.setPrimitiveType(sf::Quads);
-		return vertex_arrays.back().vertices;
+		return vertex_arrays.back();
 	}
 }
 
@@ -44,13 +44,18 @@ void level_tile_map::populate(const level_structure& ls, const sf::Vector2f& til
 			{
 				const tile_sprite_data& tsd = tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
-				sf::VertexArray& va = getVertexArray(tsd.texture);
+				texture_vertex_array& va = getVertexArray(tsd.texture);
+
+				if (sprite_data.id & TILE_SPRITE_ID::OVERLAY)//put overlays on top
+				{
+					std::swap(vertex_arrays.back(), va);
+				}
 
 				for (auto vertex : tsd.vertices)
 				{
 					vertex.position += sf::Vector2f(tile_size.x*x, tile_size.y*y);
 
-					va.append(vertex);
+					va.vertices.append(vertex);
 				}
 			}
 		}

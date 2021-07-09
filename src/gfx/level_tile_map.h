@@ -21,7 +21,7 @@ class level_tile_map : public sf::Drawable
 
 	std::vector<texture_vertex_array> vertex_arrays;
 
-	sf::VertexArray& getVertexArray(const sf::Texture* texture);
+	texture_vertex_array& getVertexArray(const sf::Texture* texture);
 
 	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 	

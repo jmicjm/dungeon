@@ -99,6 +99,7 @@ int main()
         {
             l_gen.generate(l_s, g_params);
             l_dec.decorate(l_s);
+            tmap.populate(l_s, { 64,64 });
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
