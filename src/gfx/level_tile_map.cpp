@@ -4,12 +4,12 @@
 
 #include <algorithm>
 
-level_tile_map::texture_vertex_array& level_tile_map::getVertexArray(const sf::Texture* texture)
+level_tile_map::texture_vertices<sf::VertexArray>& level_tile_map::getVertexArray(const sf::Texture* texture, vertex_arrays_type& vertex_arrays)
 {
 	auto it = std::find_if(
 		vertex_arrays.begin(),
 		vertex_arrays.end(),
-		[&](const texture_vertex_array& tva) {return tva.texture == texture; }
+		[&](const texture_vertices<sf::VertexArray>& tva) {return tva.texture == texture; }
 	);
 	if (it != vertex_arrays.end()) 
 	{
@@ -25,16 +25,29 @@ level_tile_map::texture_vertex_array& level_tile_map::getVertexArray(const sf::T
 
 void level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-	for (auto& i : vertex_arrays)
+	for (auto& i : vertex_buffers)
 	{
 		st.texture = i.texture;
 		rt.draw(i.vertices, st);
 	}
 }
 
+void level_tile_map::copyToBuffer(const vertex_arrays_type& vertex_arrays)
+{
+	vertex_buffers.resize(vertex_arrays.size());
+
+	for (int i=0;i< vertex_buffers.size();i++)
+	{
+		vertex_buffers[i].texture = vertex_arrays[i].texture;
+		vertex_buffers[i].vertices.setPrimitiveType(sf::Quads);
+		vertex_buffers[i].vertices.create(vertex_arrays[i].vertices.getVertexCount());
+		vertex_buffers[i].vertices.update(&(vertex_arrays[i].vertices[0]));
+	}
+}
+
 void level_tile_map::populate(const level_structure& ls, const sf::Vector2f& tile_size)
 {
-	vertex_arrays.clear();
+	vertex_arrays_type vertex_arrays;
 
 	for (int x = 0; x < ls.getSize().x; x++)
 	{
@@ -44,7 +57,7 @@ void level_tile_map::populate(const level_structure& ls, const sf::Vector2f& til
 			{
 				const tile_sprite_data& tsd = tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
-				texture_vertex_array& va = getVertexArray(tsd.texture);
+				texture_vertices<sf::VertexArray>& va = getVertexArray(tsd.texture, vertex_arrays);
 
 				for (auto vertex : tsd.vertices)
 				{
@@ -60,4 +73,5 @@ void level_tile_map::populate(const level_structure& ls, const sf::Vector2f& til
 			}
 		}
 	}
+	copyToBuffer(vertex_arrays);
 }
