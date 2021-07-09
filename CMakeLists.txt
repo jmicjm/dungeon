@@ -18,6 +18,7 @@ add_executable(dungeon
 	src/gfx/animated_sprite.cpp
 	src/gfx/animated_sprite_frames.cpp
 	src/gfx/level_tile_map.cpp
+	src/gfx/utils/setQuad.cpp
 	src/level/level_structure.cpp
 	src/level_gen/level_structure_generator.cpp 
 	src/level_gen/level_structure_decorator.cpp
