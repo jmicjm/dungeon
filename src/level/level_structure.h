@@ -17,13 +17,14 @@ class level_structure
     void setSize(const vec2i size);
 
 public:
-    vec2i getSize();
+    vec2i getSize() const;
 
     tile& at(const vec2i pos);
-    bool isPositionValid(const vec2i pos);
+    const tile& at(const vec2i pos) const;
+    bool isPositionValid(const vec2i pos) const;
 
-    size_t roomCount();
-    rect_i getRoomRect(size_t room_idx);
+    size_t roomCount() const;
+    rect_i getRoomRect(size_t room_idx) const;
 
-    void printToFile(const std::string& fname);
+    void printToFile(const std::string& fname) const;
 };

@@ -14,9 +14,10 @@ add_executable(dungeon
 	src/game.cpp 
 	src/asset_storage/texture_bank.cpp
 	src/asset_storage/tile_sprite_storage.cpp 
+	src/gfx/tile_sprite_data.cpp
 	src/gfx/animated_sprite.cpp
-	src/gfx/animated_sprite.cpp
-	src/gfx/animated_sprite_frames.cpp 
+	src/gfx/animated_sprite_frames.cpp
+	src/gfx/level_tile_map.cpp
 	src/level/level_structure.cpp
 	src/level_gen/level_structure_generator.cpp 
 	src/level_gen/level_structure_decorator.cpp

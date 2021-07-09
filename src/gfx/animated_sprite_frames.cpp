@@ -19,8 +19,8 @@ animated_sprite_frames::animated_sprite_frames(
 		frame_rects[i].vertices[2].texCoords = sf::Vector2f{ right, bottom };
 		frame_rects[i].vertices[3].texCoords = sf::Vector2f{ right, top    };
 
-		const float width  = rects[i].width;
-		const float height = rects[i].height;
+		const float& width  = rects[i].width;
+		const float& height = rects[i].height;
 
 		frame_rects[i].vertices[0].position = sf::Vector2f{ 0,     0      };
 		frame_rects[i].vertices[1].position = sf::Vector2f{ 0,     height };

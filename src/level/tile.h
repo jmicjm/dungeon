@@ -18,14 +18,9 @@ struct tile
 	{
 		TILE_SPRITE_ID::tile_sprite_id_t id;
 		unsigned int id_variant;
-		sf::Sprite* sprite;
 
-		sprite_info(TILE_SPRITE_ID::tile_sprite_id_t id = 0, unsigned int id_variant = 0, sf::Sprite* sprite = nullptr)
-			: id(id), id_variant(id_variant), sprite(sprite) {}
+		sprite_info(TILE_SPRITE_ID::tile_sprite_id_t id = 0, unsigned int id_variant = 0)
+			: id(id), id_variant(id_variant) {}
 	};
-	std::vector<sprite_info> sprites;
-
-	/*
-	bool revealed;
-	*/
+	std::vector<sprite_info> sprites_info;
 };

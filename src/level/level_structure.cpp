@@ -10,7 +10,7 @@ void level_structure::setSize(const vec2i size)
         i.resize(size.y);
     }
 }
-vec2i level_structure::getSize() 
+vec2i level_structure::getSize() const 
 {
     return tiles.size() > 0 ? vec2i{ (int)tiles.size(), (int)tiles[0].size() } : vec2i{ 0, 0 }; 
 }
@@ -20,22 +20,27 @@ tile& level_structure::at(const vec2i pos)
     return tiles[pos.x][pos.y]; 
 }
 
-bool level_structure::isPositionValid(const vec2i pos)
+const tile& level_structure::at(const vec2i pos) const
+{
+    return tiles[pos.x][pos.y];
+}
+
+bool level_structure::isPositionValid(const vec2i pos) const
 {
     return pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x&& pos.y < getSize().y;
 }
 
-size_t level_structure::roomCount()
+size_t level_structure::roomCount() const
 {
     return room_rects.size();
 }
 
-rect_i level_structure::getRoomRect(size_t room_idx)
+rect_i level_structure::getRoomRect(size_t room_idx) const
 {
     return room_rects[room_idx];
 }
 
-void level_structure::printToFile(const std::string& fname)
+void level_structure::printToFile(const std::string& fname) const
 {
     std::ofstream out(fname);
     for (int y = 0; y < getSize().y; y++)

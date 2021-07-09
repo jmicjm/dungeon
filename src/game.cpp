@@ -9,6 +9,7 @@
 
 #include "gfx/animated_sprite.h"
 #include "asset_storage/texture_bank.h"
+#include "gfx/level_tile_map.h"
 
 int main()
 {
@@ -21,8 +22,6 @@ int main()
     g_params.min_hallway_segment_count = 1;
     g_params.max_hallway_segment_count = 5;
     g_params.max_empty_area_size = { 10,10 };
-
-    std::cout << sizeof(animated_sprite); 
 
     level_structure l_s;
 
@@ -41,7 +40,8 @@ int main()
     level_structure_decorator l_dec;
     l_dec.decorate(l_s);
 
-    
+    level_tile_map tmap;
+    tmap.populate(l_s, {64,64});
     
 
     const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
@@ -72,13 +72,9 @@ int main()
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(75);
 
-    auto ws = [&]() -> vec2i
-    {
-        return { (int)window.getSize().x, (int)window.getSize().y };
-    };
-
-    const int tile_s = 64;
-    vec2i top_left = l_s.getSize() / 2 * tile_s - ws()/2;
+    sf::View view(sf::FloatRect(0, 0, 1600, 900));
+    float zoom = 1;
+    float camera_velocity = 10;
 
     while (window.isOpen())
     {
@@ -91,68 +87,45 @@ int main()
                 window.close();
                 break;
             case sf::Event::Resized:
-                window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                view.setSize(event.size.width, event.size.height);
+                break;
+            case sf::Event::MouseWheelScrolled:
+                zoom *= event.mouseWheelScroll.delta > 0 ? 1.5 : 0.5;
+                view.zoom(event.mouseWheelScroll.delta > 0 ? 1.5 : 0.5);
             }
         }
-
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
         {
             l_gen.generate(l_s, g_params);
             l_dec.decorate(l_s);
-            std::cout << " " << l_s.roomCount();
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
-            top_left.y-=10;
+            view.move(0, -camera_velocity*zoom);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
         {
-            top_left.y+=10;
+            view.move(0, camera_velocity*zoom);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
         {
-            top_left.x-=10;
+            view.move(-camera_velocity*zoom, 0);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
         {
-            top_left.x+=10;
+            view.move(camera_velocity*zoom, 0);
         }
 
- 
-        
-        vec2i first_t = top_left / tile_s;
-
-        auto spos = [&](const vec2i pos)
-        {
-            vec2i shift =
-            {
-                top_left.x % tile_s,
-                top_left.y % tile_s
-            };
-            return (pos - first_t) * tile_s - shift;
-        };
+        window.setView(view);
         
 
         window.clear();
 
-        for (int x = std::max(first_t.x, 0); x < l_s.getSize().x && spos({ x,0 }).x <= ws().x; x++)
-        {
-            for (int y = std::max(first_t.y, 0); y < l_s.getSize().y && spos({0,y}).y <= ws().y; y++)
-            {
-                for (auto& i : l_s.at({ x,y }).sprites)
-                {
-                    if (i.sprite != nullptr)
-                    {
-                        i.sprite->setPosition(sf::Vector2f(spos({ x,y }).x, spos({ x,y }).y));
-                        window.draw(*i.sprite);
-                    }
-                }
-            }
-        }
+        window.draw(tmap);
 
         anim.updateFrameIdx();
-      //  window.draw(anim);
+        //window.draw(anim);
         anim2.updateFrameIdx();
        // window.draw(anim2);
         window.display();

@@ -42,23 +42,23 @@ TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(cons
 	return id;
 }
 
-bool level_structure_decorator::addSprite(const vec2i pos, const TILE_SPRITE_ID::tile_sprite_id_t id)
+bool level_structure_decorator::addSprite(const vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
 {
 	using namespace TILE_SPRITE_ID;
 
-	std::vector<sf::Sprite>* sprites = tile_sprite_storage::getSprite(id);
+	std::vector<tile_sprite_data>* sprites = tile_sprite_storage::getSprite(id);
 	if (sprites == nullptr)
 	{	
-		sprites = tile_sprite_storage::getSprite(id & ~(TL | TR | BL | BR));//fallback to generic
+		sprites = tile_sprite_storage::getSprite(id &= ~(TL | TR | BL | BR));//fallback to generic
 		if (sprites == nullptr)
 		{
-			sprites = tile_sprite_storage::getSprite(id & ~(TL | T | TR | R | BL | B | BR | L));//fallback to generic
+			sprites = tile_sprite_storage::getSprite(id &= ~(TL | T | TR | R | BL | B | BR | L));//fallback to generic
 		}
 	}
 	if (sprites != nullptr && sprites->size() > 0)
 	{
 		unsigned int variant = rand(0, sprites->size() - 1);
-		ls->at(pos).sprites.push_back({ id, variant, &(*sprites)[variant] });
+		ls->at(pos).sprites_info.push_back({ id, variant});
 
 		return true;
 	}
