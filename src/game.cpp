@@ -14,7 +14,7 @@
 int main()
 {
     gen_params g_params;
-    g_params.level_size = { 500,500 };
+    g_params.level_size = { 500, 500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -40,32 +40,11 @@ int main()
     level_structure_decorator l_dec;
     l_dec.decorate(l_s);
 
+
     level_tile_map tmap;
-    tmap.populate(l_s, {64,64});
+    sf::Vector2i chunk_size = {30,30};
+    tmap.populate(l_s, { 64,64 }, chunk_size);
     
-
-    const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
-   // tex.loadFromFile("wild_mage_frames.png");
-    std::vector<sf::IntRect> rects;
-    for (int i = 0; i < 16; i++)
-    {
-       rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
-    }
-    std::shared_ptr<animated_sprite_frames> frames = std::make_shared<animated_sprite_frames>(tex, rects);
-
-    animated_sprite anim(frames, 14);
-    anim.setScale({ 4.0f, 4.0f });
-    anim.setRotation(60);
-    anim.setPosition({ 500,500 });
-    anim.setOrigin({ 32,32 });
-    anim.setColor({ 255,0,0,255 });
-
-    animated_sprite anim2 = anim;
-    anim2.setScale({ 3.0f, 3.0f });
-    anim2.setRotation(-60);
-    anim2.setPosition({ 100,100 });
-    anim2.setColor({ 255,255,255,255 });
-
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "");
@@ -90,8 +69,8 @@ int main()
                 view.setSize(event.size.width, event.size.height);
                 break;
             case sf::Event::MouseWheelScrolled:
-                zoom *= event.mouseWheelScroll.delta > 0 ? 1.5 : 0.5;
-                view.zoom(event.mouseWheelScroll.delta > 0 ? 1.5 : 0.5);
+                zoom *= event.mouseWheelScroll.delta > 0 ? 2 : 0.5;
+                view.zoom(event.mouseWheelScroll.delta > 0 ? 2 : 0.5);
             }
         }
 
@@ -99,7 +78,7 @@ int main()
         {
             l_gen.generate(l_s, g_params);
             l_dec.decorate(l_s);
-            tmap.populate(l_s, { 64,64 });
+            tmap.populate(l_s, { 64,64 }, {10,10});
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -122,16 +101,8 @@ int main()
         
 
         window.clear();
-
         window.draw(tmap);
-
-        anim.updateFrameIdx();
-        //window.draw(anim);
-        anim2.updateFrameIdx();
-       // window.draw(anim2);
         window.display();
-        
-
     }
     l_s.printToFile("mapa.txt");
 }
