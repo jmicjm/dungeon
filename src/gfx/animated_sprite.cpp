@@ -29,7 +29,12 @@ void animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
 void animated_sprite::restart()
 {
-	m_frame_start_point = std::chrono::steady_clock::now();
+	restart(std::chrono::steady_clock::now());
+}
+
+void animated_sprite::restart(std::chrono::steady_clock::time_point tp)
+{
+	m_frame_start_point = tp;
 	m_current_frame_idx = 0;
 }
 
@@ -40,6 +45,12 @@ void animated_sprite::setFrameIdx(unsigned int idx, bool update_start_point)
 	{
 		m_frame_start_point = std::chrono::steady_clock::now();
 	}
+}
+
+void animated_sprite::setFrameIdx(unsigned int idx, std::chrono::steady_clock::time_point tp)
+{
+	m_current_frame_idx = std::min(idx, frameCount() - 1);
+	m_frame_start_point = tp;
 }
 
 unsigned int animated_sprite::getFrameIdx() const
@@ -54,9 +65,14 @@ unsigned int animated_sprite::frameCount() const
 
 void animated_sprite::updateFrameIdx()
 {
+	updateFrameIdx(std::chrono::steady_clock::now());
+}
+
+void animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
+{
 	if (m_frames && m_frames->frame_rects.size() > 1)
 	{
-		std::chrono::steady_clock::time_point current_point = std::chrono::steady_clock::now();
+		std::chrono::steady_clock::time_point current_point = tp;
 
 		unsigned int increase = (current_point - m_frame_start_point) / m_frame_time;
 

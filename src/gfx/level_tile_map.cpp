@@ -42,7 +42,7 @@ void level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         std::max(0, (int)tl_px.x / chunk_size_px.x),
         std::max(0, (int)tl_px.y / chunk_size_px.y) 
     };
-    sf::Vector2i br_chunk = 
+    const sf::Vector2i br_chunk = 
     {
         std::min(getSize().x-1, (int)br_px.x / chunk_size_px.x),
         std::min(getSize().y-1, (int)br_px.y / chunk_size_px.y)

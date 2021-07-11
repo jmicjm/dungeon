@@ -28,9 +28,12 @@ public:
 	animated_sprite(std::shared_ptr<animated_sprite_frames> frames, std::chrono::milliseconds frame_time);
 
 	void restart();
+	void restart(std::chrono::steady_clock::time_point tp);
 
 	void updateFrameIdx();
+	void updateFrameIdx(std::chrono::steady_clock::time_point tp);
 	void setFrameIdx(unsigned int idx, bool update_start_point = false);
+	void setFrameIdx(unsigned int idx, std::chrono::steady_clock::time_point tp);
 	unsigned int getFrameIdx() const;
 	unsigned int frameCount() const;
 
