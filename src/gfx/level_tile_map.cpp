@@ -1,4 +1,5 @@
 #include "level_tile_map.h"
+#include <algorithm>
 #include <cmath>
 
 
@@ -28,17 +29,24 @@ sf::Vector2i level_tile_map::getSize() const
 
 void level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    sf::View view = rt.getView();
-    sf::Vector2f tl_px = view.getCenter() - view.getSize() / 2.f;
-    sf::Vector2f br_px = view.getCenter() + view.getSize() / 2.f;
+    const sf::View view = rt.getView();
 
-    sf::Vector2i tl_chunk = { (int)tl_px.x / chunk_size_px.x, (int)tl_px.y / chunk_size_px.y };
-    sf::Vector2i br_chunk = { (int)br_px.x / chunk_size_px.x, (int)br_px.y / chunk_size_px.y };
+    const sf::FloatRect view_rect = { view.getCenter() - view.getSize()/2.f, view.getSize() };
+    const sf::FloatRect bounding_box = sf::Transform{}.rotate(view.getRotation(), view.getCenter()).transformRect(view_rect);
 
-    tl_chunk.x = std::max(0, tl_chunk.x);
-    tl_chunk.y = std::max(0, tl_chunk.y);
-    br_chunk.x = std::min(getSize().x-1, br_chunk.x);
-    br_chunk.y = std::min(getSize().y-1, br_chunk.y);
+    const sf::Vector2f tl_px = { bounding_box.left, bounding_box.top };
+    const sf::Vector2f br_px = tl_px + sf::Vector2f{bounding_box.width, bounding_box.height};
+
+    const sf::Vector2i tl_chunk = 
+    {
+        std::max(0, (int)tl_px.x / chunk_size_px.x),
+        std::max(0, (int)tl_px.y / chunk_size_px.y) 
+    };
+    sf::Vector2i br_chunk = 
+    {
+        std::min(getSize().x-1, (int)br_px.x / chunk_size_px.x),
+        std::min(getSize().y-1, (int)br_px.y / chunk_size_px.y)
+    };
 
     for (int x = tl_chunk.x; x <= br_chunk.x; x++)
     {
