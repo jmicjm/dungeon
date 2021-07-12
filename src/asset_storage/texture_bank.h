@@ -6,7 +6,7 @@
 
 
 //uses file path as key
-class texture_bank
+class Texture_bank
 {
 	static std::map<std::string, sf::Texture> texture_map;
 

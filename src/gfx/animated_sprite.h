@@ -11,9 +11,9 @@
 #include <vector>
 
 
-class animated_sprite : public sf::Drawable, public sf::Transformable
+class Animated_sprite : public sf::Drawable, public sf::Transformable
 {
-	std::shared_ptr<animated_sprite_frames> m_frames;
+	std::shared_ptr<Animated_sprite_frames> m_frames;
 	unsigned int m_current_frame_idx = 0;
 
 	sf::Color m_color = {255,255,255,255};
@@ -24,8 +24,8 @@ class animated_sprite : public sf::Drawable, public sf::Transformable
 	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 	
 public:
-	animated_sprite(std::shared_ptr<animated_sprite_frames> frames, unsigned int fps);
-	animated_sprite(std::shared_ptr<animated_sprite_frames> frames, std::chrono::milliseconds frame_time);
+	Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, unsigned int fps);
+	Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, std::chrono::milliseconds frame_time);
 
 	void restart();
 	void restart(std::chrono::steady_clock::time_point tp);

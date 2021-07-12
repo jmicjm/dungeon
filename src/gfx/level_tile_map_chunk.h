@@ -10,7 +10,7 @@
 #include <vector>
 
 
-class level_tile_map_chunk : public sf::Drawable
+class Level_tile_map_chunk : public sf::Drawable
 {
 	template<typename T>
 	struct texture_vertices
@@ -34,5 +34,5 @@ class level_tile_map_chunk : public sf::Drawable
 	void copyToBuffer(const vertex_arrays_type& vertex_arrays);
 
 public:
-	void populate(const level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
+	void populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
 };

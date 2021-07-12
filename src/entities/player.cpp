@@ -3,34 +3,34 @@
 #include "SFML/Window/Keyboard.hpp"
 
 
-void player::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+void Player::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
 	rt.draw(animation, st);
 }
 
-void player::setPosition(const sf::Vector2i& position)
+void Player::setPosition(const sf::Vector2i& position)
 {
-	entity::setPosition(position);
+	Entity::setPosition(position);
 	updateAnimationPosition();
 }
 
-void player::move(sf::Vector2i& offset)
+void Player::move(sf::Vector2i& offset)
 {
-	entity::move(offset);
+	Entity::move(offset);
 	updateAnimationPosition();
 }
 
-void player::updateAnimationPosition()
+void Player::updateAnimationPosition()
 {
-	animation.setPosition(sf::Vector2f(entity::getPosition()) * 64.f);
+	animation.setPosition(sf::Vector2f(Entity::getPosition()) * 64.f);
 }
 
-player::player(level* lvl, sf::Vector2i position, animated_sprite anim) : entity(lvl, position), animation(anim) 
+Player::Player(Level* lvl, sf::Vector2i position, Animated_sprite anim) : Entity(lvl, position), animation(anim) 
 {
 	updateAnimationPosition();
 }
 
-void player::updateState(const bool make_action)
+void Player::updateState(const bool make_action)
 {
 	animation.updateFrameIdx();
 

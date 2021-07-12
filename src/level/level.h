@@ -1,10 +1,10 @@
 #pragma once
 #include "level_structure.h"
 
-class level
+class Level
 {
 public:
-	level_structure ls;
+	Level_structure ls;
 	//entities
 	//doors
 	//etc

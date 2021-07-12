@@ -5,9 +5,9 @@
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/Drawable.hpp"
 
-class player : public entity
+class Player : public Entity
 {
-	animated_sprite animation;
+	Animated_sprite animation;
 
 	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
@@ -16,7 +16,7 @@ class player : public entity
 
 	void updateAnimationPosition();
 public:
-	player(level* lvl, sf::Vector2i position, animated_sprite anim);
+	Player(Level* lvl, sf::Vector2i position, Animated_sprite anim);
 
 	void updateState(const bool make_action) override;
 };

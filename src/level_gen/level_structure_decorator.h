@@ -4,17 +4,17 @@
 #include "../utils/rect.h"
 
 
-class level_structure_decorator
+class Level_structure_decorator
 {
-    level_structure* ls = nullptr;
+    Level_structure* ls = nullptr;
 
-    TILE_SPRITE_ID::tile_sprite_id_t getTileSpriteId(const vec2i pos);
+    TILE_SPRITE_ID::tile_sprite_id_t getTileSpriteId(const Vec2i pos);
    // TILE_SPRITE_ID::tile_sprite_id_t get...Id(const vec2i pos, const std::vector<vec2i>& pattern);
 
-    bool addSprite(const vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id);
+    bool addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id);
 
-    void placeCarpet(const rect_i area);
+    void placeCarpet(const Rect_i area);
 
 public:
-    void decorate(level_structure& l);
+    void decorate(Level_structure& l);
 };

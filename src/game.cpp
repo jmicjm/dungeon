@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
+#include <cmath>
 
 #include "gfx/animated_sprite.h"
 #include "asset_storage/texture_bank.h"
@@ -15,7 +16,7 @@
 
 int main()
 {
-    gen_params g_params;
+    Gen_params g_params;
     g_params.level_size = { 50, 50 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
@@ -25,9 +26,9 @@ int main()
     g_params.max_hallway_segment_count = 5;
     g_params.max_empty_area_size = { 10,10 };
 
-    level lvl;
+    Level lvl;
 
-    level_structure_generator l_gen;
+    Level_structure_generator l_gen;
 
     auto b = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++)
@@ -37,13 +38,13 @@ int main()
     auto e = std::chrono::high_resolution_clock::now();
     std::cout << "t: " << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << " ms\n";
 
-    tile_sprite_storage::loadSprites();
+    Tile_sprite_storage::loadSprites();
 
-    level_structure_decorator l_dec;
+    Level_structure_decorator l_dec;
     l_dec.decorate(lvl.ls);
 
 
-    level_tile_map tmap;
+    Level_tile_map tmap;
     sf::Vector2i chunk_size = {30,30};
     tmap.populate(lvl.ls, { 64,64 }, chunk_size);
 
@@ -54,22 +55,22 @@ int main()
 
     sf::View view(sf::FloatRect(0, 0, 1600, 900));
     float zoom = 1;
-    float camera_velocity = 100;
+    float camera_velocity = 10;
 
-    const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
+    const sf::Texture* tex = Texture_bank::getTexture("wild_mage_frames.png");
     std::vector<sf::IntRect> rects;
     for (int i = 0; i < 16; i++)
     {
         rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
     }
-    std::shared_ptr<animated_sprite_frames> frames = std::make_shared<animated_sprite_frames>(tex, rects);
+    std::shared_ptr<Animated_sprite_frames> frames = std::make_shared<Animated_sprite_frames>(tex, rects);
 
-    animated_sprite anim(frames, 14);
+    Animated_sprite anim(frames, 14);
 
-    player p(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
+    Player player(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
 
-    view_follower vf;
-    vf.target_position = [&]() {return sf::Vector2f(p.getPosition()) * 64.f + sf::Vector2f(32,32); };
+    View_follower vf;
+    vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,32); };
     vf.velocity = 300;
     vf.resetTime();
     vf.view = &view;
@@ -129,7 +130,7 @@ int main()
 
         vf.follow();
 
-        view.setCenter(round(view.getCenter().x), round(view.getCenter().y));
+        view.setCenter(std::round(view.getCenter().x), std::round(view.getCenter().y));
         window.setView(view);
         
 
@@ -138,8 +139,8 @@ int main()
 
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool move = (t - lt) >= std::chrono::milliseconds(200);
-        p.updateState(move);
-        window.draw(p);
+        player.updateState(move);
+        window.draw(player);
         if (move) lt = t;
 
         window.display();

@@ -3,9 +3,9 @@
 #include "../utils/rand.h"
 
 
-TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(const vec2i pos)
+TILE_SPRITE_ID::tile_sprite_id_t Level_structure_decorator::getTileSpriteId(const Vec2i pos)
 {
-	auto isSame = [&](const vec2i pos, const TILE_TYPE ttype)
+	auto isSame = [&](const Vec2i pos, const TILE_TYPE ttype)
 	{
 		if (ls->isPositionValid(pos))
 		{
@@ -29,30 +29,30 @@ TILE_SPRITE_ID::tile_sprite_id_t level_structure_decorator::getTileSpriteId(cons
 		id = TILE_SPRITE_ID::WALL;
 	}
 
-	id |= !isSame(pos + vec2i{  0, -1 }, ttype) * T;
-	id |= !isSame(pos + vec2i{  1,  0 }, ttype) * R;
-	id |= !isSame(pos + vec2i{  0,  1 }, ttype) * B;
-	id |= !isSame(pos + vec2i{ -1,  0 }, ttype) * L;
+	id |= !isSame(pos + Vec2i{  0, -1 }, ttype) * T;
+	id |= !isSame(pos + Vec2i{  1,  0 }, ttype) * R;
+	id |= !isSame(pos + Vec2i{  0,  1 }, ttype) * B;
+	id |= !isSame(pos + Vec2i{ -1,  0 }, ttype) * L;
 
-	id |= !isSame(pos + vec2i{ -1, -1 }, ttype) * TL;
-	id |= !isSame(pos + vec2i{  1, -1 }, ttype) * TR;
-	id |= !isSame(pos + vec2i{  1,  1 }, ttype) * BR;
-	id |= !isSame(pos + vec2i{ -1,  1 }, ttype) * BL;
+	id |= !isSame(pos + Vec2i{ -1, -1 }, ttype) * TL;
+	id |= !isSame(pos + Vec2i{  1, -1 }, ttype) * TR;
+	id |= !isSame(pos + Vec2i{  1,  1 }, ttype) * BR;
+	id |= !isSame(pos + Vec2i{ -1,  1 }, ttype) * BL;
 
 	return id;
 }
 
-bool level_structure_decorator::addSprite(const vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
+bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
 {
 	using namespace TILE_SPRITE_ID;
 
-	std::vector<tile_sprite_data>* sprites = tile_sprite_storage::getSprite(id);
+	std::vector<Tile_sprite_data>* sprites = Tile_sprite_storage::getSprite(id);
 	if (sprites == nullptr)
 	{	
-		sprites = tile_sprite_storage::getSprite(id &= ~(TL | TR | BL | BR));//fallback to generic
+		sprites = Tile_sprite_storage::getSprite(id &= ~(TL | TR | BL | BR));//fallback to generic
 		if (sprites == nullptr)
 		{
-			sprites = tile_sprite_storage::getSprite(id &= ~(TL | T | TR | R | BL | B | BR | L));//fallback to generic
+			sprites = Tile_sprite_storage::getSprite(id &= ~(TL | T | TR | R | BL | B | BR | L));//fallback to generic
 		}
 	}
 	if (sprites != nullptr && sprites->size() > 0)
@@ -65,7 +65,7 @@ bool level_structure_decorator::addSprite(const vec2i pos, TILE_SPRITE_ID::tile_
 	return false;
 }
 
-void level_structure_decorator::placeCarpet(const rect_i area)
+void Level_structure_decorator::placeCarpet(const Rect_i area)
 {
 	for (int x = area.tl.x; x <= area.br.x; x++)
 	{
@@ -81,7 +81,7 @@ void level_structure_decorator::placeCarpet(const rect_i area)
 	}
 }
 
-void level_structure_decorator::decorate(level_structure& l)
+void Level_structure_decorator::decorate(Level_structure& l)
 {
 	ls = &l;
 

@@ -7,24 +7,24 @@
 #include <string>
 
 
-class level_structure
+class Level_structure
 {
-    friend class level_structure_generator;
+    friend class Level_structure_generator;
 
-    std::vector<std::vector<tile>> tiles;
-    std::vector<rect_i> room_rects;
+    std::vector<std::vector<Tile>> tiles;
+    std::vector<Rect_i> room_rects;
 
-    void setSize(const vec2i size);
+    void setSize(const Vec2i size);
 
 public:
-    vec2i getSize() const;
+    Vec2i getSize() const;
 
-    tile& at(const vec2i pos);
-    const tile& at(const vec2i pos) const;
-    bool isPositionValid(const vec2i pos) const;
+    Tile& at(const Vec2i pos);
+    const Tile& at(const Vec2i pos) const;
+    bool isPositionValid(const Vec2i pos) const;
 
     size_t roomCount() const;
-    rect_i getRoomRect(size_t room_idx) const;
+    Rect_i getRoomRect(size_t room_idx) const;
 
     void printToFile(const std::string& fname) const;
 };

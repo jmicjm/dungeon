@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-level_tile_map_chunk::texture_vertices<sf::VertexArray>& level_tile_map_chunk::getVertexArray(const sf::Texture* texture, vertex_arrays_type& vertex_arrays)
+Level_tile_map_chunk::texture_vertices<sf::VertexArray>& Level_tile_map_chunk::getVertexArray(const sf::Texture* texture, vertex_arrays_type& vertex_arrays)
 {
 	auto it = std::find_if(
 		vertex_arrays.begin(),
@@ -22,7 +22,7 @@ level_tile_map_chunk::texture_vertices<sf::VertexArray>& level_tile_map_chunk::g
 	}
 }
 
-void level_tile_map_chunk::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+void Level_tile_map_chunk::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
 	for (auto& i : vertex_buffers)
 	{
@@ -31,7 +31,7 @@ void level_tile_map_chunk::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 	}
 }
 
-void level_tile_map_chunk::copyToBuffer(const vertex_arrays_type& vertex_arrays)
+void Level_tile_map_chunk::copyToBuffer(const vertex_arrays_type& vertex_arrays)
 {
 	vertex_buffers.resize(vertex_arrays.size());
 
@@ -44,7 +44,7 @@ void level_tile_map_chunk::copyToBuffer(const vertex_arrays_type& vertex_arrays)
 	}
 }
 
-void level_tile_map_chunk::populate(const level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area)
+void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area)
 {
 	vertex_arrays_type vertex_arrays;
 
@@ -54,7 +54,7 @@ void level_tile_map_chunk::populate(const level_structure& ls, const sf::Vector2
 		{
 			for (const auto& sprite_data : ls.at({ x,y }).sprites_info)
 			{
-				const tile_sprite_data& tsd = tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
+				const Tile_sprite_data& tsd = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
 				texture_vertices<sf::VertexArray>& va = getVertexArray(tsd.texture, vertex_arrays);
 

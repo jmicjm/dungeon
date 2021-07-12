@@ -5,25 +5,25 @@
 #include "gen_params.h"
 
 
-class level_structure_generator
+class Level_structure_generator
 {
-    level_structure* ls = nullptr;
-    gen_params params;
+    Level_structure* ls = nullptr;
+    Gen_params params;
 
-    void fill(const tile t);
-    void setTiles(const rect_i r, const TILE_TYPE ttype);
+    void fill(const Tile t);
+    void setTiles(const Rect_i r, const TILE_TYPE ttype);
 
-    bool generateHallway(const vec2i start_p);
-    bool generateRoom(const vec2i start_p);
+    bool generateHallway(const Vec2i start_p);
+    bool generateRoom(const Vec2i start_p);
 
     void fillEmptyAreas();
-    void fillEmptyArea(rect_i area);
+    void fillEmptyArea(Rect_i area);
 
     template<typename T>
-    unsigned int tileCount(rect_i r, const T& pred);
-    unsigned int tileCount(rect_i r);
-    unsigned int tileCount(const rect_i r, const TILE_TYPE ttype);
-    void clipRectToLevelSize(rect_i& r);
+    unsigned int TileCount(Rect_i r, const T& pred);
+    unsigned int TileCount(Rect_i r);
+    unsigned int TileCount(const Rect_i r, const TILE_TYPE ttype);
+    void clipRectToLevelSize(Rect_i& r);
 
     enum ADJACENT_AREA : uint8_t
     {
@@ -31,10 +31,10 @@ class level_structure_generator
         DIAG = 1 << 1
     };
     template<typename T>
-    unsigned int adjacentTileCount(const vec2i pos, const uint8_t area, const T& pred);
-    unsigned int adjacentTileCount(const vec2i pos, const uint8_t area);
-    unsigned int adjacentTileCount(const vec2i pos, const uint8_t area, const TILE_TYPE ttype);
+    unsigned int adjacentTileCount(const Vec2i pos, const uint8_t area, const T& pred);
+    unsigned int adjacentTileCount(const Vec2i pos, const uint8_t area);
+    unsigned int adjacentTileCount(const Vec2i pos, const uint8_t area, const TILE_TYPE ttype);
 
 public:
-    void generate(level_structure& l, gen_params p);
+    void generate(Level_structure& l, Gen_params p);
 };

@@ -1,15 +1,15 @@
 #include "animated_sprite.h"
 
-animated_sprite::animated_sprite(std::shared_ptr<animated_sprite_frames> frames, unsigned int fps)
-	: animated_sprite(frames, std::chrono::milliseconds(1000) / fps) {}
+Animated_sprite::Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, unsigned int fps)
+	: Animated_sprite(frames, std::chrono::milliseconds(1000) / fps) {}
 
-animated_sprite::animated_sprite(std::shared_ptr<animated_sprite_frames> frames, std::chrono::milliseconds frame_time)
+Animated_sprite::Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, std::chrono::milliseconds frame_time)
 	: m_frames(frames), m_frame_time(frame_time)
 {
 	restart();
 }
 
-void animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+void Animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
 	if (m_frames && m_current_frame_idx < m_frames->frame_rects.size())
 	{
@@ -27,18 +27,18 @@ void animated_sprite::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 	}
 }
 
-void animated_sprite::restart()
+void Animated_sprite::restart()
 {
 	restart(std::chrono::steady_clock::now());
 }
 
-void animated_sprite::restart(std::chrono::steady_clock::time_point tp)
+void Animated_sprite::restart(std::chrono::steady_clock::time_point tp)
 {
 	m_frame_start_point = tp;
 	m_current_frame_idx = 0;
 }
 
-void animated_sprite::setFrameIdx(unsigned int idx, bool update_start_point)
+void Animated_sprite::setFrameIdx(unsigned int idx, bool update_start_point)
 {
 	m_current_frame_idx = std::min(idx, frameCount()-1);
 	if (update_start_point)
@@ -47,28 +47,28 @@ void animated_sprite::setFrameIdx(unsigned int idx, bool update_start_point)
 	}
 }
 
-void animated_sprite::setFrameIdx(unsigned int idx, std::chrono::steady_clock::time_point tp)
+void Animated_sprite::setFrameIdx(unsigned int idx, std::chrono::steady_clock::time_point tp)
 {
 	m_current_frame_idx = std::min(idx, frameCount() - 1);
 	m_frame_start_point = tp;
 }
 
-unsigned int animated_sprite::getFrameIdx() const
+unsigned int Animated_sprite::getFrameIdx() const
 {
 	return m_current_frame_idx;
 }
 
-unsigned int animated_sprite::frameCount() const
+unsigned int Animated_sprite::frameCount() const
 {
 	return m_frames ? m_frames->frame_rects.size() : 0;
 }
 
-void animated_sprite::updateFrameIdx()
+void Animated_sprite::updateFrameIdx()
 {
 	updateFrameIdx(std::chrono::steady_clock::now());
 }
 
-void animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
+void Animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
 {
 	if (m_frames && m_frames->frame_rects.size() > 1)
 	{
@@ -88,17 +88,17 @@ void animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
 	}
 }
 
-void animated_sprite::setColor(sf::Color color)
+void Animated_sprite::setColor(sf::Color color)
 {
 	m_color = color;
 }
 
-sf::Color animated_sprite::getColor() const
+sf::Color Animated_sprite::getColor() const
 {
 	return m_color;
 }
 
-sf::FloatRect animated_sprite::getLocalBounds() const
+sf::FloatRect Animated_sprite::getLocalBounds() const
 {
 	if (m_frames && m_current_frame_idx < m_frames->frame_rects.size())
 	{
@@ -111,7 +111,7 @@ sf::FloatRect animated_sprite::getLocalBounds() const
 	return sf::FloatRect{0,0,0,0};
 }
 
-sf::FloatRect animated_sprite::getGlobalBounds() const
+sf::FloatRect Animated_sprite::getGlobalBounds() const
 {
 	return getTransform().transformRect(getLocalBounds());
 }

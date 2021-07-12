@@ -1,9 +1,9 @@
 #include "texture_bank.h"
 
 
-std::map<std::string, sf::Texture> texture_bank::texture_map = std::map<std::string, sf::Texture>();
+std::map<std::string, sf::Texture> Texture_bank::texture_map = std::map<std::string, sf::Texture>();
 
-const sf::Texture* texture_bank::getTexture(const std::string& key)
+const sf::Texture* Texture_bank::getTexture(const std::string& key)
 {
 	auto it = texture_map.find(key);
 	if (texture_map.find(key) != texture_map.end())

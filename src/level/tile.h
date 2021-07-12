@@ -10,7 +10,7 @@ enum class TILE_TYPE
 	WALL, ROOM, HALLWAY, DOORWAY
 };
 
-struct tile
+struct Tile
 {
 	TILE_TYPE type = TILE_TYPE::WALL;
 

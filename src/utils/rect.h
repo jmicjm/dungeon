@@ -4,7 +4,7 @@
 #include <type_traits>
 
 template <typename T>
-struct rect
+struct Rect
 {
 	T tl, br;//top-left, bottom-right
 
@@ -27,15 +27,15 @@ struct rect
 };
 
 template<typename T>
-bool operator==(const rect<T>& a, const rect<T>& b)
+bool operator==(const Rect<T>& a, const Rect<T>& b)
 {
 	return a.tl == b.tl && a.br == b.br;
 }
 template<typename T>
-bool operator!=(const rect<T>& a, const rect<T>& b)
+bool operator!=(const Rect<T>& a, const Rect<T>& b)
 {
 	return !(a == b);
 }
 
-using rect_i = rect<vec2i>;
-using rect_f = rect<vec2f>;
+using Rect_i = Rect<Vec2i>;
+using Rect_f = Rect<Vec2f>;

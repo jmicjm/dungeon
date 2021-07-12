@@ -4,7 +4,7 @@
 #include <functional>
 #include <chrono>
 
-class view_follower
+class View_follower
 {
 	std::chrono::steady_clock::time_point last_time;
 

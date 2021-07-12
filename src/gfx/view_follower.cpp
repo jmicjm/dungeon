@@ -1,13 +1,14 @@
 #include "view_follower.h"
 
 #include <algorithm>
+#include <cmath>
 
-sf::Vector2f view_follower::centerDst()
+sf::Vector2f View_follower::centerDst()
 {
 	return (target_position && view) ? target_position() - view->getCenter() : sf::Vector2f{0,0};
 }
 
-sf::Vector2f view_follower::edgeDst()
+sf::Vector2f View_follower::edgeDst()
 {
 	if (target_position && view)
 	{
@@ -37,7 +38,7 @@ sf::Vector2f view_follower::edgeDst()
 	return sf::Vector2f{ 0,0 };
 }
 
-void view_follower::followVec(const sf::Vector2f& vec)
+void View_follower::followVec(const sf::Vector2f& vec)
 {
 	if (target_position && view)
 	{
@@ -45,7 +46,7 @@ void view_follower::followVec(const sf::Vector2f& vec)
 		std::chrono::milliseconds t_diff = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_time);
 		last_time = current_time;
 
-		const float length = sqrt(vec.x * vec.x + vec.y * vec.y);
+		const float length = std::sqrt(vec.x * vec.x + vec.y * vec.y);
 		if (length != 0)
 		{
 			const sf::Vector2f vec_norm = vec / length;
@@ -54,8 +55,8 @@ void view_follower::followVec(const sf::Vector2f& vec)
 
 			sf::Vector2f offset =
 			{
-				std::clamp(vec_norm.x * dst,-abs(vec.x), abs(vec.x)),
-				std::clamp(vec_norm.y * dst,-abs(vec.y), abs(vec.y))
+				std::clamp(vec_norm.x * dst,-std::abs(vec.x), std::abs(vec.x)),
+				std::clamp(vec_norm.y * dst,-std::abs(vec.y), std::abs(vec.y))
 			};
 
 			view->move(offset);
@@ -63,17 +64,17 @@ void view_follower::followVec(const sf::Vector2f& vec)
 	}
 }
 
-void view_follower::followCenter()
+void View_follower::followCenter()
 {
 	followVec(centerDst());
 }
 
-void view_follower::follow()
+void View_follower::follow()
 {
 	followVec(edgeDst());
 }
 
-void view_follower::resetTime()
+void View_follower::resetTime()
 {
 	last_time = std::chrono::steady_clock::now();
 }

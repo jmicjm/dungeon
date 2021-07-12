@@ -5,7 +5,7 @@
 
 #include <vector>
 
-struct animated_sprite_frames
+struct Animated_sprite_frames
 {
 	const sf::Texture* texture = nullptr;	
 
@@ -16,5 +16,5 @@ struct animated_sprite_frames
 
 	std::vector<frame_rect> frame_rects;
 
-	animated_sprite_frames(const sf::Texture* texture, const std::vector<sf::IntRect>& rects);
+	Animated_sprite_frames(const sf::Texture* texture, const std::vector<sf::IntRect>& rects);
 };
