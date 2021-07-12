@@ -11,6 +11,7 @@
 #include "asset_storage/texture_bank.h"
 #include "gfx/level_tile_map.h"
 #include "entities/player.h"
+#include "gfx/view_follower.h"
 
 int main()
 {
@@ -67,6 +68,11 @@ int main()
 
     player p(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
 
+    view_follower vf;
+    vf.target_position = [&]() {return sf::Vector2f(p.getPosition()) * 64.f; };
+    vf.velocity = 300;
+    vf.resetTime();
+
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
@@ -119,6 +125,9 @@ int main()
             view.rotate(10);
         }
 
+        vf.followCenter(view);
+
+        view.setCenter(round(view.getCenter().x), round(view.getCenter().y));
         window.setView(view);
         
 
