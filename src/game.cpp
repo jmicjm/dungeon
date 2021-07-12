@@ -54,7 +54,7 @@ int main()
 
     sf::View view(sf::FloatRect(0, 0, 1600, 900));
     float zoom = 1;
-    float camera_velocity = 10;
+    float camera_velocity = 100;
 
     const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
     std::vector<sf::IntRect> rects;
