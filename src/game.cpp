@@ -69,9 +69,11 @@ int main()
     player p(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
 
     view_follower vf;
-    vf.target_position = [&]() {return sf::Vector2f(p.getPosition()) * 64.f; };
+    vf.target_position = [&]() {return sf::Vector2f(p.getPosition()) * 64.f + sf::Vector2f(32,32); };
     vf.velocity = 300;
     vf.resetTime();
+    vf.view = &view;
+    vf.edge_dst = 64*3+32;
 
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
@@ -125,7 +127,7 @@ int main()
             view.rotate(10);
         }
 
-        vf.followCenter(view);
+        vf.follow();
 
         view.setCenter(round(view.getCenter().x), round(view.getCenter().y));
         window.setView(view);
