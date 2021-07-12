@@ -1,6 +1,6 @@
 #include "level_gen/level_structure_generator.h"
 #include "level_gen/level_structure_decorator.h"
-#include "level/level_structure.h"
+#include "level/level.h"
 #include "asset_storage/tile_sprite_storage.h"
 
 #include <SFML/Graphics.hpp>
@@ -23,14 +23,14 @@ int main()
     g_params.max_hallway_segment_count = 5;
     g_params.max_empty_area_size = { 10,10 };
 
-    level_structure l_s;
+    level lvl;
 
     level_structure_generator l_gen;
 
     auto b = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 1; i++)
     {
-        l_gen.generate(l_s, g_params);
+        l_gen.generate(lvl.ls, g_params);
     }
     auto e = std::chrono::high_resolution_clock::now();
     std::cout << "t: " << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << " ms\n";
@@ -38,13 +38,12 @@ int main()
     tile_sprite_storage::loadSprites();
 
     level_structure_decorator l_dec;
-    l_dec.decorate(l_s);
+    l_dec.decorate(lvl.ls);
 
 
     level_tile_map tmap;
     sf::Vector2i chunk_size = {30,30};
-    tmap.populate(l_s, { 64,64 }, chunk_size);
-    
+    tmap.populate(lvl.ls, { 64,64 }, chunk_size);
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 900), "");
@@ -76,9 +75,9 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
         {
-            l_gen.generate(l_s, g_params);
-            l_dec.decorate(l_s);
-            tmap.populate(l_s, { 64,64 }, {10,10});
+            l_gen.generate(lvl.ls, g_params);
+            l_dec.decorate(lvl.ls);
+            tmap.populate(lvl.ls, { 64,64 }, {10,10});
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -96,6 +95,14 @@ int main()
         {
             view.move(camera_velocity*zoom, 0);
         }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
+        {
+            view.rotate(-10);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
+        {
+            view.rotate(10);
+        }
 
         window.setView(view);
         
@@ -104,5 +111,5 @@ int main()
         window.draw(tmap);
         window.display();
     }
-    l_s.printToFile("mapa.txt");
+    lvl.ls.printToFile("mapa.txt");
 }
