@@ -24,6 +24,8 @@ add_executable(dungeon
 	src/level_gen/level_structure_generator.cpp 
 	src/level_gen/level_structure_decorator.cpp
 	src/utils/rand.cpp
+	src/entities/entity.cpp
+	src/entities/player.cpp
 )
 
 target_link_libraries(dungeon sfml-graphics)

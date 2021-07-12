@@ -10,11 +10,12 @@
 #include "gfx/animated_sprite.h"
 #include "asset_storage/texture_bank.h"
 #include "gfx/level_tile_map.h"
+#include "entities/player.h"
 
 int main()
 {
     gen_params g_params;
-    g_params.level_size = { 500, 500 };
+    g_params.level_size = { 50, 50 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -54,6 +55,20 @@ int main()
     float zoom = 1;
     float camera_velocity = 10;
 
+    const sf::Texture* tex = texture_bank::getTexture("wild_mage_frames.png");
+    std::vector<sf::IntRect> rects;
+    for (int i = 0; i < 16; i++)
+    {
+        rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
+    }
+    std::shared_ptr<animated_sprite_frames> frames = std::make_shared<animated_sprite_frames>(tex, rects);
+
+    animated_sprite anim(frames, 14);
+
+    player p(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
+
+
+    std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
     {
         sf::Event event;
@@ -109,6 +124,13 @@ int main()
 
         window.clear();
         window.draw(tmap);
+
+        std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+        bool move = (t - lt) >= std::chrono::milliseconds(200);
+        p.updateState(move);
+        window.draw(p);
+        if (move) lt = t;
+
         window.display();
     }
     lvl.ls.printToFile("mapa.txt");
