@@ -19,19 +19,23 @@ sf::Vector2f View_follower::edgeDst()
 
 		const sf::Vector2f center = view->getCenter();
 
-		const float y_dst_top = tl.y - center.y;
-		const float y_dst_bottom = br.y - center.y;
-
-		float y_dst = y_dst_top >= 0 ? std::min(y_dst_top, y_dst_bottom) : std::max(y_dst_top, y_dst_bottom);
-		if (center.y >= tl.y && center.y <= br.y) { y_dst = 0; }
-		if (2*border.y >= view->getSize().y) { y_dst = centerDst().y; }
-
 		const float x_dst_top = tl.x - center.x;
 		const float x_dst_bottom = br.x - center.x;
+		const float x_dst = [&]()
+		{
+			if (2 * border.x >= view->getSize().x) return centerDst().x;
+			if (center.x >= tl.x && center.x <= br.x) return 0.f;
+			return x_dst_top >= 0 ? std::min(x_dst_top, x_dst_bottom) : std::max(x_dst_top, x_dst_bottom);
+		}();
 
-		float x_dst = x_dst_top >= 0 ? std::min(x_dst_top, x_dst_bottom) : std::max(x_dst_top, x_dst_bottom);
-		if (center.x >= tl.x && center.x <= br.x) { x_dst = 0; }
-		if (2*border.x >= view->getSize().x) { x_dst = centerDst().x; }
+		const float y_dst_top = tl.y - center.y;
+		const float y_dst_bottom = br.y - center.y;
+		const float y_dst = [&]()
+		{
+			if (2 * border.y >= view->getSize().y) return centerDst().y;
+			if (center.y >= tl.y && center.y <= br.y) return 0.f;
+			return y_dst_top >= 0 ? std::min(y_dst_top, y_dst_bottom) : std::max(y_dst_top, y_dst_bottom);
+		}();
 
 		return sf::Vector2f{ x_dst, y_dst };
 	}
