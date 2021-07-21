@@ -1,5 +1,5 @@
 #pragma once
-#include "../level/level_structure.h"
+#include "../../level/level_structure.h"
 
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/VertexBuffer.hpp>

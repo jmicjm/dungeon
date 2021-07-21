@@ -1,6 +1,6 @@
 #include "level_tile_map_chunk.h"
-#include "../gfx/tile_sprite_data.h"
-#include "../asset_storage/tile_sprite_storage.h"
+#include "../tile_sprite_data.h"
+#include "../../asset_storage/tile_sprite_storage.h"
 
 #include <algorithm>
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "entity.h"
-#include "../gfx/animated_sprite.h"
+#include "../gfx/animated_sprite/animated_sprite.h"
 
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "SFML/Graphics/Drawable.hpp"

@@ -8,9 +8,9 @@
 #include <iostream>
 #include <cmath>
 
-#include "gfx/animated_sprite.h"
+#include "gfx/animated_sprite/animated_sprite.h"
 #include "asset_storage/texture_bank.h"
-#include "gfx/level_tile_map.h"
+#include "gfx/level_tile_map/level_tile_map.h"
 #include "entities/player.h"
 #include "gfx/view_follower.h"
 
@@ -70,9 +70,8 @@ int main()
     Player player(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
 
     View_follower vf;
-    vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,32); };
+    vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,0); };
     vf.velocity = 300;
-    vf.resetTime();
     vf.view = &view;
     vf.edge_dst = 64*3+32;
 
@@ -128,10 +127,9 @@ int main()
             view.rotate(10);
         }
 
-        vf.follow();
+        
 
-        view.setCenter(std::round(view.getCenter().x), std::round(view.getCenter().y));
-        window.setView(view);
+        
         
 
         window.clear();
@@ -140,8 +138,13 @@ int main()
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool move = (t - lt) >= std::chrono::milliseconds(200);
         player.updateState(move);
+        vf.follow();
+        view.setCenter(std::round(view.getCenter().x), std::round(view.getCenter().y));
+        window.setView(view);
         window.draw(player);
         if (move) lt = t;
+
+        
 
         window.display();
     }
