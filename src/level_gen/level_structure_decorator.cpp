@@ -46,7 +46,7 @@ bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_
 {
 	using namespace TILE_SPRITE_ID;
 
-	std::vector<Tile_sprite_data>* sprites = Tile_sprite_storage::getSprite(id);
+	std::vector<Primitive_sprite>* sprites = Tile_sprite_storage::getSprite(id);
 	if (sprites == nullptr)
 	{	
 		sprites = Tile_sprite_storage::getSprite(id &= ~(TL | TR | BL | BR));//fallback to generic

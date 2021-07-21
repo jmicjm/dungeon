@@ -8,7 +8,7 @@
 
 Tile_sprite_storage::Tile_sprite_map Tile_sprite_storage::sprite_map = Tile_sprite_map();
 
-void Tile_sprite_storage::expandTile(std::pair<const TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Tile_sprite_data>>& i)
+void Tile_sprite_storage::expandTile(std::pair<const TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Primitive_sprite>>& i)
 {
 	using namespace TILE_SPRITE_ID;
 
@@ -68,12 +68,12 @@ void Tile_sprite_storage::loadSprites()
 
 	for (auto& i : data)
 	{
-		std::vector<Tile_sprite_data> tmp_spr_vec;
+		std::vector<Primitive_sprite> tmp_spr_vec;
 
 		for (auto& j : i.variants)
 		{
 			const sf::Texture* tex_ptr = Texture_bank::getTexture(j.path);
-			Tile_sprite_data sprite_data(tex_ptr, j.rect);
+			Primitive_sprite sprite_data(tex_ptr, j.rect);
 			tmp_spr_vec.push_back(sprite_data);
 		}
 		sprite_map.insert({ i.tile_type_id, tmp_spr_vec });
@@ -82,7 +82,7 @@ void Tile_sprite_storage::loadSprites()
 	expandTileSet();
 }
 
-std::vector<Tile_sprite_data>* Tile_sprite_storage::getSprite(TILE_SPRITE_ID::tile_sprite_id_t key)
+std::vector<Primitive_sprite>* Tile_sprite_storage::getSprite(TILE_SPRITE_ID::tile_sprite_id_t key)
 {
 	auto it = sprite_map.find(key);
 	if (it != sprite_map.end())

@@ -1,5 +1,5 @@
 #include "level_tile_map_chunk.h"
-#include "../tile_sprite_data.h"
+#include "../primitive_sprite.h"
 #include "../../asset_storage/tile_sprite_storage.h"
 
 #include <algorithm>
@@ -54,11 +54,11 @@ void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2
 		{
 			for (const auto& sprite_data : ls.at({ x,y }).sprites_info)
 			{
-				const Tile_sprite_data& tsd = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
+				const Primitive_sprite& spr = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
-				texture_vertices<sf::VertexArray>& va = getVertexArray(tsd.texture, vertex_arrays);
+				texture_vertices<sf::VertexArray>& va = getVertexArray(spr.texture, vertex_arrays);
 
-				for (auto vertex : tsd.vertices)
+				for (auto vertex : spr.vertices)
 				{
 					vertex.position += {tile_size.x * x, tile_size.y * y};
 

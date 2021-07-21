@@ -1,6 +1,6 @@
 #pragma once
 #include "../level/tile_sprite_id_enum.h"
-#include "../gfx/tile_sprite_data.h"
+#include "../gfx/primitive_sprite.h"
 
 #include <SFML/Graphics/Texture.hpp>
 
@@ -10,13 +10,13 @@
 
 class Tile_sprite_storage
 {
-	using Tile_sprite_map = std::map<TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Tile_sprite_data>>;
+	using Tile_sprite_map = std::map<TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Primitive_sprite>>;
 	static Tile_sprite_map sprite_map;
 
-	static void expandTile(std::pair<const TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Tile_sprite_data>>& i);
+	static void expandTile(std::pair<const TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Primitive_sprite>>& i);
 	static void expandTileSet();
 
 public:
 	static void loadSprites();
-	static std::vector<Tile_sprite_data>* getSprite(TILE_SPRITE_ID::tile_sprite_id_t key);
+	static std::vector<Primitive_sprite>* getSprite(TILE_SPRITE_ID::tile_sprite_id_t key);
 };
