@@ -15,8 +15,10 @@ class View_follower
 public:
 	sf::View* view = nullptr;
 	std::function<sf::Vector2f()> target_position;
-	float velocity = 0;
+	float velocity = 0;//negative -> instant move
 	float edge_dst = 0;
+
+	View_follower();
 
 	void followCenter();
 	void follow();

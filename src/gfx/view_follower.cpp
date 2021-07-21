@@ -19,21 +19,21 @@ sf::Vector2f View_follower::edgeDst()
 
 		const sf::Vector2f center = view->getCenter();
 
-		const float x_dst_top = tl.x - center.x;
-		const float x_dst_bottom = br.x - center.x;
 		const float x_dst = [&]()
 		{
 			if (2 * border.x >= view->getSize().x) return centerDst().x;
 			if (center.x >= tl.x && center.x <= br.x) return 0.f;
+			const float x_dst_top = tl.x - center.x;
+			const float x_dst_bottom = br.x - center.x;
 			return x_dst_top >= 0 ? std::min(x_dst_top, x_dst_bottom) : std::max(x_dst_top, x_dst_bottom);
 		}();
 
-		const float y_dst_top = tl.y - center.y;
-		const float y_dst_bottom = br.y - center.y;
 		const float y_dst = [&]()
 		{
 			if (2 * border.y >= view->getSize().y) return centerDst().y;
 			if (center.y >= tl.y && center.y <= br.y) return 0.f;
+			const float y_dst_top = tl.y - center.y;
+			const float y_dst_bottom = br.y - center.y;
 			return y_dst_top >= 0 ? std::min(y_dst_top, y_dst_bottom) : std::max(y_dst_top, y_dst_bottom);
 		}();
 
@@ -53,19 +53,30 @@ void View_follower::followVec(const sf::Vector2f& vec)
 		const float length = std::sqrt(vec.x * vec.x + vec.y * vec.y);
 		if (length != 0)
 		{
-			const sf::Vector2f vec_norm = vec / length;
-
-			float dst = velocity * t_diff.count() / 1000;
-
-			sf::Vector2f offset =
+			if (velocity >= 0)
 			{
-				std::clamp(vec_norm.x * dst,-std::abs(vec.x), std::abs(vec.x)),
-				std::clamp(vec_norm.y * dst,-std::abs(vec.y), std::abs(vec.y))
-			};
+				const sf::Vector2f vec_norm = vec / length;
+				const float dst = velocity * t_diff.count() / 1000;
 
-			view->move(offset);
+				const sf::Vector2f offset =
+				{
+					std::clamp(vec_norm.x * dst,-std::abs(vec.x), std::abs(vec.x)),
+					std::clamp(vec_norm.y * dst,-std::abs(vec.y), std::abs(vec.y))
+				};
+
+				view->move(offset);
+			}
+			else
+			{
+				view->move(vec);
+			}
 		}
 	}
+}
+
+View_follower::View_follower()
+{
+	resetTime();
 }
 
 void View_follower::followCenter()
