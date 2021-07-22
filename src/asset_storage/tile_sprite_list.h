@@ -10,7 +10,7 @@
 		{"wooden_floor.png", sf::IntRect(0,  0,64,64)},
 		{"wooden_floor.png", sf::IntRect(64, 0,64,64)},
 		{"wooden_floor.png", sf::IntRect(128,0,64,64)},
-		{"wooden_floor.png", sf::IntRect(196,0,64,64)}
+		{"wooden_floor.png", sf::IntRect(192,0,64,64)}
 	}
 },
 {

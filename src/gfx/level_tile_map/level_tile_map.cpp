@@ -20,6 +20,7 @@ void Level_tile_map::setSize(const sf::Vector2i& size)
     {
         i.resize(size.y);
     }
+    setChunksTexture();
 }
 
 sf::Vector2i Level_tile_map::getSize() const
@@ -27,8 +28,24 @@ sf::Vector2i Level_tile_map::getSize() const
     return chunks.size() > 0 ? sf::Vector2i{ (int)chunks.size(), (int)chunks[0].size() } : sf::Vector2i{ 0, 0 };
 }
 
+void Level_tile_map::setChunksTexture()
+{
+    for (int x = 0; x < getSize().x; x++)
+    {
+        for (int y = 0; y < getSize().y; y++)
+        {
+            at({ x,y }).setTexture(&texture);
+        }
+    }
+}
+
 void Level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
+    if (getSize().x == 0 || getSize().y == 0)
+    {
+        return;
+    }
+
     const sf::View view = rt.getView();
 
     const sf::FloatRect view_rect = { view.getCenter() - view.getSize()/2.f, view.getSize() };
@@ -55,6 +72,38 @@ void Level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
             rt.draw(at({ x,y }), st);
         }
     }
+}
+
+Level_tile_map::Level_tile_map(const Level_tile_map& other) 
+    : chunks(other.chunks), chunk_size_px(other.chunk_size_px), texture(other.texture)
+{
+    setChunksTexture();
+}
+
+Level_tile_map::Level_tile_map(Level_tile_map&& other)
+    : chunks(std::move(other.chunks)), chunk_size_px(std::move(other.chunk_size_px)), texture(std::move(other.texture))
+{
+    setChunksTexture();
+}
+
+Level_tile_map& Level_tile_map::operator=(const Level_tile_map& other)
+{
+    chunks = other.chunks;
+    chunk_size_px = other.chunk_size_px;
+    texture = other.texture;
+    setChunksTexture();
+
+    return *this;
+}
+
+Level_tile_map& Level_tile_map::operator=(Level_tile_map&& other)
+{
+    chunks = std::move(other.chunks);
+    chunk_size_px = std::move(other.chunk_size_px);
+    texture = std::move(other.texture);
+    setChunksTexture();
+
+    return *this;
 }
 
 void Level_tile_map::populate(const Level_structure& ls, const sf::Vector2f& Tile_size, const sf::Vector2i& chunk_size)

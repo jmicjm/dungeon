@@ -2,51 +2,23 @@
 #include "../primitive_sprite.h"
 #include "../../asset_storage/tile_sprite_storage.h"
 
-#include <algorithm>
-
-Level_tile_map_chunk::texture_vertices<sf::VertexArray>& Level_tile_map_chunk::getVertexArray(const sf::Texture* texture, vertex_arrays_type& vertex_arrays)
-{
-	auto it = std::find_if(
-		vertex_arrays.begin(),
-		vertex_arrays.end(),
-		[&](const texture_vertices<sf::VertexArray>& tva) {return tva.texture == texture; }
-	);
-	if (it != vertex_arrays.end())
-	{
-		return *it;
-	}
-	else
-	{
-		vertex_arrays.push_back(texture);
-		return vertex_arrays.back();
-	}
-}
 
 void Level_tile_map_chunk::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-	for (auto& i : vertex_buffers)
-	{
-		st.texture = i.texture;
-		rt.draw(i.vertices, st);
-	}
+	st.texture = &texture->getCombinedTexture();
+	rt.draw(vertices, st);
 }
 
-void Level_tile_map_chunk::copyToBuffer(const vertex_arrays_type& vertex_arrays)
+void Level_tile_map_chunk::copyToBuffer(const sf::VertexArray& vertex_array)
 {
-	vertex_buffers.resize(vertex_arrays.size());
-
-	for (int i = 0; i < vertex_buffers.size(); i++)
-	{
-		vertex_buffers[i].texture = vertex_arrays[i].texture;
-		vertex_buffers[i].vertices.setPrimitiveType(sf::Quads);
-		vertex_buffers[i].vertices.create(vertex_arrays[i].vertices.getVertexCount());
-		vertex_buffers[i].vertices.update(&(vertex_arrays[i].vertices[0]));
-	}
+	vertices.setPrimitiveType(sf::Quads);
+	vertices.create(vertex_array.getVertexCount());
+	vertices.update(&(vertex_array[0]));
 }
 
 void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area)
 {
-	vertex_arrays_type vertex_arrays;
+	sf::VertexArray vertex_array;
 
 	for (int x = area.left; x < ls.getSize().x && x < area.left + area.width; x++)
 	{
@@ -54,23 +26,23 @@ void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2
 		{
 			for (const auto& sprite_data : ls.at({ x,y }).sprites_info)
 			{
-				const Primitive_sprite& spr = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
+				Primitive_sprite spr = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
-				texture_vertices<sf::VertexArray>& va = getVertexArray(spr.texture, vertex_arrays);
+				const sf::Vector2f tex_offset = texture->getTextureOffset(spr.texture);
+				spr.moveTex(tex_offset);
+				spr.move({ tile_size.x * x, tile_size.y * y });	
 
-				for (auto vertex : spr.vertices)
+				for (const auto& vertex : spr.vertices)
 				{
-					vertex.position += {tile_size.x * x, tile_size.y * y};
-
-					va.vertices.append(vertex);
-				}
-
-				if (sprite_data.id & TILE_SPRITE_ID::OVERLAY)//put overlays on top
-				{
-					std::swap(vertex_arrays.back(), va);
+					vertex_array.append(vertex);
 				}
 			}
 		}
 	}
-	copyToBuffer(vertex_arrays);
+	copyToBuffer(vertex_array);
+}
+
+void Level_tile_map_chunk::setTexture(Level_tile_map_texture* tex)
+{
+	texture = tex;
 }
