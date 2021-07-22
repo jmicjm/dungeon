@@ -49,11 +49,11 @@ int main()
     tmap.populate(lvl.ls, { 64,64 }, chunk_size);
 
 
-    sf::RenderWindow window(sf::VideoMode(1600, 900), "");
+    sf::RenderWindow window(sf::VideoMode(1600, 901), "");
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(75);
 
-    sf::View view(sf::FloatRect(0, 0, 1600, 900));
+    sf::View view(sf::FloatRect(0, 0, 1600, 901));
     float zoom = 1;
     float camera_velocity = 10;
 
@@ -100,7 +100,7 @@ int main()
         {
             l_gen.generate(lvl.ls, g_params);
             l_dec.decorate(lvl.ls);
-            tmap.populate(lvl.ls, { 64,64 }, {10,10});
+            tmap.populate(lvl.ls, { 64,64 }, chunk_size);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -139,8 +139,12 @@ int main()
         bool move = (t - lt) >= std::chrono::milliseconds(200);
         player.updateState(move);
         vf.follow();
-        view.setCenter(std::round(view.getCenter().x), std::round(view.getCenter().y));
-        window.setView(view);
+
+        sf::View display_view = view;
+        sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
+        display_view.setCenter(tl+ view.getSize()/2.f);
+        window.setView(display_view);
+
         window.draw(player);
         if (move) lt = t;
 
