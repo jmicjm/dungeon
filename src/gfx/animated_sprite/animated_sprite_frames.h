@@ -7,14 +7,14 @@
 
 struct Animated_sprite_frames
 {
-	const sf::Texture* texture = nullptr;	
+    const sf::Texture* texture = nullptr;	
 
-	struct frame_rect
-	{
-		sf::Vertex vertices[4];
-	};
+    struct frame_rect
+    {
+        sf::Vertex vertices[4];
+    };
 
-	std::vector<frame_rect> frame_rects;
+    std::vector<frame_rect> frame_rects;
 
-	Animated_sprite_frames(const sf::Texture* texture, const std::vector<sf::IntRect>& rects);
+    Animated_sprite_frames(const sf::Texture* texture, const std::vector<sf::IntRect>& rects);
 };

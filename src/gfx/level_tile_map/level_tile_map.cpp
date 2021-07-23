@@ -5,7 +5,7 @@
 
 Level_tile_map_chunk& Level_tile_map::at(const sf::Vector2i& pos)
 {
-	return chunks[pos.x][pos.y];
+    return chunks[pos.x][pos.y];
 }
 
 const Level_tile_map_chunk& Level_tile_map::at(const sf::Vector2i& pos) const

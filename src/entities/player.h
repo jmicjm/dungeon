@@ -7,16 +7,16 @@
 
 class Player : public Entity
 {
-	Animated_sprite animation;
+    Animated_sprite animation;
 
-	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
+    void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-	void setPosition(const sf::Vector2i& position) override;
-	void move(sf::Vector2i& offset) override;
+    void setPosition(const sf::Vector2i& position) override;
+    void move(sf::Vector2i& offset) override;
 
-	void updateAnimationPosition();
+    void updateAnimationPosition();
 public:
-	Player(Level* lvl, sf::Vector2i position, Animated_sprite anim);
+    Player(Level* lvl, sf::Vector2i position, Animated_sprite anim);
 
-	void updateState(const bool make_action) override;
+    void updateState(const bool make_action) override;
 };

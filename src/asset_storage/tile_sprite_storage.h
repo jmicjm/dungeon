@@ -10,10 +10,10 @@
 
 class Tile_sprite_storage
 {
-	using Tile_sprite_map = std::map<TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Primitive_sprite>>;
-	static Tile_sprite_map sprite_map;
+    using Tile_sprite_map = std::map<TILE_SPRITE_ID::tile_sprite_id_t, std::vector<Primitive_sprite>>;
+    static Tile_sprite_map sprite_map;
 
 public:
-	static void loadSprites();
-	static std::vector<Primitive_sprite>* getSprite(TILE_SPRITE_ID::tile_sprite_id_t key);
+    static void loadSprites();
+    static std::vector<Primitive_sprite>* getSprite(TILE_SPRITE_ID::tile_sprite_id_t key);
 };

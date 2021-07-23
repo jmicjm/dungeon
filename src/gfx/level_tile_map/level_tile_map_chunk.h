@@ -11,14 +11,14 @@
 
 class Level_tile_map_chunk : public sf::Drawable
 {
-	Level_tile_map_texture* texture = nullptr;
-	sf::VertexBuffer vertices;
+    Level_tile_map_texture* texture = nullptr;
+    sf::VertexBuffer vertices;
 
-	void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
+    void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-	void copyToBuffer(const sf::VertexArray& vertex_array);
+    void copyToBuffer(const sf::VertexArray& vertex_array);
 
 public:
-	void populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
-	void setTexture(Level_tile_map_texture* tex);
+    void populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
+    void setTexture(Level_tile_map_texture* tex);
 };
