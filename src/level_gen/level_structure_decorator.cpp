@@ -3,7 +3,9 @@
 #include "../utils/rand.h"
 
 
-TILE_SPRITE_ID::tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const Vec2i pos)
+using namespace TILE_SPRITE_ID;
+
+tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const Vec2i pos)
 {
     auto isSame = [&](const Vec2i pos, const TILE_TYPE ttype)
     {
@@ -13,8 +15,6 @@ TILE_SPRITE_ID::tile_sprite_id_t Level_structure_decorator::getSurroundingsId(co
         }
         return true;
     };
-
-    using namespace TILE_SPRITE_ID;
 
     tile_sprite_id_t id = 0;
     const TILE_TYPE ttype = ls->at(pos).type;
@@ -34,8 +34,6 @@ TILE_SPRITE_ID::tile_sprite_id_t Level_structure_decorator::getSurroundingsId(co
 
 bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
 {
-    using namespace TILE_SPRITE_ID;
-
     std::vector<Primitive_sprite>* sprites = Tile_sprite_storage::getSprite(id);
     if (sprites == nullptr)
     {	
@@ -71,8 +69,6 @@ void Level_structure_decorator::placeWalls()
 
 void Level_structure_decorator::placeWall(const Vec2i pos)
 {
-    using namespace TILE_SPRITE_ID;
-
     const tile_sprite_id_t ids[] =
     {
         T|B|L|R,
@@ -123,17 +119,55 @@ void Level_structure_decorator::placeWall(const Vec2i pos)
     }
 }
 
+void Level_structure_decorator::placeFloors()
+{
+    for (int x = 0; x < ls->getSize().x; x++)
+    {
+        for (int y = 0; y < ls->getSize().y; y++)
+        {        
+            if (ls->at({ x,y }).type != TILE_TYPE::WALL)
+            {
+                const tile_sprite_id_t id = FLOOR | ROCK | getSurroundingsId({ x,y });
+                addSprite({ x,y }, id);
+            }  
+        }
+    }
+
+    for (int i = 0; i < ls->roomCount(); i++)
+    {
+        if (rand(0, 1))
+        {
+            Rect_i r = ls->getRoomRect(i);
+            for (int x = r.tl.x; x <= r.br.x; x++)
+            {
+                for (int y = r.tl.y; y <= r.br.y; y++)
+                {
+                    const tile_sprite_id_t id = FLOOR | WOOD | getSurroundingsId({ x,y });
+                    addSprite({ x,y }, id);
+                }
+            }
+        }
+    }
+}
+
+void Level_structure_decorator::placeCarpets()
+{
+    for (int i = 0; i < ls->roomCount(); i++)
+    {
+        if (!rand(0, 10))
+        {
+            placeCarpet(ls->getRoomRect(i));
+        }
+    }
+}
+
 void Level_structure_decorator::placeCarpet(const Rect_i area)
 {
     for (int x = area.tl.x; x <= area.br.x; x++)
     {
         for (int y = area.tl.y; y <= area.br.y; y++)
         {
-            using namespace TILE_SPRITE_ID;
-
-            TILE_SPRITE_ID::tile_sprite_id_t id = getSurroundingsId({ x,y });
-            id |= OVERLAY | CARPET | FLOOR;
-
+            const tile_sprite_id_t id = OVERLAY | CARPET | FLOOR | getSurroundingsId({ x,y });
             addSprite({ x,y }, id);
         }
     }
@@ -142,35 +176,8 @@ void Level_structure_decorator::placeCarpet(const Rect_i area)
 void Level_structure_decorator::decorate(Level_structure& l)
 {
     ls = &l;
-
-    for (int x = 0; x < ls->getSize().x; x++)
-    {
-        for (int y = 0; y < ls->getSize().y; y++)
-        {
-            TILE_SPRITE_ID::tile_sprite_id_t id = TILE_SPRITE_ID::FLOOR | getSurroundingsId({ x,y });
-            if (ls->at({ x,y }).type != TILE_TYPE::WALL)
-            {
-                if (rand(0, 1))
-                {
-                    id |= TILE_SPRITE_ID::ROCK;
-                }
-                else
-                {
-                    id |= TILE_SPRITE_ID::WOOD;
-                }
-            }
-
-            addSprite({ x,y }, id);
-        }	
-    }
+ 
     placeWalls();
-
-    //place carpets in random rooms
-    for (int i = 0; i < ls->roomCount(); i++)
-    {
-        if (!rand(0, 10))
-        {
-            placeCarpet(ls->getRoomRect(i));
-        }
-    }
+    placeFloors();
+    placeCarpets();  
 }

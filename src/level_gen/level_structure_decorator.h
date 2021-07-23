@@ -15,6 +15,8 @@ class Level_structure_decorator
 
     void placeWalls();
     void placeWall(const Vec2i pos);
+    void placeFloors();
+    void placeCarpets();
     void placeCarpet(const Rect_i area);
 
 public:
