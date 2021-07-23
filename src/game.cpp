@@ -17,7 +17,7 @@
 int main()
 {
     Gen_params g_params;
-    g_params.level_size = { 50, 50 };
+    g_params.level_size = { 500, 500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -27,26 +27,34 @@ int main()
     g_params.max_empty_area_size = { 10,10 };
 
     Level lvl;
-
-    Level_structure_generator l_gen;
-
-    auto b = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 1; i++)
-    {
-        l_gen.generate(lvl.ls, g_params);
-    }
-    auto e = std::chrono::high_resolution_clock::now();
-    std::cout << "t: " << std::chrono::duration_cast<std::chrono::milliseconds>(e - b).count() << " ms\n";
+    Level_tile_map tmap;
 
     Tile_sprite_storage::loadSprites();
 
-    Level_structure_decorator l_dec;
-    l_dec.decorate(lvl.ls);
+    auto gen = [&]()
+    {
+        auto bg = std::chrono::high_resolution_clock::now();
+        Level_structure_generator{}.generate(lvl.ls, g_params);
+        auto eg = std::chrono::high_resolution_clock::now();
+        std::cout << "tgen: " << std::chrono::duration_cast<std::chrono::milliseconds>(eg - bg).count() << " ms\n";
 
+        auto bd = std::chrono::high_resolution_clock::now();
+        Level_structure_decorator{}.decorate(lvl.ls);
+        auto ed = std::chrono::high_resolution_clock::now();
+        std::cout << "tdec: " << std::chrono::duration_cast<std::chrono::milliseconds>(ed - bd).count() << " ms\n";
 
-    Level_tile_map tmap;
-    sf::Vector2i chunk_size = {30,30};
-    tmap.populate(lvl.ls, { 64,64 }, chunk_size);
+        sf::Vector2i chunk_size = { 30,30 };
+
+        auto bp = std::chrono::high_resolution_clock::now();
+        tmap.populate(lvl.ls, { 64,64 }, chunk_size);
+        auto ep = std::chrono::high_resolution_clock::now();
+        std::cout << "tpop: " << std::chrono::duration_cast<std::chrono::milliseconds>(ep - bp).count() << " ms\n";
+
+        std::cout << "ttotal: " << std::chrono::duration_cast<std::chrono::milliseconds>(ep - bg).count() << " ms\n";
+    };
+    gen();
+
+    
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 901), "");
@@ -71,7 +79,7 @@ int main()
 
     View_follower vf;
     vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,0); };
-    vf.velocity = 300;
+    vf.velocity = 0;// 300;
     vf.view = &view;
     vf.edge_dst = 64*3+32;
 
@@ -98,9 +106,7 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
         {
-            l_gen.generate(lvl.ls, g_params);
-            l_dec.decorate(lvl.ls);
-            tmap.populate(lvl.ls, { 64,64 }, chunk_size);
+            gen();
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -133,7 +139,7 @@ int main()
         
 
         window.clear();
-        window.draw(tmap);
+        
 
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool move = (t - lt) >= std::chrono::milliseconds(200);
@@ -145,6 +151,7 @@ int main()
         display_view.setCenter(tl+ view.getSize()/2.f);
         window.setView(display_view);
 
+        window.draw(tmap);
         window.draw(player);
         if (move) lt = t;
 
