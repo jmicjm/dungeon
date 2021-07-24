@@ -2,6 +2,9 @@
 #include "../asset_storage/tile_sprite_storage.h"
 #include "../utils/rand.h"
 
+#include <numeric>
+#include <tuple>
+
 
 using namespace TILE_SPRITE_ID;
 
@@ -34,7 +37,7 @@ tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const Vec2i pos)
 
 bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
 {
-    std::vector<Primitive_sprite>* sprites = Tile_sprite_storage::getSprite(id);
+    auto sprites = Tile_sprite_storage::getSprite(id);
     if (sprites == nullptr)
     {	
         sprites = Tile_sprite_storage::getSprite(id &= ~(TL | TR | BL | BR));//fallback to generic
@@ -45,8 +48,24 @@ bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_
     }
     if (sprites != nullptr && sprites->size() > 0)
     {
-        unsigned int variant = rand(0, sprites->size() - 1);
-        ls->at(pos).sprites_info.push_back({ id, variant});
+        const float total_sum_chance = std::accumulate(
+            sprites->begin(),
+            sprites->end(),
+            0.f,
+            [](float a, const auto& b) {return a + b.chance; }
+        );
+        const float chance = rand(0.f, total_sum_chance);
+
+        const unsigned int id_variant = [&]()
+        {
+            for (auto [sum_chance, i] = std::tuple{ 0.f,0 }; i < sprites->size(); i++)
+            {
+                sum_chance += (*sprites)[i].chance;
+                if (chance <= sum_chance) return i;
+            }
+        }();
+
+        ls->at(pos).sprites_info.push_back({ id, id_variant});
 
         return true;
     }

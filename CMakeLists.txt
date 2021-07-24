@@ -26,7 +26,6 @@ add_executable(dungeon
     src/level/level_structure.cpp
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
-    src/utils/rand.cpp
     src/entities/entity.cpp
     src/entities/player.cpp
 )

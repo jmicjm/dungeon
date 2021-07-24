@@ -7,10 +7,10 @@
 { 
     WOOD | FLOOR,
     { 
-        {"wooden_floor.png", {0,  0,64,64}},
-        {"wooden_floor.png", {64, 0,64,64}},
-        {"wooden_floor.png", {128,0,64,64}},
-        {"wooden_floor.png", {192,0,64,64}}
+        {"wooden_floor.png", {0,  0,64,64}, 0.80},
+        {"wooden_floor.png", {64, 0,64,64}, 0.10},
+        {"wooden_floor.png", {128,0,64,64}, 0.05},
+        {"wooden_floor.png", {192,0,64,64}, 0.05}
     }
 },
 {

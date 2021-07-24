@@ -26,13 +26,13 @@ void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2
         {
             for (const auto& sprite_data : ls.at({ x,y }).sprites_info)
             {
-                Primitive_sprite spr = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
+                auto spr = Tile_sprite_storage::getSprite(sprite_data.id)->at(sprite_data.id_variant);
 
-                const sf::Vector2f tex_offset = texture->getTextureOffset(spr.texture);
-                spr.moveTex(tex_offset);
-                spr.move({ tile_size.x * x, tile_size.y * y });	
+                const sf::Vector2f tex_offset = texture->getTextureOffset(spr.sprite.texture);
+                spr.sprite.moveTex(tex_offset);
+                spr.sprite.move({ tile_size.x * x, tile_size.y * y });	
 
-                for (const auto& vertex : spr.vertices)
+                for (const auto& vertex : spr.sprite.vertices)
                 {
                     vertex_array.append(vertex);
                 }
