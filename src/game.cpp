@@ -1,5 +1,3 @@
-#include "level_gen/level_structure_generator.h"
-#include "level_gen/level_structure_decorator.h"
 #include "level/level.h"
 #include "asset_storage/tile_sprite_storage.h"
 
@@ -10,14 +8,14 @@
 
 #include "gfx/animated_sprite/animated_sprite.h"
 #include "asset_storage/texture_bank.h"
-#include "gfx/level_tile_map/level_tile_map.h"
+
 #include "entities/player.h"
 #include "gfx/view_follower.h"
 
 int main()
 {
     Gen_params g_params;
-    g_params.level_size = { 500, 500 };
+    g_params.level_size = { 50, 50 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -26,35 +24,10 @@ int main()
     g_params.max_hallway_segment_count = 5;
     g_params.max_empty_area_size = { 10,10 };
 
-    Level lvl;
-    Level_tile_map tmap;
+    Level level;
 
     Tile_sprite_storage::loadSprites();
-
-    auto gen = [&]()
-    {
-        auto bg = std::chrono::high_resolution_clock::now();
-        Level_structure_generator{}.generate(lvl.ls, g_params);
-        auto eg = std::chrono::high_resolution_clock::now();
-        std::cout << "tgen: " << std::chrono::duration_cast<std::chrono::milliseconds>(eg - bg).count() << " ms\n";
-
-        auto bd = std::chrono::high_resolution_clock::now();
-        Level_structure_decorator{}.decorate(lvl.ls);
-        auto ed = std::chrono::high_resolution_clock::now();
-        std::cout << "tdec: " << std::chrono::duration_cast<std::chrono::milliseconds>(ed - bd).count() << " ms\n";
-
-        sf::Vector2i chunk_size = { 30,30 };
-
-        auto bp = std::chrono::high_resolution_clock::now();
-        tmap.populate(lvl.ls, { 64,64 }, chunk_size);
-        auto ep = std::chrono::high_resolution_clock::now();
-        std::cout << "tpop: " << std::chrono::duration_cast<std::chrono::milliseconds>(ep - bp).count() << " ms\n";
-
-        std::cout << "ttotal: " << std::chrono::duration_cast<std::chrono::milliseconds>(ep - bg).count() << " ms\n";
-    };
-    gen();
-
-    
+    level.create({ {64,64}, {30,30}, g_params });
 
 
     sf::RenderWindow window(sf::VideoMode(1600, 901), "");
@@ -75,13 +48,14 @@ int main()
 
     Animated_sprite anim(frames, 14);
 
-    Player player(&lvl, { lvl.ls.getRoomRect(0).tl.x,  lvl.ls.getRoomRect(0).tl.y }, anim);
+    Player player(&level, { level.ls.getRoomRect(0).tl.x,  level.ls.getRoomRect(0).tl.y }, anim);
 
     View_follower vf;
     vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,0); };
     vf.velocity = 0;// 300;
     vf.view = &view;
     vf.edge_dst = 64*3+32;
+
 
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
@@ -106,7 +80,7 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
         {
-            gen();
+            level.create({ {64,64}, {30,30}, g_params });
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
@@ -151,13 +125,64 @@ int main()
         display_view.setCenter(tl+ view.getSize()/2.f);
         window.setView(display_view);
 
-        window.draw(tmap);
+        window.draw(level.tmap);
         window.draw(player);
         if (move) lt = t;
 
         
+        const sf::Vector2i src_tile = { 16,16 };
+        const sf::Vector2i dst_tile = { 24,11 };
+
+        const sf::Vector2f src = sf::Vector2f{ src_tile }*64.f + sf::Vector2f{32, 32};
+        const sf::Vector2f dst = sf::Vector2f{ dst_tile }*64.f + sf::Vector2f{ 32, 32 };
+
+        const sf::Vector2f vec = dst - src;
+        const sf::Vector2f vec_y_norm = vec / std::abs(vec.y)*64.f;
+        const sf::Vector2i tile_move =
+        {
+            static_cast<int>(vec.x / std::abs(vec.x)),
+            static_cast<int>(vec.y / std::abs(vec.y))
+        };
+
+
+        sf::Vector2f curr_point = src;
+        sf::Vector2i curr_tile = src_tile;
+        while (curr_tile != dst_tile)
+        {
+            const float y_dst = std::abs((curr_tile.y*64 + (tile_move.y > 0)*64) - curr_point.y);
+            const sf::Vector2f next_point = curr_point + vec_y_norm * y_dst/64.f;
+            if (next_point.x > curr_tile.x * 64 && next_point.x < (curr_tile.x + 1) * 64)
+            {
+                curr_tile.y += tile_move.y;
+                curr_point = next_point;
+           
+            }
+            else if (next_point.x < curr_tile.x * 64 || next_point.x > (curr_tile.x + 1) * 64)
+            {
+                curr_tile.x += tile_move.x;
+            }
+            else
+            {
+                curr_tile += tile_move;
+                curr_point = next_point;
+            }
+
+            sf::RectangleShape rect({ 64,64 });
+            rect.setPosition(sf::Vector2f{ curr_tile }*64.f);
+            window.draw(rect);
+        }
+        
+
+        sf::Vertex line[2] =
+        {
+            sf::Vertex(src,{255,0,0,255}),
+            sf::Vertex(dst,{255,0,0,255})
+        };
+        window.draw(line, 2, sf::Lines);
+
+
 
         window.display();
     }
-    lvl.ls.printToFile("mapa.txt");
+    level.ls.printToFile("mapa.txt");
 }
