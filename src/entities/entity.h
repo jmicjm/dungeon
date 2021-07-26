@@ -1,12 +1,17 @@
 #pragma once
 #include "../level/level.h"
 #include <SFML/Graphics/Drawable.hpp>
+#include "SFML//Graphics/RenderWindow.hpp"
+
+#include <vector>
 
 class Entity : public sf::Drawable
 {
 private:
     sf::Vector2i m_position;
-    Level* m_Level = nullptr;
+    Level* m_level = nullptr;
+
+    unsigned int m_vision_radius = 6;
 
 public:
     Entity(Level* level, const sf::Vector2i& position);
@@ -18,4 +23,6 @@ public:
     virtual void move(sf::Vector2i& offset);
 
     virtual void updateState(const bool make_action);
+
+    std::vector<sf::Vector2i> getVisibleTiles() const;
 };

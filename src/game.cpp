@@ -46,7 +46,7 @@ int main()
     }
     std::shared_ptr<Animated_sprite_frames> frames = std::make_shared<Animated_sprite_frames>(tex, rects);
 
-    Animated_sprite anim(frames, 14);
+    Animated_sprite anim(frames, 16);
 
     Player player(&level, { level.ls.getRoomRect(0).tl.x,  level.ls.getRoomRect(0).tl.y }, anim);
 
@@ -129,56 +129,16 @@ int main()
         window.draw(player);
         if (move) lt = t;
 
-        
-        const sf::Vector2i src_tile = { 16,16 };
-        const sf::Vector2i dst_tile = { 24,11 };
+ 
+        std::vector<sf::Vector2i> visible_tiles = player.getVisibleTiles();
 
-        const sf::Vector2f src = sf::Vector2f{ src_tile }*64.f + sf::Vector2f{32, 32};
-        const sf::Vector2f dst = sf::Vector2f{ dst_tile }*64.f + sf::Vector2f{ 32, 32 };
-
-        const sf::Vector2f vec = dst - src;
-        const sf::Vector2f vec_y_norm = vec / std::abs(vec.y)*64.f;
-        const sf::Vector2i tile_move =
+        for (const auto& tile : visible_tiles)
         {
-            static_cast<int>(vec.x / std::abs(vec.x)),
-            static_cast<int>(vec.y / std::abs(vec.y))
-        };
-
-
-        sf::Vector2f curr_point = src;
-        sf::Vector2i curr_tile = src_tile;
-        while (curr_tile != dst_tile)
-        {
-            const float y_dst = std::abs((curr_tile.y*64 + (tile_move.y > 0)*64) - curr_point.y);
-            const sf::Vector2f next_point = curr_point + vec_y_norm * y_dst/64.f;
-            if (next_point.x > curr_tile.x * 64 && next_point.x < (curr_tile.x + 1) * 64)
-            {
-                curr_tile.y += tile_move.y;
-                curr_point = next_point;
-           
-            }
-            else if (next_point.x < curr_tile.x * 64 || next_point.x > (curr_tile.x + 1) * 64)
-            {
-                curr_tile.x += tile_move.x;
-            }
-            else
-            {
-                curr_tile += tile_move;
-                curr_point = next_point;
-            }
-
             sf::RectangleShape rect({ 64,64 });
-            rect.setPosition(sf::Vector2f{ curr_tile }*64.f);
+            rect.setFillColor({ 255,255,255, 64 });
+            rect.setPosition(sf::Vector2f{ tile }*64.f);
             window.draw(rect);
         }
-        
-
-        sf::Vertex line[2] =
-        {
-            sf::Vertex(src,{255,0,0,255}),
-            sf::Vertex(dst,{255,0,0,255})
-        };
-        window.draw(line, 2, sf::Lines);
 
 
 
