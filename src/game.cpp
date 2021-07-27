@@ -52,11 +52,17 @@ int main()
 
     View_follower vf;
     vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,0); };
-    vf.velocity = 0;// 300;
+    vf.velocity = 300;
     vf.view = &view;
     vf.edge_dst = 64*3+32;
+    View_follower vf_instant = vf;
+    vf_instant.velocity = -1;
+    vf_instant.edge_dst = 32;
 
 
+    sf::RenderTexture view_range_overlay_tex;
+    std::vector<sf::Vector2i> last_visible_tiles;
+    sf::View last_display_view;
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
@@ -98,19 +104,7 @@ int main()
         {
             view.move(camera_velocity*zoom, 0);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q))
-        {
-            view.rotate(-10);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E))
-        {
-            view.rotate(10);
-        }
 
-        
-
-        
-        
 
         window.clear();
         
@@ -119,6 +113,7 @@ int main()
         bool move = (t - lt) >= std::chrono::milliseconds(200);
         player.updateState(move);
         vf.follow();
+        vf_instant.follow();
 
         sf::View display_view = view;
         sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
@@ -129,17 +124,35 @@ int main()
         window.draw(player);
         if (move) lt = t;
 
- 
+        
         std::vector<sf::Vector2i> visible_tiles = player.getVisibleTiles();
 
-        for (const auto& tile : visible_tiles)
+        if (   visible_tiles != last_visible_tiles 
+            || display_view.getTransform() != last_display_view.getTransform() 
+            || display_view.getSize() != last_display_view.getSize()
+           )
         {
-            sf::RectangleShape rect({ 64,64 });
-            rect.setFillColor({ 255,255,255, 64 });
-            rect.setPosition(sf::Vector2f{ tile }*64.f);
-            window.draw(rect);
-        }
+            view_range_overlay_tex.create(window.getSize().x, window.getSize().y);
+            view_range_overlay_tex.clear({ 0,0,0,224 });
+            view_range_overlay_tex.setView(window.getView());
 
+
+            for (const auto& tile : visible_tiles)
+            {
+                static sf::Sprite visible_tile_overlay(*Texture_bank::getTexture("visible_tile_overlay.png"));
+                visible_tile_overlay.setPosition( sf::Vector2f{ tile }*64.f);
+                visible_tile_overlay.setOrigin(8, 8);
+                view_range_overlay_tex.draw(visible_tile_overlay, sf::BlendMultiply);
+
+            }
+            view_range_overlay_tex.display();
+        }
+        last_visible_tiles = visible_tiles;
+        last_display_view = display_view;
+
+ 
+        window.setView(sf::View{sf::FloatRect{{0.f,0.f}, sf::Vector2f{window.getSize()}}});
+        window.draw(sf::Sprite{ view_range_overlay_tex.getTexture() });
 
 
         window.display();
