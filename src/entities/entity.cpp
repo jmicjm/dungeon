@@ -39,53 +39,44 @@ void Entity::updateState(const bool make_action) {}
 
 std::vector<sf::Vector2i> Entity::getVisibleTiles() const
 {
-    auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2f& dest)
+    auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
     {
         const sf::Vector2i src_tile = getPosition();
-        const sf::Vector2f src = sf::Vector2f{ src_tile*64 + sf::Vector2i{ 32, 32 } };
+        const sf::Vector2i src = src_tile*64 + sf::Vector2i{ 32, 32 };
 
-        const sf::Vector2f vec = dest - src;
-        const sf::Vector2f vec_y_norm = vec / std::abs(vec.y) * 64.f;
+        const sf::Vector2i vec = dest - src;
         const sf::Vector2i tile_move =
         {
             static_cast<int>(vec.x / std::abs(vec.x)),
             static_cast<int>(vec.y / std::abs(vec.y))
         };
 
-        sf::Vector2f curr_point = src;
+        int y_dst_sum = 0;
         sf::Vector2i curr_tile = src_tile;
         while (curr_tile != dest_tile)
         {
-            const float y_dst = std::abs((curr_tile.y * 64 + (tile_move.y > 0) * 64) - curr_point.y);
-            const sf::Vector2f next_point = curr_point + vec_y_norm * y_dst / 64.f;
+            const int y_dst = (curr_tile.y * 64 + (tile_move.y > 0) * 64) - (src.y + y_dst_sum);
 
-            if ((curr_tile + tile_move == dest_tile || curr_tile + sf::Vector2i{tile_move.x,0} == dest_tile || curr_tile + sf::Vector2i{ 0,tile_move.y } == dest_tile)
-                && 
-                (   (std::abs(next_point.x - dest.x) <= 1 || std::abs(next_point.x - (dest.x+64)) <= 1) 
-                 && (std::abs(next_point.y - dest.y) <= 1 || std::abs(next_point.y - (dest.y+64)) <= 1))
-               ) 
-            {
-                return true; 
-            }
+            const float x = src.x + vec.x * std::abs((y_dst_sum + y_dst) / static_cast<float>(vec.y));
 
-            if (next_point.x > curr_tile.x * 64 && next_point.x < (curr_tile.x + 1) * 64)
+            if (x > curr_tile.x * 64 && x < (curr_tile.x + 1) * 64)
             {
                 curr_tile.y += tile_move.y;
-                curr_point = next_point;
+                y_dst_sum += y_dst;
 
             }
-            else if (next_point.x < curr_tile.x * 64 || next_point.x >(curr_tile.x + 1) * 64)
+            else if (x < curr_tile.x * 64 || x >(curr_tile.x + 1) * 64)
             {
                 curr_tile.x += tile_move.x;
             }
             else
             {
                 curr_tile += tile_move;
-                curr_point = next_point;
+                y_dst_sum += y_dst;
             }
-
-            if (curr_tile != dest_tile && (!m_level->ls.isPositionValid({ curr_tile.x, curr_tile.y })
-                || m_level->ls.at({ curr_tile.x, curr_tile.y }).type == TILE_TYPE::WALL))
+            if (y_dst_sum == vec.y) { return true; }
+            if (  !m_level->ls.isPositionValid({ curr_tile.x, curr_tile.y })
+                || m_level->ls.at({ curr_tile.x, curr_tile.y }).type == TILE_TYPE::WALL)
             {
                 return false;
             }
@@ -95,10 +86,10 @@ std::vector<sf::Vector2i> Entity::getVisibleTiles() const
 
     auto isTileVisible = [&](const sf::Vector2i& pos)
     {
-        return isVisible(pos, sf::Vector2f{ pos*64 + sf::Vector2i{ 0,  0  } })
-            || isVisible(pos, sf::Vector2f{ pos*64 + sf::Vector2i{ 0,  64 } })
-            || isVisible(pos, sf::Vector2f{ pos*64 + sf::Vector2i{ 64,  0 } })
-            || isVisible(pos, sf::Vector2f{ pos*64 + sf::Vector2i{ 64, 64 } });
+        return isVisible(pos,  pos*64 + sf::Vector2i{ 0,  0  } )
+            || isVisible(pos,  pos*64 + sf::Vector2i{ 0,  64 } )
+            || isVisible(pos,  pos*64 + sf::Vector2i{ 64,  0 } )
+            || isVisible(pos,  pos*64 + sf::Vector2i{ 64, 64 } );
     };
 
     std::vector<sf::Vector2i> visible_tiles;
