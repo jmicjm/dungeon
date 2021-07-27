@@ -61,7 +61,7 @@ int main()
 
 
     sf::RenderTexture view_range_overlay_tex;
-    std::vector<sf::Vector2i> last_visible_tiles;
+    std::vector<Tile_visibility_info> last_visible_tiles;
     sf::View last_display_view;
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
@@ -125,7 +125,7 @@ int main()
         if (move) lt = t;
 
         
-        std::vector<sf::Vector2i> visible_tiles = player.getVisibleTiles();
+        std::vector<Tile_visibility_info> visible_tiles = player.getVisibleTiles();
 
         if (   visible_tiles != last_visible_tiles 
             || display_view.getTransform() != last_display_view.getTransform() 
@@ -136,13 +136,96 @@ int main()
             view_range_overlay_tex.clear({ 0,0,0,224 });
             view_range_overlay_tex.setView(window.getView());
 
+            static sf::Sprite tile_tl_tr_bl_br(*Texture_bank::getTexture("tile_tl_tr_bl_br.png"));
+            tile_tl_tr_bl_br.setOrigin(8, 8);
+            static sf::Sprite wall_tl_tr(*Texture_bank::getTexture("wall_tl_tr.png"));
+            wall_tl_tr.setOrigin(8, 8);
+            static sf::Sprite wall_bl_br(*Texture_bank::getTexture("wall_bl_br.png"));
+            wall_bl_br.setOrigin(8, 8);
+            static sf::Sprite wall_tl_bl(*Texture_bank::getTexture("wall_tl_bl.png"));
+            wall_tl_bl.setOrigin(8, 8);
+            static sf::Sprite wall_tr_br(*Texture_bank::getTexture("wall_tr_br.png"));
+            wall_tr_br.setOrigin(8, 8);
+            static sf::Sprite wall_tl_tr_bl(*Texture_bank::getTexture("wall_tl_tr_bl.png"));
+            wall_tl_tr_bl.setOrigin(8, 8);
+            static sf::Sprite wall_tl_tr_br(*Texture_bank::getTexture("wall_tl_tr_br.png"));
+            wall_tl_tr_br.setOrigin(8, 8);
+            static sf::Sprite wall_tl_bl_br(*Texture_bank::getTexture("wall_tl_bl_br.png"));
+            wall_tl_bl_br.setOrigin(8, 8);
+            static sf::Sprite wall_tr_bl_br(*Texture_bank::getTexture("wall_tr_bl_br.png"));
+            wall_tr_bl_br.setOrigin(8, 8);
+            static sf::Sprite wall_tl(*Texture_bank::getTexture("wall_tl.png"));
+            wall_tl.setOrigin(8, 8);
+            static sf::Sprite wall_tr(*Texture_bank::getTexture("wall_tr.png"));
+            wall_tr.setOrigin(8, 8);
+            static sf::Sprite wall_bl(*Texture_bank::getTexture("wall_bl.png"));
+            wall_bl.setOrigin(8, 8);
+            static sf::Sprite wall_br(*Texture_bank::getTexture("wall_br.png"));
+            wall_br.setOrigin(8, 8);
 
             for (const auto& tile : visible_tiles)
             {
-                static sf::Sprite visible_tile_overlay(*Texture_bank::getTexture("visible_tile_overlay.png"));
-                visible_tile_overlay.setPosition( sf::Vector2f{ tile }*64.f);
-                visible_tile_overlay.setOrigin(8, 8);
-                view_range_overlay_tex.draw(visible_tile_overlay, sf::BlendMultiply);
+                sf::Sprite* spr = nullptr;
+
+                if (level.ls.at({ tile.position.x, tile.position.y }).type != TILE_TYPE::WALL)
+                {
+                    spr = &tile_tl_tr_bl_br;
+                }
+                else if (tile.tl && tile.tr && tile.bl)
+                {
+                    spr = &wall_tl_tr_bl;
+                }
+                else if (tile.tl && tile.tr && tile.br)
+                {
+                    spr = &wall_tl_tr_br;
+                }
+                else if (tile.tl && tile.bl && tile.br)
+                {
+                    spr = &wall_tl_bl_br;
+                }
+                else if (tile.tr && tile.bl && tile.br)
+                {
+                    spr = &wall_tr_bl_br;
+                }
+                else if (tile.tl && tile.bl)
+                {
+                    spr = &wall_tl_bl;
+                }
+                else if (tile.tr && tile.br)
+                {
+                    spr = &wall_tr_br;
+                }
+                else if (tile.tl && tile.tr)
+                {
+                    spr = &wall_tl_tr;
+                }
+                else if (tile.bl && tile.br)
+                {
+                    spr = &wall_bl_br;
+                }
+                else if (tile.tl)
+                {
+                    spr = &wall_tl;
+                }
+                else if (tile.tr)
+                {
+                    spr = &wall_tr;
+                }
+                else if (tile.bl)
+                {
+                    spr = &wall_bl;
+                }
+                else if (tile.br)
+                {
+                    spr = &wall_br;
+                }
+
+                if (spr != nullptr)
+                {
+                    spr->setPosition(sf::Vector2f{ tile.position }*64.f);
+
+                    view_range_overlay_tex.draw(*spr, sf::BlendMultiply);
+                }
 
             }
             view_range_overlay_tex.display();

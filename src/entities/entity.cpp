@@ -38,7 +38,7 @@ void Entity::move(sf::Vector2i& offset)
 
 void Entity::updateState(const bool make_action) {}
 
-std::vector<sf::Vector2i> Entity::getVisibleTiles() const
+std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
 {
     auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
     {
@@ -85,15 +85,16 @@ std::vector<sf::Vector2i> Entity::getVisibleTiles() const
         return true;
     };
 
-    auto isTileVisible = [&](const sf::Vector2i& pos)
+    auto isTileVisible = [&](const sf::Vector2i& pos) -> Tile_visibility_info
     {
-        return isVisible(pos,  pos*64 + sf::Vector2i{ 0,  0  } )
-            || isVisible(pos,  pos*64 + sf::Vector2i{ 0,  64 } )
-            || isVisible(pos,  pos*64 + sf::Vector2i{ 64,  0 } )
-            || isVisible(pos,  pos*64 + sf::Vector2i{ 64, 64 } );
+        return { pos,
+                 isVisible(pos,  pos * 64 + sf::Vector2i{ 0,  0  }),
+                 isVisible(pos,  pos * 64 + sf::Vector2i{ 64,  0 }),
+                 isVisible(pos,  pos * 64 + sf::Vector2i{ 0,  64 }),
+                 isVisible(pos,  pos * 64 + sf::Vector2i{ 64, 64 })};
     };
 
-    std::vector<sf::Vector2i> visible_tiles;
+    std::vector<Tile_visibility_info> visible_tiles;
 
     const sf::Vector2i e_pos = getPosition();
     std::queue<sf::Vector2i> to_visit({ e_pos });
@@ -111,9 +112,10 @@ std::vector<sf::Vector2i> Entity::getVisibleTiles() const
     {
         const sf::Vector2i pos = to_visit.front();
         to_visit.pop();
-        if (isTileVisible(pos))
+        const Tile_visibility_info tvi = isTileVisible(pos);
+        if (tvi.visible())
         {
-            visible_tiles.push_back(pos);         
+            visible_tiles.push_back(tvi);         
 
             const sf::Vector2i top    = pos + sf::Vector2i{  0,-1 };
             const sf::Vector2i bottom = pos + sf::Vector2i{  0, 1 };

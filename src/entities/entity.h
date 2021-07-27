@@ -1,5 +1,6 @@
 #pragma once
 #include "../level/level.h"
+#include "../utils/tile_visibility.h"
 #include <SFML/Graphics/Drawable.hpp>
 #include "SFML//Graphics/RenderWindow.hpp"
 
@@ -24,5 +25,5 @@ public:
 
     virtual void updateState(const bool make_action);
 
-    std::vector<sf::Vector2i> getVisibleTiles() const;
+    std::vector<Tile_visibility_info> getVisibleTiles() const;
 };
