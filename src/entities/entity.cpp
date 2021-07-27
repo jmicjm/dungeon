@@ -1,6 +1,7 @@
 #include "entity.h"
 #include <algorithm>
 #include <cmath>
+#include <queue>
 
 Entity::Entity(Level* level, const sf::Vector2i& position) : m_level(level)
 {
@@ -94,15 +95,45 @@ std::vector<sf::Vector2i> Entity::getVisibleTiles() const
 
     std::vector<sf::Vector2i> visible_tiles;
 
-    for (int x = (int)getPosition().x - (int)m_vision_radius; x <= (int)getPosition().x + (int)m_vision_radius; x++)
+    const sf::Vector2i e_pos = getPosition();
+    std::queue<sf::Vector2i> to_visit({ e_pos });
+    std::vector<sf::Vector2i> visited({ e_pos });
+    auto isVisited = [&](const sf::Vector2i& pos)
     {
-        for (int y = (int)getPosition().y - (int)m_vision_radius; y <= (int)getPosition().y + (int)m_vision_radius; y++)
+        return std::find_if(
+            visited.begin(),
+            visited.end(),
+            [&](auto elem) {return elem == pos; }
+        ) != visited.end();
+    };
+
+    while (!to_visit.empty())
+    {
+        const sf::Vector2i pos = to_visit.front();
+        to_visit.pop();
+        if (isTileVisible(pos))
         {
-            if (std::sqrt(std::pow(getPosition().x-x,2)+std::pow(getPosition().y-y,2)) <= m_vision_radius)
+            visible_tiles.push_back(pos);         
+
+            const sf::Vector2i top    = pos + sf::Vector2i{  0,-1 };
+            const sf::Vector2i bottom = pos + sf::Vector2i{  0, 1 };
+            const sf::Vector2i left   = pos + sf::Vector2i{ -1, 0 };
+            const sf::Vector2i right  = pos + sf::Vector2i{  1, 0 };
+
+            auto dst = [](const sf::Vector2i& a, const sf::Vector2i& b)
             {
-                if (isTileVisible({ x,y })) visible_tiles.push_back({ x,y });
-            }
-        }
+                return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+            };
+            auto add = [&](const sf::Vector2i& pos)
+            {
+                to_visit.push(pos);
+                visited.push_back(pos);
+            };
+            if (!isVisited(top   ) && dst(e_pos, top   ) <= m_vision_radius) add(top   );
+            if (!isVisited(bottom) && dst(e_pos, bottom) <= m_vision_radius) add(bottom);
+            if (!isVisited(left  ) && dst(e_pos, left  ) <= m_vision_radius) add(left  );
+            if (!isVisited(right ) && dst(e_pos, right ) <= m_vision_radius) add(right );
+        } 
     }
 
     return visible_tiles;
