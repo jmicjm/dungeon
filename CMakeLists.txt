@@ -21,6 +21,7 @@ add_executable(dungeon
     src/gfx/level_tile_map/level_tile_map_chunk.cpp
     src/gfx/level_tile_map/level_tile_map_texture.cpp
     src/gfx/view_follower.cpp
+    src/gfx/view_range.cpp
     src/gfx/utils/setQuad.cpp
     src/gfx/utils/mergeTexture.cpp
     src/level/level.cpp
