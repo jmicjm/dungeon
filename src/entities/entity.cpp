@@ -87,11 +87,22 @@ std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
 
     auto isTileVisible = [&](const sf::Vector2i& pos) -> Tile_visibility_info
     {
+        auto isInRange = [&](const sf::Vector2i& a, const sf::Vector2i& b)
+        {
+            return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) <= m_vision_radius*64;
+        };
+        const sf::Vector2i tl = pos * 64 + sf::Vector2i{ 0,   0  };
+        const sf::Vector2i tr = pos * 64 + sf::Vector2i{ 64,  0  };
+        const sf::Vector2i bl = pos * 64 + sf::Vector2i{ 0,   64 };
+        const sf::Vector2i br = pos * 64 + sf::Vector2i{ 64,  64 };
+
+        const sf::Vector2i e_center = getPosition() * 64 + sf::Vector2i{ 32,32 };
+
         return { pos,
-                 isVisible(pos,  pos * 64 + sf::Vector2i{ 0,  0  }),
-                 isVisible(pos,  pos * 64 + sf::Vector2i{ 64,  0 }),
-                 isVisible(pos,  pos * 64 + sf::Vector2i{ 0,  64 }),
-                 isVisible(pos,  pos * 64 + sf::Vector2i{ 64, 64 })};
+                 isInRange(e_center, tl) && isVisible(pos,  tl),
+                 isInRange(e_center, tr) && isVisible(pos,  tr),
+                 isInRange(e_center, bl) && isVisible(pos,  bl),
+                 isInRange(e_center, br) && isVisible(pos,  br) };
     };
 
     std::vector<Tile_visibility_info> visible_tiles;
@@ -122,19 +133,15 @@ std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
             const sf::Vector2i left   = pos + sf::Vector2i{ -1, 0 };
             const sf::Vector2i right  = pos + sf::Vector2i{  1, 0 };
 
-            auto dst = [](const sf::Vector2i& a, const sf::Vector2i& b)
-            {
-                return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-            };
             auto add = [&](const sf::Vector2i& pos)
             {
                 to_visit.push(pos);
                 visited.push_back(pos);
             };
-            if (!isVisited(top   ) && dst(e_pos, top   ) <= m_vision_radius) add(top   );
-            if (!isVisited(bottom) && dst(e_pos, bottom) <= m_vision_radius) add(bottom);
-            if (!isVisited(left  ) && dst(e_pos, left  ) <= m_vision_radius) add(left  );
-            if (!isVisited(right ) && dst(e_pos, right ) <= m_vision_radius) add(right );
+            if ((tvi.tl || tvi.tr) && !isVisited(top   )) add(top   );
+            if ((tvi.bl || tvi.br) && !isVisited(bottom)) add(bottom);
+            if ((tvi.tl || tvi.bl) && !isVisited(left  )) add(left  );
+            if ((tvi.tr || tvi.br) && !isVisited(right )) add(right );
         } 
     }
 
