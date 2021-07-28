@@ -1,10 +1,11 @@
 #pragma once
 #include "../level/level.h"
-#include "../utils/tile_visibility.h"
+#include "../level/tile_visibility_info.h"
 #include <SFML/Graphics/Drawable.hpp>
 #include "SFML//Graphics/RenderWindow.hpp"
 
 #include <vector>
+#include <utility>
 
 class Entity : public sf::Drawable
 {
@@ -25,5 +26,5 @@ public:
 
     virtual void updateState(const bool make_action);
 
-    std::vector<Tile_visibility_info> getVisibleTiles() const;
+    std::vector<std::pair<sf::Vector2i,Tile_visibility_info>> getVisibleTiles() const;
 };

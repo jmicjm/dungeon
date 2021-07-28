@@ -21,15 +21,17 @@ add_executable(dungeon
     src/gfx/level_tile_map/level_tile_map_chunk.cpp
     src/gfx/level_tile_map/level_tile_map_texture.cpp
     src/gfx/view_follower.cpp
-    src/gfx/view_range.cpp
+    src/gfx/view_range_overlay.cpp
     src/gfx/utils/setQuad.cpp
     src/gfx/utils/mergeTexture.cpp
     src/level/level.cpp
     src/level/level_structure.cpp
+    src/level/tile_reveal_mask.cpp
+    src/level/tile_visibility_info.cpp
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
     src/entities/entity.cpp
     src/entities/player.cpp
-)
+    )
 
 target_link_libraries(dungeon sfml-graphics)

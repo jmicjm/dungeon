@@ -3,6 +3,7 @@
 #include <cmath>
 #include <queue>
 
+
 Entity::Entity(Level* level, const sf::Vector2i& position) : m_level(level)
 {
     setPosition(position);
@@ -38,7 +39,7 @@ void Entity::move(sf::Vector2i& offset)
 
 void Entity::updateState(const bool make_action) {}
 
-std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
+std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTiles() const
 {
     auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
     {
@@ -98,14 +99,13 @@ std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
 
         const sf::Vector2i e_center = getPosition() * 64 + sf::Vector2i{ 32,32 };
 
-        return { pos,
-                 isInRange(e_center, tl) && isVisible(pos,  tl),
+        return { isInRange(e_center, tl) && isVisible(pos,  tl),
                  isInRange(e_center, tr) && isVisible(pos,  tr),
                  isInRange(e_center, bl) && isVisible(pos,  bl),
                  isInRange(e_center, br) && isVisible(pos,  br) };
     };
 
-    std::vector<Tile_visibility_info> visible_tiles;
+    std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> visible_tiles;
 
     const sf::Vector2i e_pos = getPosition();
     std::queue<sf::Vector2i> to_visit({ e_pos });
@@ -124,9 +124,9 @@ std::vector<Tile_visibility_info> Entity::getVisibleTiles() const
         const sf::Vector2i pos = to_visit.front();
         to_visit.pop();
         const Tile_visibility_info tvi = isTileVisible(pos);
-        if (tvi.visible())
+        if (tvi.isVisible())
         {
-            visible_tiles.push_back(tvi);         
+            visible_tiles.push_back({ pos,tvi });
 
             const sf::Vector2i top    = pos + sf::Vector2i{  0,-1 };
             const sf::Vector2i bottom = pos + sf::Vector2i{  0, 1 };

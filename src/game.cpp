@@ -11,7 +11,7 @@
 
 #include "entities/player.h"
 #include "gfx/view_follower.h"
-#include "gfx/view_range.h"
+#include "gfx/view_range_overlay.h"
 
 int main()
 {
@@ -61,7 +61,7 @@ int main()
     vf_instant.edge_dst = 32;
 
 
-    View_range view_range;
+    View_range_overlay view_range;
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
@@ -123,7 +123,9 @@ int main()
         window.draw(player);
         if (move) lt = t;
 
-        view_range.update(level.ls, player.getVisibleTiles(), window);
+        auto v_tiles = player.getVisibleTiles();
+        level.reveal_mask.reveal(v_tiles);
+        view_range.update(level.ls, v_tiles, level.reveal_mask, window);
         window.draw(view_range);
 
         window.display();
