@@ -11,6 +11,8 @@ class Entity : public sf::Drawable
 {
 private:
     sf::Vector2i m_position;
+
+protected:
     Level* m_level = nullptr;
 
     unsigned int m_vision_radius = 6;

@@ -44,7 +44,7 @@ View_range_overlay::View_range_overlay()
     }
 }
 
-void View_range_overlay::update(const Level_structure& ls, 
+void View_range_overlay::update(const Level& l, 
                                 const std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>& visible_tiles,
                                 const Tile_reveal_mask& revealed_tiles, 
                                 const sf::RenderTarget& rt)
@@ -63,24 +63,24 @@ void View_range_overlay::update(const Level_structure& ls,
         const sf::Vector2f br_px_visible = rt.getView().getCenter() + rt.getView().getSize() / 2.f;
         const sf::Vector2i tl_tile_visible = 
         {
-            std::max(0, static_cast<int>(tl_px_visible.x) / 64),
-            std::max(0, static_cast<int>(tl_px_visible.y) / 64)
+            std::max(0, static_cast<int>(tl_px_visible.x) / l.tile_size.x),
+            std::max(0, static_cast<int>(tl_px_visible.y) / l.tile_size.y)
         };
         const sf::Vector2i br_tile_visible =
         {
-            std::min(ls.getSize().x-1, static_cast<int>(br_px_visible.x) / 64),
-            std::min(ls.getSize().y-1, static_cast<int>(br_px_visible.y) / 64)
+            std::min(l.ls.getSize().x-1, static_cast<int>(br_px_visible.x) / l.tile_size.x),
+            std::min(l.ls.getSize().y-1, static_cast<int>(br_px_visible.y) / l.tile_size.y)
         };
 
         for (int x = tl_tile_visible.x; x<= br_tile_visible.x; x++)
         {
             for (int y = tl_tile_visible.y; y <= br_tile_visible.y; y++)
             {
-                if (ls.isPositionValid({ x,y }))
+                if (l.ls.isPositionValid({ x,y }))
                 {
                     if (revealed_tiles.at({ x,y }).isVisible())
                     {
-                        drawTileOverlay({ x,y }, ls.at({ x,y }), revealed_tiles.at({ x,y }));
+                        drawTileOverlay({ x,y }, l.ls.at({ x,y }), l.tile_size, revealed_tiles.at({ x,y }));
                     }
                 }
             }
@@ -96,9 +96,9 @@ void View_range_overlay::update(const Level_structure& ls,
         for (const auto& tile : visible_tiles)
         {
             const auto& [position, tvi] = tile;
-            if (ls.isPositionValid({ position.x,position.y }))
+            if (l.ls.isPositionValid({ position.x,position.y }))
             {
-                drawTileOverlay(position, ls.at({ position.x, position.y }), tvi);
+                drawTileOverlay(position, l.ls.at({ position.x, position.y }), l.tile_size, tvi);
             }
         }
 
@@ -108,7 +108,10 @@ void View_range_overlay::update(const Level_structure& ls,
     last_display_view = rt.getView();
 }
 
-void View_range_overlay::drawTileOverlay(const sf::Vector2i& position, const Tile& tile, Tile_visibility_info tvi)
+void View_range_overlay::drawTileOverlay(const sf::Vector2i& position,
+                                         const Tile& tile,
+                                         const sf::Vector2i& tile_size,
+                                         const Tile_visibility_info tvi)
 {
     const tile_sprite_id_t id = [&]() {
         const auto& [tl, tr, bl, br] = tvi;
@@ -122,7 +125,9 @@ void View_range_overlay::drawTileOverlay(const sf::Vector2i& position, const Til
     auto it = sprites.find(id);
     if (it != sprites.end())
     {
-        it->second.setPosition(sf::Vector2f{ position }*64.f);
+        const auto [tx, ty] = sf::Vector2f{ position };
+        const auto [sx, sy] = sf::Vector2f{ tile_size };
+        it->second.setPosition({tx*sx, ty*sy});
         overlay_tex.draw(it->second, sf::BlendMultiply);
     }
 }

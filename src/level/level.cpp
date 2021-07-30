@@ -9,4 +9,5 @@ void Level::create(const Level_params& params)
     tmap.populate(ls, params.tile_size, params.tile_map_chunk_size);
     const auto [w, h] = params.gen_params.level_size;
     reveal_mask.create({w,h});
+    tile_size = sf::Vector2i{ params.tile_size };
 }

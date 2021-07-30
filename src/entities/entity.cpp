@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <queue>
+#include <type_traits>
 
 
 Entity::Entity(Level* level, const sf::Vector2i& position) : m_level(level)
@@ -41,10 +42,17 @@ void Entity::updateState(const bool make_action) {}
 
 std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTiles() const
 {
+    const sf::Vector2i ts = m_level->tile_size;
+
+    auto vecMul = [](const auto& veca, const auto& vecb) -> sf::Vector2<typename std::common_type<decltype(veca.x), decltype(vecb.x)>::type>
+    {
+        return { veca.x * vecb.x, veca.y * vecb.y };
+    };
+
     auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
     {
         const sf::Vector2i src_tile = getPosition();
-        const sf::Vector2i src = src_tile*64 + sf::Vector2i{ 32, 32 };
+        const sf::Vector2i src = vecMul(src_tile, ts) + ts / 2;
 
         const sf::Vector2i vec = dest - src;
         const sf::Vector2i tile_move =
@@ -57,17 +65,17 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
         sf::Vector2i curr_tile = src_tile;
         while (curr_tile != dest_tile)
         {
-            const int y_dst = (curr_tile.y * 64 + (tile_move.y > 0) * 64) - (src.y + y_dst_sum);
+            const int y_dst = (curr_tile.y * ts.y + (tile_move.y > 0) * ts.y) - (src.y + y_dst_sum);
 
             const float x = src.x + vec.x * std::abs((y_dst_sum + y_dst) / static_cast<float>(vec.y));
 
-            if (x > curr_tile.x * 64 && x < (curr_tile.x + 1) * 64)
+            if (x > curr_tile.x * ts.x && x < (curr_tile.x + 1) * ts.x)
             {
                 curr_tile.y += tile_move.y;
                 y_dst_sum += y_dst;
 
             }
-            else if (x < curr_tile.x * 64 || x >(curr_tile.x + 1) * 64)
+            else if (x < curr_tile.x * ts.x || x >(curr_tile.x + 1) * ts.x)
             {
                 curr_tile.x += tile_move.x;
             }
@@ -90,14 +98,14 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
     {
         auto isInRange = [&](const sf::Vector2i& a, const sf::Vector2i& b)
         {
-            return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) <= m_vision_radius*64;
+            return std::sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)) <= m_vision_radius*(ts.x+ts.y)/2;
         };
-        const sf::Vector2i tl = pos * 64 + sf::Vector2i{ 0,   0  };
-        const sf::Vector2i tr = pos * 64 + sf::Vector2i{ 64,  0  };
-        const sf::Vector2i bl = pos * 64 + sf::Vector2i{ 0,   64 };
-        const sf::Vector2i br = pos * 64 + sf::Vector2i{ 64,  64 };
+        const sf::Vector2i tl = vecMul(pos, ts);
+        const sf::Vector2i tr = vecMul(pos, ts) + sf::Vector2i{ ts.x,  0  };
+        const sf::Vector2i bl = vecMul(pos, ts) + sf::Vector2i{ 0,   ts.y };
+        const sf::Vector2i br = vecMul(pos, ts) + ts;
 
-        const sf::Vector2i e_center = getPosition() * 64 + sf::Vector2i{ 32,32 };
+        const sf::Vector2i e_center = vecMul(getPosition(), ts) + ts/2;
 
         return { isInRange(e_center, tl) && isVisible(pos,  tl),
                  isInRange(e_center, tr) && isVisible(pos,  tr),

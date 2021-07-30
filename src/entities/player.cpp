@@ -22,7 +22,11 @@ void Player::move(sf::Vector2i& offset)
 
 void Player::updateAnimationPosition()
 {
-    animation.setPosition(sf::Vector2f(Entity::getPosition()) * 64.f);
+    const auto [px, py] = Entity::getPosition();
+    const auto [tx, ty] = m_level->tile_size;
+    const sf::Vector2f anim_pos(px * tx, py * ty - ty/2);
+
+    animation.setPosition(anim_pos);
 }
 
 Player::Player(Level* lvl, sf::Vector2i position, Animated_sprite anim) : Entity(lvl, position), animation(anim) 

@@ -1,5 +1,5 @@
 #pragma once
-#include "../level/level_structure.h"
+#include "../level/level.h"
 #include "../level/tile_reveal_mask.h"
 #include "../level/tile_visibility_info.h"
 #include "../level/tile_sprite_id_enum.h"
@@ -18,11 +18,14 @@ class View_range_overlay : public sf::Drawable
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-    void drawTileOverlay(const sf::Vector2i& position, const Tile& tile, Tile_visibility_info tvi);
+    void drawTileOverlay(const sf::Vector2i& position, 
+                         const Tile& tile, 
+                         const sf::Vector2i& tile_size,
+                         const Tile_visibility_info tvi);
 
 public:
     View_range_overlay();
-    void update(const Level_structure& ls,
+    void update(const Level& l,
                 const std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>& visible_tiles,
                 const Tile_reveal_mask& revealed_tiles,
                 const sf::RenderTarget& rt);

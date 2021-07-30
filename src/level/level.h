@@ -10,6 +10,7 @@ public:
     Level_structure ls;
     Level_tile_map tmap;
     Tile_reveal_mask reveal_mask;
+    sf::Vector2i tile_size;
     //entities
     //doors
     //etc
