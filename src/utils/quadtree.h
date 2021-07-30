@@ -197,10 +197,10 @@ inline void Quadtree<T>::erase(const value_type& key_elem)
         if (size() <= max_size)
         {
             elements = get();
-            tl.release();
-            tr.release();
-            bl.release();
-            br.release();
+            tl.reset();
+            tr.reset();
+            bl.reset();
+            br.reset();
         }
     }
 }
