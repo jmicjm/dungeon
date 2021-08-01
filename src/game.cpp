@@ -43,7 +43,7 @@ int main()
     float zoom = 1;
     float camera_velocity = 10;
 
-    const sf::Texture* tex = Texture_bank::getTexture("wild_mage_frames.png");
+    const sf::Texture* tex = Texture_bank::getTexture("assets/characters/wild_mage_frames.png");
     std::vector<sf::IntRect> rects;
     for (int i = 0; i < 16; i++)
     {
