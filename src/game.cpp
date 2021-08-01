@@ -13,6 +13,10 @@
 #include "gfx/view_follower.h"
 #include "gfx/view_range_overlay.h"
 
+#include "utils/quadtree.h"
+
+#include "gui/button.h"
+
 int main()
 {
     Gen_params g_params;
@@ -48,6 +52,8 @@ int main()
     std::shared_ptr<Animated_sprite_frames> frames = std::make_shared<Animated_sprite_frames>(tex, rects);
 
     Animated_sprite anim(frames, 16);
+    auto anim_red = anim;
+    anim_red.setColor({ 255,0,0,255 });
 
     Player player(&level, { level.ls.getRoomRect(0).tl.x,  level.ls.getRoomRect(0).tl.y }, anim);
 
@@ -60,6 +66,31 @@ int main()
     vf_instant.velocity = -1;
     vf_instant.edge_dst = 32;
 
+    vf_instant.followCenter();
+
+    gui::Button bt(window);
+    bt.setSize({ 100,100 });
+    bt.setPositionInfo({ {0,0}, {100,100} });
+
+    sf::RectangleShape rs;
+    rs.setFillColor({ 255,255,255,64 });
+
+    bt.setReleasedSurface(anim);
+    bt.setPressedSurface(anim_red);
+    bt.setPressedHoveredOverlay(rs);
+    bt.setReleasedHoveredOverlay(rs);
+    bt.setPressFunction([]() {std::cout << "PRESSED\n"; });
+    bt.setReleaseFunction([]() {std::cout << "RELEASED\n"; });
+    bt.setType(gui::Button::SWITCH);
+    sf::Font font;
+    font.loadFromFile("arial.ttf");
+    sf::Text pressed_text;
+    pressed_text.setFont(font);
+    pressed_text.setString("ON");
+    sf::Text released_text = pressed_text;
+    released_text.setString("OFF");
+    bt.setPressedText(pressed_text);
+    bt.setReleasedText(released_text);
 
     View_range_overlay view_range;
 
@@ -125,8 +156,15 @@ int main()
 
         auto v_tiles = player.getVisibleTiles();
         level.reveal_mask.reveal(v_tiles);
-        view_range.update(level.ls, v_tiles, level.reveal_mask, window);
+        view_range.update(level, v_tiles, level.reveal_mask, window);
         window.draw(view_range);
+
+        
+
+        bt.draw(true);
+
+       // std::cout << "pressed: " << bt.isPressed() << '\n';
+
 
         window.display();
     }
