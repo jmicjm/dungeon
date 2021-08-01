@@ -65,24 +65,22 @@ void gui::Button::drawAction()
             rs->setPosition(getPosition());
             rs->setSize(getSize());
             window.draw(*rs);
+            return;
         }
-        else
+
+        sf::Sprite* spr = std::get_if<sf::Sprite>(&surface);
+        if (spr != nullptr)
         {
-            sf::Sprite* spr = std::get_if<sf::Sprite>(&surface);
-            if (spr != nullptr)
-            {
-                drawTSprite(*spr);
-            }
-            else
-            {
-                Animated_sprite* aspr = std::get_if<Animated_sprite>(&surface);
-                if (aspr != nullptr)
-                {
-                    aspr->updateFrameIdx();
-                    drawTSprite(*aspr);
-                }
-            }
+            drawTSprite(*spr);
+            return;
         }
+
+        Animated_sprite* aspr = std::get_if<Animated_sprite>(&surface);
+        if (aspr != nullptr)
+        {
+            aspr->updateFrameIdx();
+            drawTSprite(*aspr);
+        }     
     };
 
     auto drawText = [&](sf::Text& text)
