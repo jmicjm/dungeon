@@ -1,9 +1,7 @@
 #pragma once
 #include "gui_element.h"
-#include "../gfx/animated_sprite/animated_sprite.h"
+#include "surface.h"
 
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Text.hpp"
 
 #include <variant>
@@ -15,12 +13,10 @@ namespace gui
 {
     class Button : public Gui_element
     {
-        using surface_type = std::variant<sf::RectangleShape, sf::Sprite, Animated_sprite>;
-
-        surface_type pressed_surface;
-        surface_type released_surface;
-        surface_type pressed_hovered_overlay;
-        surface_type released_hovered_overlay;
+        surface pressed_surface;
+        surface released_surface;
+        surface pressed_hovered_overlay;
+        surface released_hovered_overlay;
 
         sf::Text pressed_text;
         sf::Text released_text;
@@ -56,10 +52,10 @@ namespace gui
 
         void setPressDelay(const std::chrono::milliseconds& delay);
 
-        void setPressedSurface (const surface_type& surface);
-        void setReleasedSurface(const surface_type& surface);
-        void setPressedHoveredOverlay(const surface_type& surface);
-        void setReleasedHoveredOverlay(const surface_type& surface);
+        void setPressedSurface (const surface& surface);
+        void setReleasedSurface(const surface& surface);
+        void setPressedHoveredOverlay(const surface& surface);
+        void setReleasedHoveredOverlay(const surface& surface);
 
         void setPressedText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);
