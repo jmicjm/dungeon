@@ -2,6 +2,8 @@
 #include "gui_element.h"
 #include "surface.h"
 
+#include "SFML/Graphics/RenderTexture.hpp"
+
 namespace gui
 {
     class Gauge_bar : public Gui_element
@@ -11,6 +13,9 @@ namespace gui
         float current_value = 0;
 
         Surface bar_surface;
+
+        sf::RenderTexture cached_tex;
+        sf::Vector2f prev_size;
 
     public:
         enum DIRECTION
