@@ -13,10 +13,10 @@ namespace gui
 {
     class Button : public Gui_element
     {
-        surface pressed_surface;
-        surface released_surface;
-        surface pressed_hovered_overlay;
-        surface released_hovered_overlay;
+        Surface pressed_surface;
+        Surface released_surface;
+        Surface pressed_hovered_overlay;
+        Surface released_hovered_overlay;
 
         sf::Text pressed_text;
         sf::Text released_text;
@@ -52,10 +52,10 @@ namespace gui
 
         void setPressDelay(const std::chrono::milliseconds& delay);
 
-        void setPressedSurface (const surface& surface);
-        void setReleasedSurface(const surface& surface);
-        void setPressedHoveredOverlay(const surface& surface);
-        void setReleasedHoveredOverlay(const surface& surface);
+        void setPressedSurface (const Surface& surface);
+        void setReleasedSurface(const Surface& surface);
+        void setPressedHoveredOverlay(const Surface& surface);
+        void setReleasedHoveredOverlay(const Surface& surface);
 
         void setPressedText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);

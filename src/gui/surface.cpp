@@ -2,7 +2,7 @@
 
 namespace gui
 {
-    void resizeSurface(surface& surf, const sf::Vector2f& size)
+    void Surface::setSize(const sf::Vector2f& size)
     {
         sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
         if (rs != nullptr)
@@ -34,8 +34,7 @@ namespace gui
             resizeSpriteT(*aspr);
         }
     }
-
-    void positionSurface(surface& surf, const sf::Vector2f& position)
+    void Surface::setPosition(const sf::Vector2f& position)
     {
         sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
         if (rs != nullptr)
@@ -57,8 +56,7 @@ namespace gui
             aspr->setPosition(position);
         }
     }
-
-    void drawSurface(surface& surf, sf::RenderTarget& rt)
+    void Surface::draw(sf::RenderTarget& rt)
     {
         sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
         if (rs != nullptr)

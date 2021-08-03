@@ -9,9 +9,17 @@
 
 namespace gui
 {
-    using surface = std::variant<sf::RectangleShape, sf::Sprite, Animated_sprite>;
+    class Surface
+    {
+        using surface_type = std::variant<sf::RectangleShape, sf::Sprite, Animated_sprite>;
+        surface_type surf;
 
-    void resizeSurface(surface& surf, const sf::Vector2f& size);
-    void positionSurface(surface& surf, const sf::Vector2f& position);
-    void drawSurface(surface& surf, sf::RenderTarget& rt);
+    public:
+        Surface() {}
+        Surface(const surface_type& s) : surf(s) {}
+
+        void setSize(const sf::Vector2f& size);
+        void setPosition(const sf::Vector2f& position);
+        void draw(sf::RenderTarget& rt);
+    };
 }

@@ -53,11 +53,11 @@ void gui::Button::drawAction()
         window.draw(text);
     };
 
-    auto draw = [&](surface& surf)
+    auto draw = [&](Surface& surf)
     {
-        positionSurface(surf, getPosition());
-        resizeSurface(surf, getSize());
-        drawSurface(surf, window);
+        surf.setPosition(getPosition());
+        surf.setSize(getSize());
+        surf.draw(window);
     };
 
     if (isPressed())
@@ -84,22 +84,22 @@ void gui::Button::drawAction()
     } 
 }
 
-void gui::Button::setPressedSurface(const surface& surface)
+void gui::Button::setPressedSurface(const Surface& surface)
 {
     pressed_surface = surface;
 }
 
-void gui::Button::setReleasedSurface(const surface& surface)
+void gui::Button::setReleasedSurface(const Surface& surface)
 {
     released_surface = surface;
 }
 
-void gui::Button::setPressedHoveredOverlay(const surface& surface)
+void gui::Button::setPressedHoveredOverlay(const Surface& surface)
 {
     pressed_hovered_overlay = surface;
 }
 
-void gui::Button::setReleasedHoveredOverlay(const surface& surface)
+void gui::Button::setReleasedHoveredOverlay(const Surface& surface)
 {
     released_hovered_overlay = surface;
 }
