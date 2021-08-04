@@ -41,13 +41,13 @@ namespace gui
         }
 
         draw(rect, sf::BlendMultiply);
+
+        redraw_required = false;
     }
 
     bool Gauge_bar::isRedrawRequired()
     {
-        const bool required = redraw_required || bar_surface.hasChanged();
-        redraw_required = false;
-        return required;
+        return redraw_required || bar_surface.hasChanged();
     }
 
     void Gauge_bar::setDirection(DIRECTION dir)

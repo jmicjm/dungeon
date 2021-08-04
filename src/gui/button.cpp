@@ -90,6 +90,7 @@ void gui::Button::redraw(const sf::Vector2i& size_diff)
             draw(released_hovered_overlay);
         }
     } 
+    redraw_required = false;
 }
 
 bool gui::Button::isRedrawRequired()
@@ -97,10 +98,7 @@ bool gui::Button::isRedrawRequired()
     const bool surf_req = (isPressed() ? pressed_surface : released_surface).hasChanged();
     const bool hover_req = isHovered() ? (isPressed() ? pressed_hovered_overlay : released_hovered_overlay).hasChanged() : false;
 
-    const bool required = redraw_required || surf_req || hover_req;
-
-    redraw_required = false;
-    return required;
+    return redraw_required || surf_req || hover_req;
 }
 
 void gui::Button::setPressedSurface(const Surface& surface)
