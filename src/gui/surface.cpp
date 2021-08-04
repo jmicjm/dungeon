@@ -80,4 +80,16 @@ namespace gui
             aspr->setPosition(position);
         }
     }
+    bool Surface::hasChanged()
+    {
+        Animated_sprite* aspr = std::get_if<Animated_sprite>(&surf);
+        if (aspr != nullptr)
+        {
+            const unsigned int old_frame = aspr->getFrameIdx();
+            aspr->updateFrameIdx();
+            return old_frame != aspr->getFrameIdx();
+        }
+
+        return false;
+    }
 }

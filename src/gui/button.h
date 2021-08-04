@@ -27,9 +27,12 @@ namespace gui
         std::chrono::milliseconds press_delay = std::chrono::milliseconds(100);
         std::chrono::steady_clock::time_point press_tp = std::chrono::steady_clock::now();
 
-        bool isLocked();
+        bool isLocked() const;
 
         bool is_pressed = false;
+        bool is_hovered = false;
+
+        bool isHovered() const;
 
     public:
         enum TYPE
@@ -39,7 +42,9 @@ namespace gui
     private:
         TYPE type = PUSH;
 
-        void drawAction() override;
+        void redraw(const sf::Vector2i& size_diff) override;
+        bool redraw_required = true;
+        bool isRedrawRequired() override;
 
     public:
         using Gui_element::Gui_element;

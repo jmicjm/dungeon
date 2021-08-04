@@ -1,7 +1,9 @@
 #pragma once
 #include "position_info.h"
-#include "SFML/Graphics/Drawable.hpp"
+
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+
 
 namespace gui
 {
@@ -9,10 +11,14 @@ namespace gui
     {
         Position_info pos_info;
         sf::Vector2f size;   
-    protected:
-        sf::RenderWindow& window;
 
-        virtual void drawAction() = 0;
+        sf::RenderWindow& window;
+        sf::RenderTexture rtex;
+
+    protected:       
+        void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
+        virtual void redraw(const sf::Vector2i& size_diff) = 0;
+        virtual bool isRedrawRequired();
 
     public:
         Gui_element(sf::RenderWindow& rw);

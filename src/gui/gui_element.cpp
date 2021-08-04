@@ -1,9 +1,20 @@
 #include "gui_element.h"
 #include "SFML/Window/Mouse.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 
 
 namespace gui
 {
+    void Gui_element::draw(sf::Drawable& drawable, const sf::RenderStates& states)
+    {
+        rtex.draw(drawable, states);
+    }
+
+    bool Gui_element::isRedrawRequired()
+    {
+        return true;
+    }
+
     Gui_element::Gui_element(sf::RenderWindow& rw)
         : window(rw) {}
 
@@ -15,7 +26,21 @@ namespace gui
         const sf::View view{ sf::FloatRect{ 0,0, window.getSize().x * 1.f, window.getSize().y * 1.f } };
         window.setView(view);
 
-        drawAction();
+        const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
+        if (size_diff != sf::Vector2i{0,0})
+        {
+            rtex.create(getSize().x, getSize().y);
+        }
+        if (isRedrawRequired())
+        {
+            rtex.clear({ 0,0,0,255 });
+            redraw(size_diff);
+            rtex.display();
+        }
+
+        sf::Sprite elem_sprite(rtex.getTexture());
+        elem_sprite.setPosition(getPosition());
+        window.draw(elem_sprite);
 
         window.setView(old_view);
     }

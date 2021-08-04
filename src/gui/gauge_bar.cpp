@@ -6,19 +6,12 @@
 
 namespace gui
 {
-    void Gauge_bar::drawAction()
+    void Gauge_bar::redraw(const sf::Vector2i& size_diff)
     {
-        if (getSize() != prev_size)
-        {
-            cached_tex.create(getSize().x, getSize().y);
-        }
-        prev_size = getSize();
-        cached_tex.clear({ 0,0,0,255 });
-
         const float percentage = (current_value-min_value)/std::abs(min_value - max_value);
 
         bar_surface.setSize(getSize());
-        cached_tex.draw(bar_surface);
+        draw(bar_surface);
 
         sf::RectangleShape rect;
         rect.setFillColor({ 0,0,0,0 });
@@ -47,23 +40,27 @@ namespace gui
             rect.setPosition({ 0, 0 });
         }
 
-        cached_tex.draw(rect, sf::BlendMultiply);
-        cached_tex.display();
+        draw(rect, sf::BlendMultiply);
+    }
 
-        sf::Sprite bar_sprite(cached_tex.getTexture());
-        bar_sprite.setPosition(getPosition());
-        window.draw(bar_sprite);
+    bool Gauge_bar::isRedrawRequired()
+    {
+        const bool required = redraw_required || bar_surface.hasChanged();
+        redraw_required = false;
+        return required;
     }
 
     void Gauge_bar::setDirection(DIRECTION dir)
     {
         direction = dir;
+        redraw_required = true;
     }
 
     void Gauge_bar::setMinValue(float val)
     {
         min_value = val;
         max_value = std::max(max_value, min_value);
+        redraw_required = true;
     }
 
     float Gauge_bar::getMinValue() const
@@ -75,6 +72,7 @@ namespace gui
     {
         max_value = val;
         min_value = std::min(min_value, max_value);
+        redraw_required = true;
     }
 
     float Gauge_bar::getMaxValue() const
@@ -85,6 +83,7 @@ namespace gui
     void Gauge_bar::setValue(float val)
     {
         current_value = std::clamp(val, min_value, max_value);
+        redraw_required = true;
     }
 
     float Gauge_bar::getValue() const
@@ -96,5 +95,6 @@ namespace gui
     {
         bar_surface = surf;
         bar_surface.setPosition({ 0,0 });
+        redraw_required = true;
     }
 }

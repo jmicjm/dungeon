@@ -14,9 +14,6 @@ namespace gui
 
         Surface bar_surface;
 
-        sf::RenderTexture cached_tex;
-        sf::Vector2f prev_size;
-
     public:
         enum DIRECTION
         {
@@ -28,18 +25,20 @@ namespace gui
     private:
         DIRECTION direction = L_TO_R;
 
-        void drawAction() override;
+        void redraw(const sf::Vector2i& size_diff) override;
+        bool redraw_required = true;
+        bool isRedrawRequired() override;
 
     public:
         using Gui_element::Gui_element;
 
         void setDirection(DIRECTION dir);
 
-        void setMinValue(float val);
+        void  setMinValue(float val);
         float getMinValue() const;
-        void setMaxValue(float val);
+        void  setMaxValue(float val);
         float getMaxValue() const;
-        void setValue(float val);
+        void  setValue(float val);
         float getValue() const;
 
         void setBarSurface(const Surface& surf);

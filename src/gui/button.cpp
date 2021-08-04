@@ -8,10 +8,14 @@ bool gui::Button::isPressed() const
 
 void gui::Button::update()
 {
+    const bool was_pressed = is_pressed;
+    const bool was_hovered = is_hovered;
+
     if (is_pressed && type == PUSH)
     {
         is_pressed = false;
     }
+    is_hovered = Gui_element::isHovered();
     if (!isLocked() && isHovered() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
     {
         is_pressed = !is_pressed;
@@ -26,6 +30,7 @@ void gui::Button::update()
             if (release_function) release_function();
         }
     }
+    if (is_pressed != was_pressed || is_hovered != was_hovered) redraw_required = true;
 }
 
 void gui::Button::setType(TYPE t)
@@ -38,31 +43,34 @@ void gui::Button::setPressDelay(const std::chrono::milliseconds& delay)
     press_delay = delay;
 }
 
-bool gui::Button::isLocked()
+bool gui::Button::isLocked() const
 {
     return std::chrono::steady_clock::now() - press_tp <= press_delay;
 }
 
-void gui::Button::drawAction()
+bool gui::Button::isHovered() const
+{
+    return is_hovered;
+}
+
+void gui::Button::redraw(const sf::Vector2i& size_diff)
 {  
     auto drawText = [&](sf::Text& text)
     {
         const sf::FloatRect tbounds = text.getLocalBounds();
         text.setOrigin(tbounds.left + tbounds.width / 2, tbounds.top + tbounds.height / 2);
-        text.setPosition(getPosition() + getSize() / 2.f);
-        window.draw(text);
+        text.setPosition(getSize() / 2.f);
+        draw(text);
     };
 
     auto draw = [&](Surface& surf)
     {
-        surf.setPosition(getPosition());
         surf.setSize(getSize());
-        window.draw(surf);
+        Gui_element::draw(surf);
     };
 
     if (isPressed())
-    {
-        
+    { 
         draw(pressed_surface);
         drawText(pressed_text);
     }
@@ -84,34 +92,51 @@ void gui::Button::drawAction()
     } 
 }
 
+bool gui::Button::isRedrawRequired()
+{
+    const bool surf_req = (isPressed() ? pressed_surface : released_surface).hasChanged();
+    const bool hover_req = isHovered() ? (isPressed() ? pressed_hovered_overlay : released_hovered_overlay).hasChanged() : false;
+
+    const bool required = redraw_required || surf_req || hover_req;
+
+    redraw_required = false;
+    return required;
+}
+
 void gui::Button::setPressedSurface(const Surface& surface)
 {
     pressed_surface = surface;
+    redraw_required = true;
 }
 
 void gui::Button::setReleasedSurface(const Surface& surface)
 {
     released_surface = surface;
+    redraw_required = true;
 }
 
 void gui::Button::setPressedHoveredOverlay(const Surface& surface)
 {
     pressed_hovered_overlay = surface;
+    redraw_required = true;
 }
 
 void gui::Button::setReleasedHoveredOverlay(const Surface& surface)
 {
     released_hovered_overlay = surface;
+    redraw_required = true;
 }
 
 void gui::Button::setPressedText(const sf::Text& text)
 {
     pressed_text = text;
+    redraw_required = true;
 }
 
 void gui::Button::setReleasedText(const sf::Text& text)
 {
     released_text = text;
+    redraw_required = true;
 }
 
 void gui::Button::setPressFunction(const std::function<void()>& function)
