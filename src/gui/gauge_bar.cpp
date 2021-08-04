@@ -18,7 +18,7 @@ namespace gui
         const float percentage = (current_value-min_value)/std::abs(min_value - max_value);
 
         bar_surface.setSize(getSize());
-        bar_surface.draw(cached_tex);
+        cached_tex.draw(bar_surface);
 
         sf::RectangleShape rect;
         rect.setFillColor({ 0,0,0,0 });

@@ -57,7 +57,7 @@ void gui::Button::drawAction()
     {
         surf.setPosition(getPosition());
         surf.setSize(getSize());
-        surf.draw(window);
+        window.draw(surf);
     };
 
     if (isPressed())

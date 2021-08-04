@@ -2,6 +2,30 @@
 
 namespace gui
 {
+    void Surface::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+    {
+        sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
+        if (rs != nullptr)
+        {
+            rt.draw(*rs, st);
+            return;
+        }
+
+        sf::Sprite* spr = std::get_if<sf::Sprite>(&surf);
+        if (spr != nullptr)
+        {
+            rt.draw(*spr, st);
+            return;
+        }
+
+        Animated_sprite* aspr = std::get_if<Animated_sprite>(&surf);
+        if (aspr != nullptr)
+        {
+            aspr->updateFrameIdx();
+            rt.draw(*aspr, st);
+        }
+    }
+
     void Surface::setSize(const sf::Vector2f& size)
     {
         sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
@@ -54,29 +78,6 @@ namespace gui
         if (aspr != nullptr)
         {
             aspr->setPosition(position);
-        }
-    }
-    void Surface::draw(sf::RenderTarget& rt)
-    {
-        sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
-        if (rs != nullptr)
-        {
-            rt.draw(*rs);
-            return;
-        }
-
-        sf::Sprite* spr = std::get_if<sf::Sprite>(&surf);
-        if (spr != nullptr)
-        {
-            rt.draw(*spr);
-            return;
-        }
-
-        Animated_sprite* aspr = std::get_if<Animated_sprite>(&surf);
-        if (aspr != nullptr)
-        {
-            aspr->updateFrameIdx();
-            rt.draw(*aspr);
         }
     }
 }
