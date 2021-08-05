@@ -58,12 +58,12 @@ namespace gui
     {
         if (!anchor)
         {
-            const sf::Vector2f window_size = sf::Vector2f{ window.getSize() };
-            const auto& [off, rel] = pos_info;
+            const sf::Vector2f ws = sf::Vector2f{ window.getSize() };
+            const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
-                off.x + window_size.x * rel.x / 100 - getSize().x * rel.x / 100,
-                off.y + window_size.y * rel.y / 100 - getSize().y * rel.y / 100
+                off.x + poff.x * ws.x / 100 + ws.x * rel.x / 100 - getSize().x * rel.x / 100,
+                off.y + poff.y * ws.y / 100 + ws.y * rel.y / 100 - getSize().y * rel.y / 100
             };
 
             return pos;
