@@ -31,9 +31,9 @@ namespace gui
         {
             rtex.create(getSize().x, getSize().y);
         }
-        if (isRedrawRequired())
+        if (isRedrawRequired() || size_diff != sf::Vector2i{0,0})
         {
-            rtex.clear({ 0,0,0,255 });
+            rtex.clear({ 0,0,0,0 });
             redraw(size_diff);
             rtex.display();
         }
@@ -72,18 +72,25 @@ namespace gui
         pos_info = p_info;
     }
 
-    Position_info gui::Gui_element::getPositionInfo() const
+    Position_info Gui_element::getPositionInfo() const
     {
         return pos_info;
     }
 
-    void Gui_element::setSize(const sf::Vector2f& s)
+    void Gui_element::setSizeInfo(const Size_info& s_info)
     {
-        size = s;
+        size_info = s_info;
+    }
+
+    Size_info Gui_element::getSizeInfo() const
+    {
+        return size_info;
     }
 
     sf::Vector2f Gui_element::getSize() const
     {
-        return size;
+        const auto& p = size_info.percentage;
+        const auto  w = window.getSize();
+        return size_info.fixed + sf::Vector2f{w.x*p.x/100, w.y*p.y/100};
     }
 }
