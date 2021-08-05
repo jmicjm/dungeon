@@ -56,15 +56,52 @@ namespace gui
 
     sf::Vector2f Gui_element::getPosition() const
     {
-        const sf::Vector2f window_size = sf::Vector2f{ window.getSize() };
-        const auto& [off, rel] = pos_info;
-        const sf::Vector2f pos =
+        if (!anchor)
         {
-            off.x + window_size.x * rel.x / 100 - getSize().x * rel.x / 100,
-            off.y + window_size.y * rel.y / 100 - getSize().y * rel.y / 100
-        };
+            const sf::Vector2f window_size = sf::Vector2f{ window.getSize() };
+            const auto& [off, rel] = pos_info;
+            const sf::Vector2f pos =
+            {
+                off.x + window_size.x * rel.x / 100 - getSize().x * rel.x / 100,
+                off.y + window_size.y * rel.y / 100 - getSize().y * rel.y / 100
+            };
 
-        return pos;
+            return pos;
+        }
+        else
+        {
+            const auto& [side, offset, relative_to] = anchor_pos_info;
+
+            sf::Vector2f pos = anchor->getPosition() + offset;
+
+            switch (side)
+            {
+            case Anchor_position_info::TOP:
+            case Anchor_position_info::BOTTOM:
+                pos.x += anchor->getSize().x * (relative_to / 100.f) - getSize().x * (relative_to / 100.f);
+                break;
+            case Anchor_position_info::LEFT:
+            case Anchor_position_info::RIGHT:
+                pos.y += anchor->getSize().y * (relative_to / 100.f) - getSize().y * (relative_to / 100.f);
+            }
+
+            switch (side)
+            {
+            case Anchor_position_info::TOP:
+                pos.y -= getSize().y;
+                break;
+            case Anchor_position_info::BOTTOM:
+                pos.y += anchor->getSize().y;
+                break;
+            case Anchor_position_info::LEFT:
+                pos.x -= getSize().x;
+                break;
+            case Anchor_position_info::RIGHT:
+                pos.x += anchor->getSize().x;
+            }
+
+            return pos;
+        }
     }
 
     void Gui_element::setPositionInfo(const Position_info& p_info)
@@ -92,5 +129,25 @@ namespace gui
         const auto& p = size_info.percentage;
         const auto  w = window.getSize();
         return size_info.fixed + sf::Vector2f{w.x*p.x/100, w.y*p.y/100};
+    }
+
+    void Gui_element::setAnchor(std::shared_ptr<Gui_element> a)
+    {
+        anchor = a;
+    }
+
+    std::shared_ptr<Gui_element> Gui_element::getAnchor() const
+    {
+        return anchor;
+    }
+
+    void Gui_element::setAnchorPositionInfo(const Anchor_position_info& a_info)
+    {
+        anchor_pos_info = a_info;
+    }
+
+    Anchor_position_info Gui_element::getAnchorPositionInfo() const
+    {
+        return anchor_pos_info;
     }
 }
