@@ -117,14 +117,32 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
 
     const sf::Vector2i e_pos = getPosition();
     std::queue<sf::Vector2i> to_visit({ e_pos });
-    std::vector<sf::Vector2i> visited({ e_pos });
-    auto isVisited = [&](const sf::Vector2i& pos)
+
+    const int vision_box_width = m_vision_radius * 2 + 1;
+    const sf::Vector2i vision_box_tl = e_pos - sf::Vector2i{ static_cast<int>(m_vision_radius), static_cast<int>(m_vision_radius) };
+
+    std::vector<bool> visited(vision_box_width * vision_box_width, false);
+    
+    auto posToVisitedIdx = [&](const sf::Vector2i& pos)
     {
-        return std::find_if(
-            visited.begin(),
-            visited.end(),
-            [&](auto elem) {return elem == pos; }
-        ) != visited.end();
+        const sf::Vector2i p = pos - vision_box_tl;
+
+        return p.y * vision_box_width + p.x;
+    };
+
+    auto markAsVisited = [&](const sf::Vector2i& pos)
+    {
+        const int idx = posToVisitedIdx(pos);
+        if (idx >= 0 && idx < visited.size()) visited[idx] = true;    
+    };
+
+    markAsVisited(e_pos);
+
+    auto isVisited = [&](const sf::Vector2i& pos) -> bool
+    {
+        const int idx = posToVisitedIdx(pos);
+        if (idx < 0 || idx >= visited.size()) return true;
+        return visited[idx];
     };
 
     while (!to_visit.empty())
@@ -144,13 +162,13 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
             auto add = [&](const sf::Vector2i& pos)
             {
                 to_visit.push(pos);
-                visited.push_back(pos);
+                markAsVisited(pos);
             };
-            if ((tvi.tl || tvi.tr) && !isVisited(top   )) add(top   );
+            if ((tvi.tl || tvi.tr) && !isVisited(top)   ) add(top   );
             if ((tvi.bl || tvi.br) && !isVisited(bottom)) add(bottom);
-            if ((tvi.tl || tvi.bl) && !isVisited(left  )) add(left  );
-            if ((tvi.tr || tvi.br) && !isVisited(right )) add(right );
-        } 
+            if ((tvi.tl || tvi.bl) && !isVisited(left)  ) add(left  );
+            if ((tvi.tr || tvi.br) && !isVisited(right) ) add(right );
+        }
     }
 
     return visible_tiles;
