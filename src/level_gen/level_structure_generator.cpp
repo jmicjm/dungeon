@@ -1,6 +1,9 @@
 #include "level_structure_generator.h"
 #include "../utils/rand.h"
 
+#include <algorithm>
+#include <random>
+
 void Level_structure_generator::fill(const Tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -313,28 +316,37 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
         return false;
     };
 
-    bool try_left   = true;
-    bool try_top    = true;
-    bool try_right  = true;
-    bool try_bottom = true;
-
     const Vec2i min_p = Vec2i{ 1, 1 };
     const Vec2i max_p = ls->getSize() - Vec2i{ 2,2 };
 
     while (area != Rect_i{ min_p, max_p })
     {
+        std::vector<Vec2i> to_try;
+        to_try.reserve(
+              std::max(0, 2 * (area.br.x - area.tl.x    )) 
+            + std::max(0, 2 * (area.br.y - area.tl.y - 2))
+        );
+
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
-            if (try_top    && tryGen({ x, area.tl.y })) return; 
-            if (try_bottom && tryGen({ x, area.br.y })) return; 
+            to_try.push_back({ x, area.tl.y });
+            to_try.push_back({ x, area.br.y });
         }
-        for (int y = area.tl.y; y <= area.br.y; y++)
+        for (int y = area.tl.y+1; y <= area.br.y-1; y++)
         {
-            if (try_left   && tryGen({ area.tl.x, y })) return; 
-            if (try_right  && tryGen({ area.br.x, y })) return;
+            to_try.push_back({ area.tl.x, y });
+            to_try.push_back({ area.br.x, y });
         }
 
-        const Rect_i old_area = area;
+        static std::random_device dev;
+        static std::mt19937 rng(dev());
+        std::shuffle(to_try.begin(), to_try.end(), rng);
+
+        for (const auto& pos : to_try)
+        {
+            if (tryGen(pos)) return;
+        }
+
         area =
         {
             {
@@ -346,11 +358,6 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
             std::min(max_p.y, area.br.y + 1)
             }
         };
-
-        try_left   = old_area.tl.x != area.tl.x;
-        try_top    = old_area.tl.y != area.tl.y;
-        try_right  = old_area.br.x != area.br.x;
-        try_bottom = old_area.br.y != area.br.y;
     }
 }
 
