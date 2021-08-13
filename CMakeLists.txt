@@ -36,6 +36,7 @@ add_executable(dungeon
     src/gui/surface.cpp
     src/gui/button.cpp   
     src/gui/gauge_bar.cpp
+    src/gui/frame.cpp
 )
 
 target_link_libraries(dungeon sfml-graphics)
