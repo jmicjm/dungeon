@@ -7,7 +7,7 @@ namespace gui
 {
     sf::Vector2f Gui_element::getParentPosition() const
     {
-        return parent ? parent->getPosition() : sf::Vector2f{0,0};
+        return parent ? parent->getGlobalPosition() : sf::Vector2f{0,0};
     }
     sf::Vector2f Gui_element::getParentSize() const
     {
