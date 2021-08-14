@@ -13,14 +13,18 @@ namespace gui
 {
     class Gui_element
     {
-        Position_info pos_info;
-        Size_info size_info;   
-
         sf::RenderWindow& window;
         sf::RenderTexture rtex;
 
-        std::shared_ptr<Gui_element> anchor;
+        Position_info pos_info;
+        Size_info size_info;   
+
+        const Gui_element* anchor = nullptr;
         Anchor_position_info anchor_pos_info;
+
+        const Gui_element* parent = nullptr;
+        sf::Vector2f getParentPosition() const;
+        sf::Vector2f getParentSize() const;
 
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
@@ -39,14 +43,18 @@ namespace gui
         void setPositionInfo(const Position_info& p_info);
         Position_info getPositionInfo() const;
         sf::Vector2f getPosition() const;
+        sf::Vector2f getGlobalPosition() const;
 
         void setSizeInfo(const Size_info& s_info);
         Size_info getSizeInfo() const;
         sf::Vector2f getSize() const;
 
-        void setAnchor(std::shared_ptr<Gui_element> a);
-        std::shared_ptr<Gui_element> getAnchor() const;
+        void setAnchor(const Gui_element* a);
+        const Gui_element* getAnchor() const;
         void setAnchorPositionInfo(const Anchor_position_info& a_info);
         Anchor_position_info getAnchorPositionInfo() const;
+
+        void setParent(const Gui_element* p);
+        const Gui_element* getParent() const;
     };
 }

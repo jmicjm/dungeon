@@ -5,6 +5,14 @@
 
 namespace gui
 {
+    sf::Vector2f Gui_element::getParentPosition() const
+    {
+        return parent ? parent->getPosition() : sf::Vector2f{0,0};
+    }
+    sf::Vector2f Gui_element::getParentSize() const
+    {
+        return parent ? parent->getSize() : sf::Vector2f{ window.getSize() };
+    }
     void Gui_element::draw(sf::Drawable& drawable, const sf::RenderStates& states)
     {
         rtex.draw(drawable, states);
@@ -39,7 +47,7 @@ namespace gui
         }
 
         sf::Sprite elem_sprite(rtex.getTexture());
-        elem_sprite.setPosition(getPosition());
+        elem_sprite.setPosition(getGlobalPosition());
         window.draw(elem_sprite);
 
         window.setView(old_view);
@@ -48,7 +56,7 @@ namespace gui
     bool Gui_element::isHovered() const
     {
         const sf::Vector2i mp = sf::Mouse::getPosition(window);
-        const sf::Vector2f tl = getPosition();
+        const sf::Vector2f tl = getGlobalPosition();
         const sf::Vector2f br = tl + getSize();
         return mp.x >= tl.x && mp.x <= br.x 
             && mp.y >= tl.y && mp.y <= br.y;
@@ -58,12 +66,12 @@ namespace gui
     {
         if (!anchor)
         {
-            const sf::Vector2f ws = sf::Vector2f{ window.getSize() };
+            const sf::Vector2f ps = getParentSize();
             const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
-                off.x + poff.x * ws.x / 100 + ws.x * rel.x / 100 - getSize().x * rel.x / 100,
-                off.y + poff.y * ws.y / 100 + ws.y * rel.y / 100 - getSize().y * rel.y / 100
+                off.x + poff.x * ps.x / 100 + ps.x * rel.x / 100 - getSize().x * rel.x / 100,
+                off.y + poff.y * ps.y / 100 + ps.y * rel.y / 100 - getSize().y * rel.y / 100
             };
 
             return pos;
@@ -104,6 +112,11 @@ namespace gui
         }
     }
 
+    sf::Vector2f Gui_element::getGlobalPosition() const
+    {
+        return getParentPosition() + getPosition();
+    }
+
     void Gui_element::setPositionInfo(const Position_info& p_info)
     {
         pos_info = p_info;
@@ -127,16 +140,16 @@ namespace gui
     sf::Vector2f Gui_element::getSize() const
     {
         const auto& p = size_info.percentage;
-        const auto  w = window.getSize();
-        return size_info.fixed + sf::Vector2f{w.x*p.x/100, w.y*p.y/100};
+        const auto  s = getParentSize();
+        return size_info.fixed + sf::Vector2f{s.x*p.x/100, s.y*p.y/100};
     }
 
-    void Gui_element::setAnchor(std::shared_ptr<Gui_element> a)
+    void Gui_element::setAnchor(const Gui_element* a)
     {
         anchor = a;
     }
 
-    std::shared_ptr<Gui_element> Gui_element::getAnchor() const
+    const Gui_element* Gui_element::getAnchor() const
     {
         return anchor;
     }
@@ -149,5 +162,13 @@ namespace gui
     Anchor_position_info Gui_element::getAnchorPositionInfo() const
     {
         return anchor_pos_info;
+    }
+    void Gui_element::setParent(const Gui_element* p)
+    {
+        parent = p;
+    }
+    const Gui_element* Gui_element::getParent() const
+    {
+        return parent;
     }
 }
