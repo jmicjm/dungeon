@@ -2,6 +2,7 @@
 #include "SFML/Window/Mouse.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 
+#include <cmath>
 
 namespace gui
 {
@@ -37,7 +38,7 @@ namespace gui
         const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
         if (size_diff != sf::Vector2i{0,0})
         {
-            rtex.create(getSize().x, getSize().y);
+            rtex.create(std::round(getSize().x), std::round(getSize().y));
         }
         if (isRedrawRequired() || size_diff != sf::Vector2i{0,0})
         {
