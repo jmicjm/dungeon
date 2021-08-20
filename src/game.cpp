@@ -20,7 +20,7 @@
 int main()
 {
     Gen_params g_params;
-    g_params.level_size = { 50, 50 };
+    g_params.level_size = { 500, 500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -35,11 +35,11 @@ int main()
     level.create({ {64,64}, {30,30}, g_params });
 
 
-    sf::RenderWindow window(sf::VideoMode(1600, 901), "");
+    sf::RenderWindow window(sf::VideoMode(1600, 900), "");
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(75);
 
-    sf::View view(sf::FloatRect(0, 0, 1600, 901));
+    sf::View view(sf::FloatRect(0, 0, 1600, 900));
     float zoom = 1;
     float camera_velocity = 10;
 
