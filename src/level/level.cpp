@@ -10,4 +10,7 @@ void Level::create(const Level_params& params)
     const auto [w, h] = params.gen_params.level_size;
     reveal_mask.create({w,h});
     tile_size = sf::Vector2i{ params.tile_size };
+
+    doors = Door_controller{ this };
+    entities = Quadtree<std::shared_ptr<Entity>>({ {0,0}, sf::Vector2i{ls.getSize().x, ls.getSize().y} });
 }

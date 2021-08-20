@@ -48,6 +48,18 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
     {
         return { veca.x * vecb.x, veca.y * vecb.y };
     };
+    auto isOpaque = [&](const sf::Vector2i& pos)
+    {
+        auto doorCheck = [&]()
+        {
+            auto doors = m_level->doors.doors.find(pos);
+            return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
+        };
+
+        return !m_level->ls.isPositionValid({ pos.x, pos.y })
+            || m_level->ls.at({ pos.x, pos.y }).type == TILE_TYPE::WALL
+            || doorCheck();        
+    };
 
     auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
     {
@@ -85,8 +97,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
                 y_dst_sum += y_dst;
             }
             if (y_dst_sum == vec.y) { return true; }
-            if (  !m_level->ls.isPositionValid({ curr_tile.x, curr_tile.y })
-                || m_level->ls.at({ curr_tile.x, curr_tile.y }).type == TILE_TYPE::WALL)
+            if (isOpaque(curr_tile))
             {
                 return false;
             }

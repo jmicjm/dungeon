@@ -28,6 +28,8 @@ add_executable(dungeon
     src/level/level_structure.cpp
     src/level/tile_reveal_mask.cpp
     src/level/tile_visibility_info.cpp
+    src/level/door.cpp
+    src/level/door_controller.cpp
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
     src/entities/entity.cpp
