@@ -18,9 +18,8 @@ class View_range_overlay : public sf::Drawable
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-    void drawTileOverlay(const sf::Vector2i& position, 
-                         const Tile& tile, 
-                         const sf::Vector2i& tile_size,
+    void drawTileOverlay(const Level& l,
+                         const sf::Vector2i& position,
                          const Tile_visibility_info tvi);
 
 public:
