@@ -61,16 +61,16 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
             || isClosedDoor();        
     };
 
-    auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
+    auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest_point)
     {
         const sf::Vector2i src_tile = getPosition();
         const sf::Vector2i src = vecMul(src_tile, ts) + ts / 2;
 
-        const sf::Vector2i vec = dest - src;
+        const sf::Vector2i vec = dest_point - src;
         const sf::Vector2i tile_move =
         {
-            static_cast<int>(vec.x / std::abs(vec.x)),
-            static_cast<int>(vec.y / std::abs(vec.y))
+            vec.x / std::abs(vec.x),
+            vec.y / std::abs(vec.y)
         };
 
         int y_dst_sum = 0;
@@ -78,8 +78,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
         while (curr_tile != dest_tile)
         {
             const int y_dst = (curr_tile.y * ts.y + (tile_move.y > 0) * ts.y) - (src.y + y_dst_sum);
-
-            const float x = src.x + vec.x * std::abs((y_dst_sum + y_dst) / static_cast<float>(vec.y));
+            const int x = src.x + vec.x * (y_dst_sum + y_dst) / vec.y;
 
             if (x > curr_tile.x * ts.x && x < (curr_tile.x + 1) * ts.x)
             {
@@ -96,11 +95,8 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
                 curr_tile += tile_move;
                 y_dst_sum += y_dst;
             }
-            if (y_dst_sum == vec.y) { return true; }
-            if (isOpaque(curr_tile))
-            {
-                return false;
-            }
+            if (y_dst_sum == vec.y ) return true; 
+            if (isOpaque(curr_tile)) return false;
         }
         return true;
     };
