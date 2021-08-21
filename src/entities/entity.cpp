@@ -50,7 +50,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
     };
     auto isOpaque = [&](const sf::Vector2i& pos)
     {
-        auto doorCheck = [&]()
+        auto isClosedDoor = [&]()
         {
             auto doors = m_level->doors.doors.find(pos);
             return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
@@ -58,7 +58,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
 
         return !m_level->ls.isPositionValid({ pos.x, pos.y })
             || m_level->ls.at({ pos.x, pos.y }).type == TILE_TYPE::WALL
-            || doorCheck();        
+            || isClosedDoor();        
     };
 
     auto isVisible = [&](const sf::Vector2i& dest_tile, const sf::Vector2i& dest)
@@ -105,7 +105,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
         return true;
     };
 
-    auto isTileVisible = [&](const sf::Vector2i& pos) -> Tile_visibility_info
+    auto getTileVisibilityInfo = [&](const sf::Vector2i& pos) -> Tile_visibility_info
     {
         auto isInRange = [&](const sf::Vector2i& a, const sf::Vector2i& b)
         {
@@ -160,7 +160,7 @@ std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> Entity::getVisibleTil
     {
         const sf::Vector2i pos = to_visit.front();
         to_visit.pop();
-        const Tile_visibility_info tvi = isTileVisible(pos);
+        const Tile_visibility_info tvi = getTileVisibilityInfo(pos);
         if (tvi.isVisible())
         {
             visible_tiles.push_back({ pos,tvi });
