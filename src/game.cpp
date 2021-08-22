@@ -13,9 +13,6 @@
 #include "gfx/view_follower.h"
 #include "gfx/view_range_overlay.h"
 
-#include "utils/quadtree.h"
-
-#include "gui/button.h"
 
 int main()
 {
@@ -141,10 +138,15 @@ int main()
         window.draw(*player);
         
         
-
         auto v_tiles = player->getVisibleTiles();
-        level.reveal_mask.reveal(v_tiles);
-        view_range.update(level, v_tiles, level.reveal_mask, window);
+        std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> vt;
+        for (auto& i : v_tiles)
+        {
+            vt.push_back({i.first, i.second});
+        }
+
+        level.reveal_mask.reveal(vt);
+        view_range.update(level, vt, level.reveal_mask, window);
         window.draw(view_range);
 
 
