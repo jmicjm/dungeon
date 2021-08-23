@@ -1,4 +1,5 @@
 #include "view_range_overlay.h"
+#include "../level/level.h"
 #include "../asset_storage/texture_bank.h"
 
 #include "SFML/Graphics/RectangleShape.hpp"

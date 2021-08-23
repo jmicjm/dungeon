@@ -1,10 +1,11 @@
 #pragma once
-#include "../level/level.h"
+#include "../level/level.fwd.h"
 #include "../level/tile_reveal_mask.h"
 #include "../level/tile_visibility_info.h"
 #include "../level/tile_sprite_id_enum.h"
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 
 #include <map>
 

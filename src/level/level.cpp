@@ -1,6 +1,23 @@
 #include "level.h"
 #include "../level_gen/level_structure_generator.h"
 #include "../level_gen/level_structure_decorator.h"
+#include "../entities/entity.h"
+#include "../gfx/utils/visibleAreaBounds.h"
+
+void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+{
+    rt.draw(tile_map, st);
+    rt.draw(door_controller, st);
+    const auto [tl, br] = visibleAreaBounds(rt.getView(), tile_size);
+
+    auto area_entites = entities.find({ tl, br + sf::Vector2i{1,1} });
+    for (auto entity : area_entites)
+    {
+        entity->second->updateState(false);
+        rt.draw(*entity->second);
+    }
+    rt.draw(view_range_overlay);
+}
 
 void Level::create(const Level_params& params)
 {

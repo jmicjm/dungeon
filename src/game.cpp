@@ -11,7 +11,7 @@
 
 #include "entities/player.h"
 #include "gfx/view_follower.h"
-#include "gfx/view_range_overlay.h"
+
 
 
 int main()
@@ -68,8 +68,6 @@ int main()
     vf_instant.followCenter();
 
 
-    View_range_overlay view_range;
-
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
     {
@@ -116,7 +114,7 @@ int main()
 
 
         sf::Vector2i pold = player->getPosition();
-        player->updateState(move);
+        if(move) player->updateState(true);
         if (move) lt = t;
         if (pold != player->getPosition())
         {
@@ -132,10 +130,6 @@ int main()
         sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
         display_view.setCenter(tl+ view.getSize()/2.f);
         window.setView(display_view);
-
-        window.draw(level.tile_map);
-        window.draw(level.door_controller);
-        window.draw(*player);
         
         
         auto v_tiles = player->getVisibleTiles();
@@ -146,8 +140,9 @@ int main()
         }
 
         level.reveal_mask.reveal(vt);
-        view_range.update(level, vt, level.reveal_mask, window);
-        window.draw(view_range);
+        level.view_range_overlay.update(level, vt, level.reveal_mask, window);
+
+        window.draw(level);
 
 
         window.display();
