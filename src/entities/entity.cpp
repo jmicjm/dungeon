@@ -32,8 +32,8 @@ void Entity::move(sf::Vector2i& offset)
     const sf::Vector2i new_pos_x = m_position + sf::Vector2i{ offset.x, 0 };
     const sf::Vector2i new_pos_y = m_position + sf::Vector2i{ 0, offset.y };
 
-    if (!(m_level->ls.at({ new_pos_x.x, new_pos_x.y }).type == TILE_TYPE::WALL && m_level->ls.at({ new_pos_y.x, new_pos_y.y }).type == TILE_TYPE::WALL)
-        && m_level->ls.at({ new_pos.x, new_pos.y }).type != TILE_TYPE::WALL)
+    if (!(m_level->ls.at(new_pos_x).type == TILE_TYPE::WALL && m_level->ls.at(new_pos_y).type == TILE_TYPE::WALL)
+        && m_level->ls.at(new_pos).type != TILE_TYPE::WALL)
     {
         m_position = new_pos;
     }
@@ -60,9 +60,9 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles()
             auto doors = m_level->doors.doors.find(pos);
             return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
         };
-        return !m_level->ls.isPositionValid({ pos.x, pos.y })
-            ||  m_level->ls.at({ pos.x, pos.y }).type == TILE_TYPE::WALL
-            || (m_level->ls.at({ pos.x, pos.y }).type == TILE_TYPE::DOORWAY && isClosedDoor());
+        return !m_level->ls.isPositionValid(pos)
+            ||  m_level->ls.at(pos).type == TILE_TYPE::WALL
+            || (m_level->ls.at(pos).type == TILE_TYPE::DOORWAY && isClosedDoor());
     };
 
     auto isVisible = [&](const sf::Vector2i& dest_point)

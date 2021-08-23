@@ -8,9 +8,9 @@
 
 using namespace TILE_SPRITE_ID;
 
-tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const Vec2i pos)
+tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const sf::Vector2i& pos)
 {
-    auto isSame = [&](const Vec2i pos, const TILE_TYPE ttype)
+    auto isSame = [&](const sf::Vector2i& pos, const TILE_TYPE ttype)
     {
         if (ls->isPositionValid(pos))
         {
@@ -22,20 +22,20 @@ tile_sprite_id_t Level_structure_decorator::getSurroundingsId(const Vec2i pos)
     tile_sprite_id_t id = 0;
     const TILE_TYPE ttype = ls->at(pos).type;
 
-    id |= !isSame(pos + Vec2i{  0, -1 }, ttype) * T;
-    id |= !isSame(pos + Vec2i{  1,  0 }, ttype) * R;
-    id |= !isSame(pos + Vec2i{  0,  1 }, ttype) * B;
-    id |= !isSame(pos + Vec2i{ -1,  0 }, ttype) * L;
+    id |= !isSame(pos + sf::Vector2i{  0, -1 }, ttype) * T;
+    id |= !isSame(pos + sf::Vector2i{  1,  0 }, ttype) * R;
+    id |= !isSame(pos + sf::Vector2i{  0,  1 }, ttype) * B;
+    id |= !isSame(pos + sf::Vector2i{ -1,  0 }, ttype) * L;
 
-    id |= !isSame(pos + Vec2i{ -1, -1 }, ttype) * TL;
-    id |= !isSame(pos + Vec2i{  1, -1 }, ttype) * TR;
-    id |= !isSame(pos + Vec2i{  1,  1 }, ttype) * BR;
-    id |= !isSame(pos + Vec2i{ -1,  1 }, ttype) * BL;
+    id |= !isSame(pos + sf::Vector2i{ -1, -1 }, ttype) * TL;
+    id |= !isSame(pos + sf::Vector2i{  1, -1 }, ttype) * TR;
+    id |= !isSame(pos + sf::Vector2i{  1,  1 }, ttype) * BR;
+    id |= !isSame(pos + sf::Vector2i{ -1,  1 }, ttype) * BL;
 
     return id;
 }
 
-bool Level_structure_decorator::addSprite(const Vec2i pos, TILE_SPRITE_ID::tile_sprite_id_t id)
+bool Level_structure_decorator::addSprite(const sf::Vector2i& pos, TILE_SPRITE_ID::tile_sprite_id_t id)
 {
     auto sprites = Tile_sprite_storage::getSprite(id);
     if (sprites == nullptr)
@@ -86,7 +86,7 @@ void Level_structure_decorator::placeWalls()
     }
 }
 
-void Level_structure_decorator::placeWall(const Vec2i pos)
+void Level_structure_decorator::placeWall(const sf::Vector2i& pos)
 {
     const tile_sprite_id_t ids[] =
     {
@@ -180,7 +180,7 @@ void Level_structure_decorator::placeCarpets()
     }
 }
 
-void Level_structure_decorator::placeCarpet(const Rect_i area)
+void Level_structure_decorator::placeCarpet(const Rect_i& area)
 {
     for (int x = area.tl.x; x <= area.br.x; x++)
     {

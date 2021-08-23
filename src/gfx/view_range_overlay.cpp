@@ -122,7 +122,7 @@ void View_range_overlay::drawTileOverlay(const Level& l,
             return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
         }();
 
-        if (l.ls.at({ position.x, position.y }).type == TILE_TYPE::WALL)
+        if (l.ls.at(position).type == TILE_TYPE::WALL)
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }
