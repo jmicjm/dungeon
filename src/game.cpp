@@ -52,7 +52,7 @@ int main()
     auto anim_red = anim;
     anim_red.setColor({ 255,0,0,255 });
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(&level, sf::Vector2i{ level.ls.getRoomRect(0).tl.x,  level.ls.getRoomRect(0).tl.y }, anim);
+    std::shared_ptr<Player> player = std::make_shared<Player>(&level, sf::Vector2i{ level.structure.getRoomRect(0).tl.x,  level.structure.getRoomRect(0).tl.y }, anim);
 
     auto pptr = level.entities.insert({player->getPosition(), std::static_pointer_cast<Entity>(player) });
 
@@ -123,7 +123,7 @@ int main()
             level.entities.erase(pptr);
             pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
         }
-        level.doors.update(window.getView());
+        level.door_controller.update(window.getView());
 
         vf.follow();
         vf_instant.follow();
@@ -133,8 +133,8 @@ int main()
         display_view.setCenter(tl+ view.getSize()/2.f);
         window.setView(display_view);
 
-        window.draw(level.tmap);
-        window.draw(level.doors);
+        window.draw(level.tile_map);
+        window.draw(level.door_controller);
         window.draw(*player);
         
         
@@ -152,5 +152,5 @@ int main()
 
         window.display();
     }
-    level.ls.printToFile("mapa.txt");
+    level.structure.printToFile("mapa.txt");
 }

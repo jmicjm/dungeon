@@ -41,7 +41,7 @@ void Door_controller::update(const sf::View& view)
 
 void Door_controller::populate()
 {
-    Level_structure& ls = level->ls;
+    Level_structure& ls = level->structure;
 
     const Primitive_sprite front_open  (Texture_bank::getTexture("assets/tiles/Door_front_open.png"  ), { {0,0}, {68,74 } });
     const Primitive_sprite front_closed(Texture_bank::getTexture("assets/tiles/Door_front_closed.png"), { {0,0}, {68,64 } });

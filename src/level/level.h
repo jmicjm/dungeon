@@ -12,12 +12,12 @@
 class Level
 {
 public:
-    Level_structure ls;
-    Level_tile_map tmap;
+    Level_structure structure;
+    Level_tile_map tile_map;
     Tile_reveal_mask reveal_mask;
     sf::Vector2i tile_size;
     Quadtree<std::shared_ptr<Entity>> entities;
-    Door_controller doors{this};
+    Door_controller door_controller{this};
 
 
     void create(const Level_params& params);
