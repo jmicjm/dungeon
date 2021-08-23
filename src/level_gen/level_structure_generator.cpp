@@ -114,7 +114,6 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
 
         return DIRECTION::UP;
     };
-
     auto sideTileCount = [&](const sf::Vector2i& pos, const DIRECTION dir, const TILE_TYPE ttype)
     {
         switch (dir)
@@ -124,28 +123,27 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
         {
             const sf::Vector2i t = pos + sf::Vector2i{ 0,-1 };
             const sf::Vector2i b = pos + sf::Vector2i{ 0, 1 };
-            return TileCount({ t,t }, ttype) + TileCount({ b, b }, ttype);
+            return tileCount({ t,t }, ttype) + tileCount({ b, b }, ttype);
         }
         case DIRECTION::UP:
         case DIRECTION::DOWN:
         {
             const sf::Vector2i l = pos + sf::Vector2i{ -1,0 };
             const sf::Vector2i r = pos + sf::Vector2i{  1,0 };
-            return TileCount({ l,l }, ttype) + TileCount({ r, r }, ttype);
+            return tileCount({ l,l }, ttype) + tileCount({ r, r }, ttype);
         }
         }
     };
-
     auto isTouchingCorner = [&](const sf::Vector2i& pos, const DIRECTION dir)
     {
         const sf::Vector2i tlp = pos + sf::Vector2i{ -1,-1 };
         const sf::Vector2i trp = pos + sf::Vector2i{  1,-1 };
         const sf::Vector2i blp = pos + sf::Vector2i{ -1, 1 };
         const sf::Vector2i brp = pos + sf::Vector2i{  1, 1 };
-        const bool tl = TileCount({ tlp,tlp }, TILE_TYPE::WALL) == 0;
-        const bool tr = TileCount({ trp,trp }, TILE_TYPE::WALL) == 0;
-        const bool bl = TileCount({ blp,blp }, TILE_TYPE::WALL) == 0;
-        const bool br = TileCount({ brp,brp }, TILE_TYPE::WALL) == 0;
+        const bool tl = tileCount({ tlp,tlp }, TILE_TYPE::WALL) == 0;
+        const bool tr = tileCount({ trp,trp }, TILE_TYPE::WALL) == 0;
+        const bool bl = tileCount({ blp,blp }, TILE_TYPE::WALL) == 0;
+        const bool br = tileCount({ brp,brp }, TILE_TYPE::WALL) == 0;
 
         switch (dir)
         {
@@ -292,7 +290,7 @@ bool Level_structure_generator::generateRoom(const sf::Vector2i& start_p)
     {
         auto expansionCheck = [&](const Rect_i& scan_area)
         {
-            return !(TileCount(scan_area, TILE_TYPE::WALL) < TileCount(scan_area));
+            return !(tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area));
         };
 
         left_expansion_possible = r.tl.x > 1 && expansionCheck({ r.tl + sf::Vector2i{-2,-1}, r.tl + sf::Vector2i{-1,r.size().y} });
@@ -328,7 +326,7 @@ void Level_structure_generator::fillEmptyAreas()
     {
         const Rect_i check_area = { p, p + params.max_empty_area_size };
 
-        while (TileCount(check_area, TILE_TYPE::WALL) == TileCount(check_area))
+        while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
         {
             fillEmptyArea(check_area);
         }
@@ -434,7 +432,7 @@ void Level_structure_generator::generate(Level_structure& l, Gen_params p)
 }
 
 template<typename T>
-unsigned int Level_structure_generator::TileCount(Rect_i r, const T& pred)
+unsigned int Level_structure_generator::tileCount(Rect_i r, const T& pred)
 {
     clipRectToLevelSize(r);
 
@@ -449,21 +447,21 @@ unsigned int Level_structure_generator::TileCount(Rect_i r, const T& pred)
     return c;
 }
 
-unsigned int Level_structure_generator::TileCount(Rect_i r)
+unsigned int Level_structure_generator::tileCount(Rect_i r)
 {
     clipRectToLevelSize(r);
 
     return r.size().x * r.size().y;
 }
 
-unsigned int Level_structure_generator::TileCount(Rect_i r, const TILE_TYPE ttype)
+unsigned int Level_structure_generator::tileCount(Rect_i r, const TILE_TYPE ttype)
 {
     auto pred = [&](const sf::Vector2i& p)
     {
         return ls->at(p).type == ttype;
     };
 
-    return TileCount(r, pred);
+    return tileCount(r, pred);
 }
 
 void Level_structure_generator::clipRectToLevelSize(Rect_i& r)
