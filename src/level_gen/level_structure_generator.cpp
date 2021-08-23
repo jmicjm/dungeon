@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <random>
 
+
 void Level_structure_generator::fill(const Tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -35,7 +36,20 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
     {
         LEFT, RIGHT, UP, DOWN
     };
-
+    auto advance = [](sf::Vector2i pos, const DIRECTION dir)
+    {
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+            return pos + sf::Vector2i{ -1, 0 };
+        case DIRECTION::UP:
+            return pos + sf::Vector2i{  0,-1 };
+        case DIRECTION::RIGHT:
+            return pos + sf::Vector2i{  1, 0 };
+        case DIRECTION::DOWN:
+            return pos + sf::Vector2i{  0, 1 };
+        }
+    };
     auto oppositeDir = [](const DIRECTION dir)
     {
         switch (dir)
@@ -122,7 +136,32 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
         }
     };
 
+    auto isTouchingCorner = [&](const sf::Vector2i& pos, const DIRECTION dir)
+    {
+        const sf::Vector2i tlp = pos + sf::Vector2i{ -1,-1 };
+        const sf::Vector2i trp = pos + sf::Vector2i{  1,-1 };
+        const sf::Vector2i blp = pos + sf::Vector2i{ -1, 1 };
+        const sf::Vector2i brp = pos + sf::Vector2i{  1, 1 };
+        const bool tl = TileCount({ tlp,tlp }, TILE_TYPE::WALL) == 0;
+        const bool tr = TileCount({ trp,trp }, TILE_TYPE::WALL) == 0;
+        const bool bl = TileCount({ blp,blp }, TILE_TYPE::WALL) == 0;
+        const bool br = TileCount({ brp,brp }, TILE_TYPE::WALL) == 0;
+
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+            return tl || bl;
+        case DIRECTION::UP:
+            return tl || tr;
+        case DIRECTION::RIGHT:
+            return tr || br;
+        case DIRECTION::DOWN:
+            return bl || br;
+        }
+    };
+
     DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
+    DIRECTION prev_dir = dir;
 
     if (   ls->at(start_p).type != TILE_TYPE::WALL
         || adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
@@ -137,9 +176,18 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
 
     sf::Vector2i curr_pos = start_p;
     sf::Vector2i prev_pos = start_p;
-    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1;
+
+    std::vector<sf::Vector2i> modified_tiles;
+    auto undoHallway = [&]()
+    {
+        for (const auto& tile_pos : modified_tiles)
+        {
+            ls->at(tile_pos).type = TILE_TYPE::WALL;
+        }
+    };
 
     unsigned int total_len = 0;
+    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count) - 1;
     for (int seg = m_segment_count; seg >= 0; seg--)
     {
         const unsigned int m_seg_len = rand(params.min_hallway_segment_length, params.max_hallway_segment_length);
@@ -161,27 +209,37 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
                     {
                         ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
                     }
+                    modified_tiles.push_back(curr_pos);
+
+                    //undo in case of three-way doors
+                    if (ls->at(advance(curr_pos, dir)).type == TILE_TYPE::DOORWAY)
+                    {
+                        undoHallway();
+                        return false;
+                    }
                     
+                    //room or another hallway reached
                     if(adjacentTileCount(curr_pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(curr_pos, AXIS)-1)
                     {
                        return true;
                     }
 
-                    prev_pos = curr_pos;
-                    switch (dir)
+                    /*
+                    undo in case like: 
+                    RR__
+                    RR__
+                    __CH
+                    where R-room, H-hallway, C-curr_pos
+                    */
+                    if (isTouchingCorner(curr_pos, prev_dir))
                     {
-                    case DIRECTION::LEFT:
-                        curr_pos.x--;
-                        break;
-                    case DIRECTION::UP:
-                        curr_pos.y--;
-                        break;
-                    case DIRECTION::RIGHT:
-                        curr_pos.x++;
-                        break;
-                    case DIRECTION::DOWN:
-                        curr_pos.y++;
+                        undoHallway();
+                        return false;
                     }
+
+                    prev_dir = dir;
+                    prev_pos = curr_pos;
+                    curr_pos = advance(curr_pos, dir);
                 }
                 else return true;
             }
