@@ -210,7 +210,7 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
                     modified_tiles.push_back(curr_pos);
 
                     //undo in case of three-way doors
-                    if (ls->at(advance(curr_pos, dir)).type == TILE_TYPE::DOORWAY)
+                    if (ls->at(advance(curr_pos, prev_dir)).type == TILE_TYPE::DOORWAY)
                     {
                         undoHallway();
                         return false;
