@@ -5,10 +5,9 @@
 #include <cmath>
 #include <queue>
 #include <vector>
-#include <type_traits>
 
 
-Entity::Entity(Level* level, const sf::Vector2i& position) : m_level(level)
+Entity::Entity(Level* level, const sf::Vector2i& position) : level(level)
 {
     setPosition(position);
 }
@@ -16,12 +15,12 @@ Entity::Entity(Level* level, const sf::Vector2i& position) : m_level(level)
 void Entity::setPosition(const sf::Vector2i& position)
 {
     //todo: if position is on unreachable tile(wall, closed door, occupied tile) find closest reachable tile
-    m_position = position;
+    this->position = position;
 }
 
 sf::Vector2i Entity::getPosition() const
 {
-    return m_position;
+    return position;
 }
 
 void Entity::move(sf::Vector2i& offset)
@@ -29,15 +28,15 @@ void Entity::move(sf::Vector2i& offset)
     offset.x = std::clamp(offset.x, -1, 1);
     offset.y = std::clamp(offset.y, -1, 1);
 
-    const sf::Vector2i new_pos = m_position + offset;
+    const sf::Vector2i new_pos = position + offset;
 
-    const sf::Vector2i new_pos_x = m_position + sf::Vector2i{ offset.x, 0 };
-    const sf::Vector2i new_pos_y = m_position + sf::Vector2i{ 0, offset.y };
+    const sf::Vector2i new_pos_x = position + sf::Vector2i{ offset.x, 0 };
+    const sf::Vector2i new_pos_y = position + sf::Vector2i{ 0, offset.y };
 
-    if (!(m_level->structure.at(new_pos_x).type == TILE_TYPE::WALL && m_level->structure.at(new_pos_y).type == TILE_TYPE::WALL)
-        && m_level->structure.at(new_pos).type != TILE_TYPE::WALL)
+    if (!(level->structure.at(new_pos_x).type == TILE_TYPE::WALL && level->structure.at(new_pos_y).type == TILE_TYPE::WALL)
+        && level->structure.at(new_pos).type != TILE_TYPE::WALL)
     {
-        m_position = new_pos;
+        position = new_pos;
     }
 }
 
@@ -45,18 +44,18 @@ void Entity::updateState(const bool make_action) {}
 
 std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles() const
 {
-    const sf::Vector2i ts = m_level->tile_size;
+    const sf::Vector2i ts = level->tile_size;
 
     auto isOpaque = [&](const sf::Vector2i& pos)
     {
         auto isClosedDoor = [&]()
         {
-            auto doors = m_level->door_controller.doors.find(pos);
+            auto doors = level->door_controller.doors.find(pos);
             return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
         };
-        return !m_level->structure.isPositionValid(pos)
-            ||  m_level->structure.at(pos).type == TILE_TYPE::WALL
-            || (m_level->structure.at(pos).type == TILE_TYPE::DOORWAY && isClosedDoor());
+        return !level->structure.isPositionValid(pos)
+            ||  level->structure.at(pos).type == TILE_TYPE::WALL
+            || (level->structure.at(pos).type == TILE_TYPE::DOORWAY && isClosedDoor());
     };
 
     auto isVisible = [&](const sf::Vector2i& dest_point)
@@ -65,7 +64,7 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles()
         const sf::Vector2i src = vecMul(tile, ts) + ts / 2;
 
         const sf::Vector2i vec = dest_point - src;
-        if (std::sqrt((vec.x) * (vec.x) + (vec.y) * (vec.y)) > m_vision_radius * (ts.x + ts.y) / 2) return false;
+        if (std::sqrt((vec.x) * (vec.x) + (vec.y) * (vec.y)) > vision_radius * (ts.x + ts.y) / 2) return false;
 
         const sf::Vector2i tile_move =
         {
@@ -100,8 +99,8 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles()
         return true;
     };
     
-    const int vision_box_width = m_vision_radius * 2 + 1;
-    const sf::Vector2i vision_box_tl = vecMul(getPosition() - sf::Vector2i{ static_cast<int>(m_vision_radius), static_cast<int>(m_vision_radius) }, ts);
+    const int vision_box_width = vision_radius * 2 + 1;
+    const sf::Vector2i vision_box_tl = vecMul(getPosition() - sf::Vector2i{ static_cast<int>(vision_radius), static_cast<int>(vision_radius) }, ts);
     std::vector<bool> visited(vision_box_width * vision_box_width, false);
 
     auto posToVisitedIdx = [&](const sf::Vector2i& pos)
