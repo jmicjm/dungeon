@@ -1,4 +1,6 @@
 #include "entity.h"
+#include "../utils/sf_vector2_utils.h"
+
 #include <algorithm>
 #include <cmath>
 #include <queue>
@@ -45,14 +47,6 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles()
 {
     const sf::Vector2i ts = m_level->tile_size;
 
-    auto vecMul = [](const auto& veca, const auto& vecb) -> sf::Vector2<typename std::common_type<decltype(veca.x), decltype(vecb.x)>::type>
-    {
-        return { veca.x * vecb.x, veca.y * vecb.y };
-    };
-    auto vecDiv = [](const auto& veca, const auto& vecb) -> sf::Vector2<typename std::common_type<decltype(veca.x), decltype(vecb.x)>::type>
-    {
-        return { veca.x / vecb.x, veca.y / vecb.y };
-    };
     auto isOpaque = [&](const sf::Vector2i& pos)
     {
         auto isClosedDoor = [&]()
