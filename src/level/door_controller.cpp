@@ -1,11 +1,12 @@
 #include "door_controller.h"
 #include "../asset_storage/texture_bank.h"
+#include "../gfx/utils/visibleAreaBounds.h"
 #include "level.h"
 
 void Door_controller::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    const auto vis = visibleAreaBounds(rt.getView());
-    auto drs = doors.find({ vis.first, vis.second });
+    const auto vis = visibleAreaBounds(rt.getView(), level->tile_size);
+    auto drs = doors.find({ vis.first, vis.second + sf::Vector2i{1,1} });
 
     for (auto& i : drs)
     {
@@ -21,8 +22,8 @@ Door_controller::Door_controller(Level* level) : level(level)
 
 void Door_controller::update(const sf::View& view)
 {
-    const auto vis = visibleAreaBounds(view);
-    auto drs = doors.find({ vis.first,  vis.second });
+    const auto vis = visibleAreaBounds(view, level->tile_size);
+    auto drs = doors.find({ vis.first,  vis.second + sf::Vector2i{1,1} });
 
     for (auto& door : drs)
     {
@@ -36,19 +37,6 @@ void Door_controller::update(const sf::View& view)
         }
     }
 
-}
-
-std::pair<sf::Vector2i, sf::Vector2i> Door_controller::visibleAreaBounds(const sf::View& view) const
-{
-    const sf::FloatRect view_rect = { view.getCenter() - view.getSize() / 2.f, view.getSize() };
-    const sf::FloatRect bounding_box = sf::Transform{}.rotate(view.getRotation(), view.getCenter()).transformRect(view_rect);
-
-    const sf::Vector2f tl_px = { bounding_box.left, bounding_box.top };
-    const sf::Vector2f br_px = tl_px + sf::Vector2f{ bounding_box.width, bounding_box.height };
-    const sf::Vector2i tl_tile = sf::Vector2i{ tl_px } / 64;
-    const sf::Vector2i br_tile = sf::Vector2i{ br_px } / 64 + sf::Vector2i{ 1,1 };
-
-    return { tl_tile, br_tile };
 }
 
 void Door_controller::populate()

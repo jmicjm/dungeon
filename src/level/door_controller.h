@@ -9,7 +9,6 @@
 
 class Door_controller : public sf::Drawable
 {
-    std::pair<sf::Vector2i, sf::Vector2i> visibleAreaBounds(const sf::View& view) const;
 public:
     Level* level = nullptr;
     Quadtree<Door> doors;

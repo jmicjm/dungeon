@@ -36,6 +36,7 @@ add_executable(dungeon
     src/entities/player.cpp
     src/gui/gui_element.cpp 
     src/gui/button.cpp 
+    src/gfx/utils/visibleAreaBounds.cpp
 )
 
 target_link_libraries(dungeon sfml-graphics)
