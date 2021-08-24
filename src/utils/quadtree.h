@@ -89,7 +89,7 @@ public:
     size_t size() const;
     Area getArea() const { return area; }
 
-    value_type* insert(const value_type& key_elem);
+    value_type* insert(value_type key_elem);
     void        erase(const value_type* key_elem);
     std::vector<const value_type*> find(const Vec2& key) const;
     std::vector<value_type*>       find(const Vec2& key);
@@ -166,9 +166,10 @@ std::list<typename Quadtree<T>::value_type> Quadtree<T>::get()
 }
 
 template<typename T>
-typename Quadtree<T>::value_type* Quadtree<T>::insert(const value_type& key_elem)
+typename Quadtree<T>::value_type* Quadtree<T>::insert(value_type key_elem)
 {
-    std::list<value_type> l = { key_elem };
+    std::list<value_type> l;
+    l.push_back(std::move(key_elem));
     value_type* i = &*l.begin();
     insert(l.begin(), l);
 
