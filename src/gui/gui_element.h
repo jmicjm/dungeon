@@ -26,8 +26,11 @@ namespace gui
         sf::Vector2f getParentPosition() const;
         sf::Vector2f getParentSize() const;
 
+        void updateTex();
+
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
+        void draw(Gui_element& element, bool u);
         virtual void redraw(const sf::Vector2i& size_diff) = 0;
         virtual bool isRedrawRequired();
 

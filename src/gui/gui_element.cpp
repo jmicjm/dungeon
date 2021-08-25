@@ -14,9 +14,33 @@ namespace gui
     {
         return parent ? parent->getSize() : sf::Vector2f{ window.getSize() };
     }
+    void Gui_element::updateTex()
+    {
+        const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
+        if (size_diff != sf::Vector2i{ 0,0 })
+        {
+            rtex.create(std::round(getSize().x), std::round(getSize().y));
+        }
+        if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
+        {
+            rtex.clear({ 0,0,0,0 });
+            redraw(size_diff);
+            rtex.display();
+        }
+    }
     void Gui_element::draw(sf::Drawable& drawable, const sf::RenderStates& states)
     {
         rtex.draw(drawable, states);
+    }
+
+    void Gui_element::draw(Gui_element& element, bool u)
+    {
+        if (u) element.update();
+
+        element.updateTex();
+        sf::Sprite elem_sprite(element.rtex.getTexture());
+        elem_sprite.setPosition(element.getPosition());
+        rtex.draw(elem_sprite);
     }
 
     bool Gui_element::isRedrawRequired()
@@ -35,17 +59,7 @@ namespace gui
         const sf::View view{ sf::FloatRect{ 0,0, window.getSize().x * 1.f, window.getSize().y * 1.f } };
         window.setView(view);
 
-        const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
-        if (size_diff != sf::Vector2i{0,0})
-        {
-            rtex.create(std::round(getSize().x), std::round(getSize().y));
-        }
-        if (isRedrawRequired() || size_diff != sf::Vector2i{0,0})
-        {
-            rtex.clear({ 0,0,0,0 });
-            redraw(size_diff);
-            rtex.display();
-        }
+        updateTex();
 
         sf::Sprite elem_sprite(rtex.getTexture());
         elem_sprite.setPosition(getGlobalPosition());
