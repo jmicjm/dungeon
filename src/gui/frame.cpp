@@ -4,7 +4,7 @@ namespace gui
 {
     void Frame::redraw(const sf::Vector2i& size_diff)
     {
-        background.setSize(getSize());
+        background.setSize(sf::Vector2f{ getSize() });
         draw(background);
         redraw_required = false;
     }

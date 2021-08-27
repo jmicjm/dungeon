@@ -59,13 +59,13 @@ void gui::Button::redraw(const sf::Vector2i& size_diff)
     {
         const sf::FloatRect tbounds = text.getLocalBounds();
         text.setOrigin(tbounds.left + tbounds.width / 2, tbounds.top + tbounds.height / 2);
-        text.setPosition(getSize() / 2.f);
+        text.setPosition(sf::Vector2f{ getSize() } / 2.f);
         draw(text);
     };
 
     auto draw = [&](Surface& surf)
     {
-        surf.setSize(getSize());
+        surf.setSize(sf::Vector2f{ getSize() });
         Gui_element::draw(surf);
     };
 

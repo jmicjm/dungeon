@@ -10,16 +10,16 @@ namespace gui
     {
         return parent ? parent->getGlobalPosition() : sf::Vector2f{0,0};
     }
-    sf::Vector2f Gui_element::getParentSize() const
+    sf::Vector2i Gui_element::getParentSize() const
     {
-        return parent ? parent->getSize() : sf::Vector2f{ window.getSize() };
+        return parent ? parent->getSize() : sf::Vector2i{ window.getSize() };
     }
     void Gui_element::updateTex()
     {
         const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
         if (size_diff != sf::Vector2i{ 0,0 })
         {
-            rtex.create(std::round(getSize().x), std::round(getSize().y));
+            rtex.create(getSize().x, getSize().y);
         }
         if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
         {
@@ -72,7 +72,7 @@ namespace gui
     {
         const sf::Vector2i mp = sf::Mouse::getPosition(window);
         const sf::Vector2f tl = getGlobalPosition();
-        const sf::Vector2f br = tl + getSize();
+        const sf::Vector2f br = tl + sf::Vector2f{ getSize() };
         return mp.x >= tl.x && mp.x <= br.x 
             && mp.y >= tl.y && mp.y <= br.y;
     }
@@ -81,7 +81,7 @@ namespace gui
     {
         if (!anchor)
         {
-            const sf::Vector2f ps = getParentSize();
+            const sf::Vector2i ps = getParentSize();
             const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
@@ -152,11 +152,12 @@ namespace gui
         return size_info;
     }
 
-    sf::Vector2f Gui_element::getSize() const
+    sf::Vector2i Gui_element::getSize() const
     {
         const auto& p = size_info.percentage;
         const auto  s = getParentSize();
-        return size_info.fixed + sf::Vector2f{s.x*p.x/100, s.y*p.y/100};
+        return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x / 100)),
+                 static_cast<int>(std::round(size_info.fixed.y + s.y * p.y / 100)) };
     }
 
     void Gui_element::setAnchor(const Gui_element* a)

@@ -24,7 +24,7 @@ namespace gui
 
         const Gui_element* parent = nullptr;
         sf::Vector2f getParentPosition() const;
-        sf::Vector2f getParentSize() const;
+        sf::Vector2i getParentSize() const;
 
         void updateTex();
 
@@ -50,7 +50,7 @@ namespace gui
 
         void setSizeInfo(const Size_info& s_info);
         Size_info getSizeInfo() const;
-        sf::Vector2f getSize() const;
+        sf::Vector2i getSize() const;
 
         void setAnchor(const Gui_element* a);
         const Gui_element* getAnchor() const;
