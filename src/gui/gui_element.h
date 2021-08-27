@@ -30,7 +30,7 @@ namespace gui
 
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
-        void draw(Gui_element& element, bool u);
+        void draw(Gui_element& element, bool u = true);
         virtual void redraw(const sf::Vector2i& size_diff) = 0;
         virtual bool isRedrawRequired();
 
