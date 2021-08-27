@@ -12,6 +12,6 @@ namespace gui
 
         SIDE side = SIDE::TOP;
         sf::Vector2f offset = { 0,0 };
-        float relative_to = 50;
+        float relative_to = 0.5;
     };
 }

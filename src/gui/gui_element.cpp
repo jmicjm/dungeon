@@ -85,8 +85,8 @@ namespace gui
             const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
-                off.x + poff.x * ps.x / 100 + ps.x * rel.x / 100 - getSize().x * rel.x / 100,
-                off.y + poff.y * ps.y / 100 + ps.y * rel.y / 100 - getSize().y * rel.y / 100
+                off.x + poff.x * ps.x + ps.x * rel.x - getSize().x * rel.x,
+                off.y + poff.y * ps.y + ps.y * rel.y - getSize().y * rel.y
             };
 
             return pos;
@@ -101,11 +101,11 @@ namespace gui
             {
             case Anchor_position_info::TOP:
             case Anchor_position_info::BOTTOM:
-                pos.x += anchor->getSize().x * (relative_to / 100.f) - getSize().x * (relative_to / 100.f);
+                pos.x += anchor->getSize().x * relative_to - getSize().x * relative_to;
                 break;
             case Anchor_position_info::LEFT:
             case Anchor_position_info::RIGHT:
-                pos.y += anchor->getSize().y * (relative_to / 100.f) - getSize().y * (relative_to / 100.f);
+                pos.y += anchor->getSize().y * relative_to - getSize().y * relative_to;
             }
 
             switch (side)
@@ -156,8 +156,8 @@ namespace gui
     {
         const auto& p = size_info.percentage;
         const auto  s = getParentSize();
-        return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x / 100)),
-                 static_cast<int>(std::round(size_info.fixed.y + s.y * p.y / 100)) };
+        return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x)),
+                 static_cast<int>(std::round(size_info.fixed.y + s.y * p.y)) };
     }
 
     void Gui_element::setAnchor(const Gui_element* a)

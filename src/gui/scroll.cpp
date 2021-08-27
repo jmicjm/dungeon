@@ -40,11 +40,11 @@ namespace gui
         handle.setParent(this);
         line.setParent(this);
 
-        top_arrow.setSizeInfo({ {0,16}, {100,0} });
-        bottom_arrow.setSizeInfo({ {0,16}, {100,0} });
-        bottom_arrow.setPositionInfo({ {0,0}, {0,0}, {0,100} });
-        handle.setSizeInfo({ {0,0}, {100,100} });
-        line.setSizeInfo({ { 0,16 }, { 100,0 } });
+        top_arrow.setSizeInfo({ {0,16}, {1,0} });
+        bottom_arrow.setSizeInfo({ {0,16}, {1,0} });
+        bottom_arrow.setPositionInfo({ {0,0}, {0,0}, {0,1} });
+        handle.setSizeInfo({ {0,0}, {1,100} });
+        line.setSizeInfo({ { 0,16 }, { 1,0 } });
     }
 
     void Scroll::update()
