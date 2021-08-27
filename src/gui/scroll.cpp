@@ -28,6 +28,11 @@ namespace gui
         }
     }
 
+    void Scroll::resizeEvent()
+    {
+        setTopPosition(getTopPosition());
+    }
+
     Scroll::Scroll(sf::RenderWindow& rw) 
         : Gui_element(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
     {
@@ -51,7 +56,6 @@ namespace gui
     {
         top_arrow.update();
         bottom_arrow.update();
-        setTopPosition(getTopPosition());
     }
 
     void Scroll::setContentLength(int length)

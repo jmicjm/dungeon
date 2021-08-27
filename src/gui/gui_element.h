@@ -6,8 +6,6 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
 
-#include <memory>
-
 
 namespace gui
 {
@@ -34,6 +32,8 @@ namespace gui
         virtual void redraw(const sf::Vector2i& size_diff) = 0;
         virtual bool isRedrawRequired();
 
+        virtual void resizeEvent() {}
+
     public:
         Gui_element(sf::RenderWindow& rw);
         virtual ~Gui_element() = default;
@@ -43,18 +43,18 @@ namespace gui
 
         bool isHovered() const;
 
-        void setPositionInfo(const Position_info& p_info);
+        void setPositionInfo(Position_info p_info);
         Position_info getPositionInfo() const;
         sf::Vector2f getPosition() const;
         sf::Vector2f getGlobalPosition() const;
 
-        void setSizeInfo(const Size_info& s_info);
+        void setSizeInfo(Size_info s_info);
         Size_info getSizeInfo() const;
         sf::Vector2i getSize() const;
 
         void setAnchor(const Gui_element* a);
         const Gui_element* getAnchor() const;
-        void setAnchorPositionInfo(const Anchor_position_info& a_info);
+        void setAnchorPositionInfo(Anchor_position_info a_info);
         Anchor_position_info getAnchorPositionInfo() const;
 
         void setParent(const Gui_element* p);

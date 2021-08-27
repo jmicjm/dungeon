@@ -19,6 +19,7 @@ namespace gui
         int visibleContentLength() const;
 
         void redraw(const sf::Vector2i& size_diff) override;
+        void resizeEvent() override;
 
     public:
         Scroll(sf::RenderWindow& rw);

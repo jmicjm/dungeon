@@ -20,6 +20,7 @@ namespace gui
         if (size_diff != sf::Vector2i{ 0,0 })
         {
             rtex.create(getSize().x, getSize().y);
+            resizeEvent();
         }
         if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
         {
@@ -132,7 +133,7 @@ namespace gui
         return getParentPosition() + getPosition();
     }
 
-    void Gui_element::setPositionInfo(const Position_info& p_info)
+    void Gui_element::setPositionInfo(Position_info p_info)
     {
         pos_info = p_info;
     }
@@ -142,7 +143,7 @@ namespace gui
         return pos_info;
     }
 
-    void Gui_element::setSizeInfo(const Size_info& s_info)
+    void Gui_element::setSizeInfo(Size_info s_info)
     {
         size_info = s_info;
     }
@@ -170,7 +171,7 @@ namespace gui
         return anchor;
     }
 
-    void Gui_element::setAnchorPositionInfo(const Anchor_position_info& a_info)
+    void Gui_element::setAnchorPositionInfo(Anchor_position_info a_info)
     {
         anchor_pos_info = a_info;
     }
