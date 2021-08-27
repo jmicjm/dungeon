@@ -18,13 +18,13 @@ void Input::update(const sf::Event& event)
     {
         for (auto& button_hold_info : mouse_hold_info)
         {
-            button_hold_info.second.current_pos = { event.mouseMove.x, event.mouseMove.y };
+            button_hold_info.second.hold_info.current_pos = { event.mouseMove.x, event.mouseMove.y };
         }
     }
     else if (event.type == sf::Event::MouseButtonPressed)
     {
         const sf::Vector2i mouse_pos = { event.mouseButton.x, event.mouseButton.y };
-        mouse_hold_info[event.mouseButton.button] = Mouse_hold_info{ mouse_pos, mouse_pos, false };
+        mouse_hold_info[event.mouseButton.button] = Mouse_hold_info_impl{ {mouse_pos, mouse_pos}, false };
     }
     else if (event.type == sf::Event::MouseButtonReleased)
     {
@@ -35,7 +35,7 @@ void Input::update(const sf::Event& event)
 std::optional<Input::Mouse_hold_info> Input::getMouseHoldVec(sf::Mouse::Button button)
 {
     auto it = mouse_hold_info.find(button);
-    if (it != mouse_hold_info.end()) return { it->second };
+    if (it != mouse_hold_info.end()) return { it->second.hold_info };
 
     return {};
 }

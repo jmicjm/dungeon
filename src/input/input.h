@@ -10,9 +10,13 @@ class Input
     {
         sf::Vector2i source_pos;
         sf::Vector2i current_pos;
+    };
+    struct Mouse_hold_info_impl
+    {
+        Mouse_hold_info hold_info;
         bool released;
     };
-    inline static std::map<sf::Mouse::Button, Mouse_hold_info> mouse_hold_info;
+    inline static std::map<sf::Mouse::Button, Mouse_hold_info_impl> mouse_hold_info;
 
 public:
 
