@@ -16,6 +16,12 @@ namespace gui
         int visible_content_length = -1;
         int top_position = 0;
 
+        bool is_holding_handle = false;
+        sf::Vector2i hold_source_pos;
+        int hold_top_pos;
+
+        void updateHandle();
+
         int visibleContentLength() const;
 
         void redraw(const sf::Vector2i& size_diff) override;

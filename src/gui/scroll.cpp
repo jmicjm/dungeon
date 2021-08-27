@@ -1,7 +1,21 @@
 #include "scroll.h"
+#include "../input/input.h"
+
 
 namespace gui
 {
+    void Scroll::updateHandle()
+    {
+        const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
+
+        const float visible_perc = static_cast<float>(visibleContentLength()) / getContentLength();
+        const int handle_len = std::max(1.f, area_len * visible_perc);
+        handle.setSizeInfo({ sf::Vector2f(0, handle_len), { 1,0 } });
+
+        const float pos_perc = static_cast<float>(getTopPosition()) / (getContentLength() - visibleContentLength());
+        const int handle_pos = top_arrow.getSize().y + (area_len - handle_len) * pos_perc;
+        handle.setPositionInfo({ { 0,handle_pos } });
+    }
     int Scroll::visibleContentLength() const
     {
         return visible_content_length < 0 ? getSize().y : visible_content_length;
@@ -12,25 +26,13 @@ namespace gui
         draw(line);
         draw(top_arrow, false);
         draw(bottom_arrow, false);
-
-        const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
-        if (area_len > 0)
-        {
-            const float visible_perc = static_cast<float>(visibleContentLength()) / getContentLength();
-            const int handle_len = std::max(1.f, area_len * visible_perc);
-            handle.setSizeInfo({ sf::Vector2f( 0, handle_len ), { 100,0 } });
-
-            const float pos_perc = static_cast<float>(getTopPosition()) / (getContentLength() - visibleContentLength());   
-            const int handle_pos = top_arrow.getSize().y + (area_len - handle_len) * pos_perc;
-            handle.setPositionInfo({ { 0,handle_pos } });
-
-            draw(handle);
-        }
+        draw(handle);
     }
 
     void Scroll::resizeEvent()
     {
         setTopPosition(getTopPosition());
+        updateHandle();
     }
 
     Scroll::Scroll(sf::RenderWindow& rw) 
@@ -48,14 +50,50 @@ namespace gui
         top_arrow.setSizeInfo({ {0,16}, {1,0} });
         bottom_arrow.setSizeInfo({ {0,16}, {1,0} });
         bottom_arrow.setPositionInfo({ {0,0}, {0,0}, {0,1} });
-        handle.setSizeInfo({ {0,0}, {1,100} });
         line.setSizeInfo({ { 0,16 }, { 1,0 } });
     }
 
     void Scroll::update()
     {
-        top_arrow.update();
-        bottom_arrow.update();
+        if (!is_holding_handle)
+        {
+            top_arrow.update();
+            bottom_arrow.update();
+        }
+
+        updateHandle();
+
+        auto hold_vec = Input::getMouseHoldVec(sf::Mouse::Left);
+        if (hold_vec)
+        {
+            if (is_holding_handle && hold_vec->source_pos != hold_source_pos)
+            {
+                is_holding_handle = false;
+            }
+
+            if (!is_holding_handle 
+                && hold_vec->source_pos.x >= handle.getGlobalPosition().x && hold_vec->source_pos.x <= handle.getGlobalPosition().x + handle.getSize().x
+                && hold_vec->source_pos.y >= handle.getGlobalPosition().y && hold_vec->source_pos.y <= handle.getGlobalPosition().y + handle.getSize().y)
+            {
+                is_holding_handle = true;
+                hold_source_pos = hold_vec->source_pos;
+                hold_top_pos = getTopPosition();
+            }
+                 
+            if (is_holding_handle)
+            {      
+                const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y - handle.getSize().y;
+                const int shift = hold_vec->current_pos.y - hold_vec->source_pos.y;
+                const float perc_shift = static_cast<float>(shift) / area_len;
+
+                setTopPosition(hold_top_pos + (getContentLength() - visibleContentLength())* perc_shift);
+            }
+        }
+        else
+        {
+            is_holding_handle = false;
+        }
+
     }
 
     void Scroll::setContentLength(int length)
