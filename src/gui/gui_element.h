@@ -28,6 +28,7 @@ namespace gui
 
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
+        void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(Gui_element& element, bool u = true);
         virtual void redraw(const sf::Vector2i& size_diff) = 0;
         virtual bool isRedrawRequired();

@@ -39,6 +39,7 @@ add_executable(dungeon
     src/gui/frame.cpp
     src/input/input.cpp
     src/gui/scroll.cpp
- )
+    src/gui/text.cpp
+)
 
 target_link_libraries(dungeon sfml-graphics)

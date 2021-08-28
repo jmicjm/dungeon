@@ -34,6 +34,11 @@ namespace gui
         rtex.draw(drawable, states);
     }
 
+    void Gui_element::draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states)
+    {
+        rtex.draw(vertices, vertexCount, type, states);
+    }
+
     void Gui_element::draw(Gui_element& element, bool u)
     {
         if (u) element.update();
