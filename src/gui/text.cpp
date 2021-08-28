@@ -44,7 +44,12 @@ namespace gui
     void Text::redraw(const sf::Vector2i& size_diff)
     {
         sf::Sprite str_sprite(rendered_str.getTexture());
-        str_sprite.setTextureRect({ sf::Vector2i{0, scroll.getTopPosition()}, sf::Vector2i(getSize().x, std::min(static_cast<unsigned int>(getSize().y), rendered_str.getSize().y)) });
+        str_sprite.setTextureRect(
+            { 
+              sf::Vector2i(0, scroll.getTopPosition()),
+              sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(getSize().y), rendered_str.getSize().y)) 
+            }
+        );
 
         draw(str_sprite);
         draw(scroll);
