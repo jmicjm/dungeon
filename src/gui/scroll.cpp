@@ -8,14 +8,15 @@ namespace gui
     {
         const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
 
-        const float visible_perc = static_cast<float>(visibleContentLength()) / getContentLength();
-        const int handle_len = std::max(1.f, area_len * visible_perc);
+        const float visible_perc = getContentLength() > 0 ? static_cast<float>(visibleContentLength()) / getContentLength() : 1;
+        const int handle_len = std::clamp(static_cast<int>(area_len * visible_perc), 1, std::max(1, area_len));
         handle.setSizeInfo({ sf::Vector2f(0, handle_len), { 1,0 } });
 
         const float pos_perc = static_cast<float>(getTopPosition()) / (getContentLength() - visibleContentLength());
         const int handle_pos = top_arrow.getSize().y + (area_len - handle_len) * pos_perc;
         handle.setPositionInfo({ { 0,handle_pos } });
     }
+
     int Scroll::visibleContentLength() const
     {
         return visible_content_length < 0 ? getSize().y : visible_content_length;
@@ -86,7 +87,7 @@ namespace gui
                 const int shift = hold_vec->current_pos.y - hold_vec->source_pos.y;
                 const float perc_shift = static_cast<float>(shift) / area_len;
 
-                setTopPosition(hold_top_pos + (getContentLength() - visibleContentLength())* perc_shift);
+                setTopPosition(hold_top_pos + (getContentLength() - visibleContentLength()) * perc_shift);
             }
         }
         else
@@ -119,7 +120,7 @@ namespace gui
 
     void Scroll::setTopPosition(int position)
     {
-        top_position = std::clamp(position, 0, content_length - visibleContentLength());
+        top_position = std::clamp(position, 0, std::max(0,content_length - visibleContentLength()));
     }
 
     int Scroll::getTopPosition() const
