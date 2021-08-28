@@ -27,10 +27,11 @@ namespace gui
 
         void redraw(const sf::Vector2i& size_diff) override;
         bool redraw_required = true;
-        bool isRedrawRequired() override;
 
     public:
         using Gui_element::Gui_element;
+
+        bool isRedrawRequired() override;
 
         void setDirection(DIRECTION dir);
 

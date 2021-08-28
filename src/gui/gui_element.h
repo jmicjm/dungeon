@@ -31,7 +31,6 @@ namespace gui
         void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(Gui_element& element, bool u = true);
         virtual void redraw(const sf::Vector2i& size_diff) = 0;
-        virtual bool isRedrawRequired();
 
         virtual void resizeEvent() {}
 
@@ -41,6 +40,7 @@ namespace gui
 
         void draw(bool update = true);
         virtual void update() {}
+        virtual bool isRedrawRequired();
 
         bool isHovered() const;
 

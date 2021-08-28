@@ -27,13 +27,24 @@ namespace gui
         draw(line);
         draw(top_arrow, false);
         draw(bottom_arrow, false);
+        updateHandle();
         draw(handle);
+
+        redraw_required = false;
+    }
+
+    bool Scroll::isRedrawRequired()
+    {
+        return redraw_required 
+            || top_arrow.isRedrawRequired() 
+            || bottom_arrow.isRedrawRequired() 
+            || handle.isRedrawRequired() 
+            || line.isRedrawRequired();
     }
 
     void Scroll::resizeEvent()
     {
         setTopPosition(getTopPosition());
-        updateHandle();
     }
 
     Scroll::Scroll(sf::RenderWindow& rw) 
@@ -61,8 +72,6 @@ namespace gui
             top_arrow.update();
             bottom_arrow.update();
         }
-
-        updateHandle();
 
         auto hold_vec = Input::getMouseHoldVec(sf::Mouse::Left);
         if (hold_vec)
@@ -111,6 +120,7 @@ namespace gui
     void Scroll::setVisibleContentLength(int length)
     {
         visible_content_length = length;
+        redraw_required = true;
     }
 
     int Scroll::getVisibleContentLength() const
@@ -121,6 +131,7 @@ namespace gui
     void Scroll::setTopPosition(int position)
     {
         top_position = std::clamp(position, 0, std::max(0,content_length - visibleContentLength()));
+        redraw_required = true;
     }
 
     int Scroll::getTopPosition() const
@@ -144,6 +155,7 @@ namespace gui
         top_arrow.setReleasedSurface(released);
         top_arrow.setPressedHoveredOverlay(hovered);
         top_arrow.setReleasedHoveredOverlay(hovered);
+        redraw_required = true;
     }
 
     void Scroll::setBottomArrowAppearance(Surface pressed, Surface released, Surface hovered)
@@ -152,15 +164,18 @@ namespace gui
         bottom_arrow.setReleasedSurface(released);
         bottom_arrow.setPressedHoveredOverlay(hovered);
         bottom_arrow.setReleasedHoveredOverlay(hovered);
+        redraw_required = true;
     }
 
     void Scroll::setHandleSurface(Surface s)
     {
         handle.setBackgroundSurface(s);
+        redraw_required = true;
     }
 
     void Scroll::setLineSurface(Surface s)
     {
         line.setBackgroundSurface(s);
+        redraw_required = true;
     }
 }

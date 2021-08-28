@@ -12,10 +12,11 @@ namespace gui
         bool redraw_required = true;
 
         void redraw(const sf::Vector2i& size_diff) override;
-        bool isRedrawRequired() override;
 
     public:
         using Gui_element::Gui_element;
+
+        bool isRedrawRequired() override;
 
         void setBackgroundSurface(const Surface& surface);
         Surface getBackgroundSurface() const;

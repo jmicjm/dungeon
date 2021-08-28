@@ -44,7 +44,6 @@ namespace gui
 
         void redraw(const sf::Vector2i& size_diff) override;
         bool redraw_required = true;
-        bool isRedrawRequired() override;
 
     public:
         using Gui_element::Gui_element;
@@ -52,6 +51,7 @@ namespace gui
         bool isPressed() const;
 
         void update() override;
+        bool isRedrawRequired() override;
 
         void setType(TYPE t);
 
