@@ -8,7 +8,8 @@ namespace gui
 
         const sf::Texture& tex = font.getTexture(character_size);
 
-        const unsigned int line_width = getSize().x - scroll.getSize().x;
+        const unsigned int width = getSize().x - scroll.getSize().x;
+        unsigned int height = 0;
 
         unsigned int line = 0;
         unsigned int pos_in_line = 0;
@@ -16,18 +17,20 @@ namespace gui
         {
             sf::Glyph glyph = font.getGlyph(c, character_size, false);
             Primitive_sprite p_spr(&tex, glyph.textureRect);
-            if (pos_in_line + glyph.advance + glyph.bounds.width >= line_width)
+            if (pos_in_line + glyph.advance >= width)
             {
                 line++;
                 pos_in_line = 0;
             }
-            p_spr.move(sf::Vector2f( pos_in_line, line*character_size + character_size + glyph.bounds.top   ));
+            p_spr.move(sf::Vector2f( pos_in_line, line*character_size + character_size + glyph.bounds.top ));
             pos_in_line += glyph.advance;
+
+            height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
 
             prepared_text.push_back(p_spr);
         }
 
-        rendered_str.create(getSize().x, prepared_text.size() ? prepared_text.back().vertices[1].position.y : 1);
+        rendered_str.create(width, height);
         rendered_str.clear({ 0,0,0,0 });
         for (const auto& c : prepared_text)
         {
