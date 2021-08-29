@@ -1,5 +1,6 @@
 #pragma once
 #include "gui_element.h"
+#include "scroll_appearance.h"
 #include "button.h"
 #include "frame.h"
 
@@ -44,9 +45,7 @@ namespace gui
         void up  (int n = 1);
         void down(int n = 1);
 
-        void setTopArrowAppearance(Surface pressed, Surface released, Surface hovered);
-        void setBottomArrowAppearance(Surface pressed, Surface released, Surface hovered);
-        void setHandleSurface(Surface s);
-        void setLineSurface(Surface s);
+        void setAppearance(const Scroll_appearance& a);
+        Scroll_appearance getAppearance() const;
     };
 }

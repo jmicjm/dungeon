@@ -91,10 +91,15 @@ namespace gui
         return current_value;
     }
 
-    void Gauge_bar::setBarSurface(const Surface& surf)
+    void Gauge_bar::setAppearance(const Gauge_bar_appearance& a)
     {
-        bar_surface = surf;
+        bar_surface = a.bar;
         bar_surface.setPosition({ 0,0 });
         redraw_required = true;
+    }
+
+    Gauge_bar_appearance Gauge_bar::getAppearance() const
+    {
+        return { bar_surface };
     }
 }

@@ -1,12 +1,12 @@
 #pragma once
 #include "gui_element.h"
+#include "text_appearance.h"
 #include "scroll.h"
 #include "../gfx/primitive_sprite.h"
 
 #include "SFML/Graphics/Font.hpp"
 
 #include <string>
-#include <vector>
 
 
 namespace gui
@@ -17,9 +17,7 @@ namespace gui
         sf::RenderTexture rendered_str;
         sf::Font font;
         unsigned int character_size = 24;
-
         Scroll scroll;
-        std::vector<Primitive_sprite> prepared_text;
 
         void prepareText();
 
@@ -39,5 +37,8 @@ namespace gui
 
         void setCharacterSize(unsigned int size);
         unsigned int getCharacterSize() const;
+
+        void setAppearance(const Text_appearance& a);
+        Text_appearance getAppearance() const;
     };
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "gui_element.h"
+#include "gauge_bar_appearance.h"
 #include "surface.h"
 
 #include "SFML/Graphics/RenderTexture.hpp"
@@ -42,6 +43,7 @@ namespace gui
         void  setValue(float val);
         float getValue() const;
 
-        void setBarSurface(const Surface& surf);
+        void setAppearance(const Gauge_bar_appearance& a);
+        Gauge_bar_appearance getAppearance() const;
     };
 }

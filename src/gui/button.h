@@ -1,10 +1,10 @@
 #pragma once
 #include "gui_element.h"
+#include "button_appearance.h"
 #include "surface.h"
 
 #include "SFML/Graphics/Text.hpp"
 
-#include <variant>
 #include <functional>
 #include <chrono>
 
@@ -13,10 +13,7 @@ namespace gui
 {
     class Button : public Gui_element
     {
-        Surface pressed_surface;
-        Surface released_surface;
-        Surface pressed_hovered_overlay;
-        Surface released_hovered_overlay;
+        Button_appearance appearance;
 
         sf::Text pressed_text;
         sf::Text released_text;
@@ -57,10 +54,8 @@ namespace gui
 
         void setPressDelay(const std::chrono::milliseconds& delay);
 
-        void setPressedSurface (const Surface& surface);
-        void setReleasedSurface(const Surface& surface);
-        void setPressedHoveredOverlay(const Surface& surface);
-        void setReleasedHoveredOverlay(const Surface& surface);
+        void setAppearance(const Button_appearance& a);
+        Button_appearance getAppearance() const;
 
         void setPressedText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);

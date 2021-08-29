@@ -59,10 +59,10 @@ namespace gui
         handle.setParent(this);
         line.setParent(this);
 
-        top_arrow.setSizeInfo({ {0,16}, {1,0} });
-        bottom_arrow.setSizeInfo({ {0,16}, {1,0} });
+        top_arrow.setSizeInfo({ {0,0}, {1,0} });
+        bottom_arrow.setSizeInfo({ {0,0}, {1,0} });
         bottom_arrow.setPositionInfo({ {0,0}, {0,0}, {0,1} });
-        line.setSizeInfo({ { 0,16 }, { 1,0 } });
+        line.setSizeInfo({ { 0,0 }, { 1,1 } });
     }
 
     void Scroll::update()
@@ -149,33 +149,32 @@ namespace gui
         setTopPosition(top_position + n);
     }
 
-    void Scroll::setTopArrowAppearance(Surface pressed, Surface released, Surface hovered)
+    void Scroll::setAppearance(const Scroll_appearance& a)
     {
-        top_arrow.setPressedSurface(pressed);
-        top_arrow.setReleasedSurface(released);
-        top_arrow.setPressedHoveredOverlay(hovered);
-        top_arrow.setReleasedHoveredOverlay(hovered);
+        line.setAppearance(a.line);
+        handle.setAppearance(a.handle);
+        top_arrow.setAppearance(a.top_button);
+        bottom_arrow.setAppearance(a.bottom_button);
+
+        const auto& f = a.button_fixed_height;
+        const auto& p = a.button_percentage_height;
+
+        top_arrow.setSizeInfo({ {0,f}, {1,p} });
+        bottom_arrow.setSizeInfo({ {0,f}, {1,p} });
+
         redraw_required = true;
     }
 
-    void Scroll::setBottomArrowAppearance(Surface pressed, Surface released, Surface hovered)
+    Scroll_appearance Scroll::getAppearance() const
     {
-        bottom_arrow.setPressedSurface(pressed);
-        bottom_arrow.setReleasedSurface(released);
-        bottom_arrow.setPressedHoveredOverlay(hovered);
-        bottom_arrow.setReleasedHoveredOverlay(hovered);
-        redraw_required = true;
-    }
+        Scroll_appearance a;
+        a.line = line.getAppearance();
+        a.handle = handle.getAppearance();
+        a.top_button = top_arrow.getAppearance();
+        a.bottom_button = bottom_arrow.getAppearance();
+        a.button_fixed_height = top_arrow.getSizeInfo().fixed.y;
+        a.button_percentage_height = top_arrow.getSizeInfo().percentage.y;
 
-    void Scroll::setHandleSurface(Surface s)
-    {
-        handle.setBackgroundSurface(s);
-        redraw_required = true;
-    }
-
-    void Scroll::setLineSurface(Surface s)
-    {
-        line.setBackgroundSurface(s);
-        redraw_required = true;
+        return a;
     }
 }

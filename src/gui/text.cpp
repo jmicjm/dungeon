@@ -1,10 +1,11 @@
 #include "text.h"
+#include <vector>
 
 namespace gui
 {
     void Text::prepareText()
     {
-        prepared_text.clear();
+        std::vector<Primitive_sprite> prepared_text;
 
         const sf::Texture& tex = font.getTexture(character_size);
 
@@ -66,15 +67,6 @@ namespace gui
         scroll.setSizeInfo({ {16,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
         scroll.setParent(this);
-
-        auto rect = [](sf::Color c)
-        {
-            sf::RectangleShape rs; rs.setFillColor(c); return rs;
-        };
-        scroll.setTopArrowAppearance({ rect({255,0,0,255}) }, { rect({128,0,0,255}) }, { rect({255,255,255,64}) });
-        scroll.setBottomArrowAppearance({ rect({255,0,0,255}) }, { rect({128,0,0,255}) }, { rect({255,255,255,64}) });
-        scroll.setHandleSurface({ rect({0,255,0,255}) });
-
     }
 
     void Text::update()
@@ -108,5 +100,13 @@ namespace gui
     unsigned int Text::getCharacterSize() const
     {
         return character_size;
+    }
+    void Text::setAppearance(const Text_appearance& a)
+    {
+        scroll.setAppearance(a.scroll);
+    }
+    Text_appearance Text::getAppearance() const
+    {
+        return { scroll.getAppearance() };
     }
 }

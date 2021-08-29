@@ -1,5 +1,6 @@
 #pragma once
 #include "gui_element.h"
+#include "frame_appearance.h"
 #include "surface.h"
 
 
@@ -18,7 +19,7 @@ namespace gui
 
         bool isRedrawRequired() override;
 
-        void setBackgroundSurface(const Surface& surface);
-        Surface getBackgroundSurface() const;
+        void setAppearance(const Frame_appearance& a);
+        Frame_appearance getAppearance() const;
     };
 }

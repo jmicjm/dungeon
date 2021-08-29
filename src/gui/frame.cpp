@@ -14,15 +14,15 @@ namespace gui
         return redraw_required || background.hasChanged();
     }
 
-    void Frame::setBackgroundSurface(const Surface& surface)
+    void Frame::setAppearance(const Frame_appearance& a)
     {
-        background = surface;
+        background = a.background;
         background.setPosition({ 0,0 });
         redraw_required = true;
     }
 
-    Surface Frame::getBackgroundSurface() const
+    Frame_appearance Frame::getAppearance() const
     {
-        return background;
+        return { background };
     }
 }
