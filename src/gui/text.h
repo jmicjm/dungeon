@@ -23,9 +23,9 @@ namespace gui
 
         void prepareText();
 
-        void redraw(const sf::Vector2i& size_diff) override;
+        void redraw() override;
 
-        void resizeEvent() override;
+        void resizeEvent(const sf::Vector2i& size_diff) override;
 
     public:
         Text(sf::RenderWindow& rw);

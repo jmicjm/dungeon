@@ -20,12 +20,12 @@ namespace gui
         if (size_diff != sf::Vector2i{ 0,0 })
         {
             rtex.create(getSize().x, getSize().y);
-            resizeEvent();
+            resizeEvent(size_diff);
         }
         if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
         {
             rtex.clear({ 0,0,0,0 });
-            redraw(size_diff);
+            redraw();
             rtex.display();
         }
     }

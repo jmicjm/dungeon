@@ -30,9 +30,9 @@ namespace gui
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(Gui_element& element, bool u = true);
-        virtual void redraw(const sf::Vector2i& size_diff) = 0;
+        virtual void redraw() = 0;
 
-        virtual void resizeEvent() {}
+        virtual void resizeEvent(const sf::Vector2i& size_diff) {}
 
     public:
         Gui_element(sf::RenderWindow& rw);

@@ -41,7 +41,7 @@ namespace gui
         scroll.setContentLength(rendered_str.getSize().y);
     }
 
-    void Text::redraw(const sf::Vector2i& size_diff)
+    void Text::redraw()
     {
         sf::Sprite str_sprite(rendered_str.getTexture());
         str_sprite.setTextureRect(
@@ -55,7 +55,7 @@ namespace gui
         draw(scroll);
     }
 
-    void Text::resizeEvent()
+    void Text::resizeEvent(const sf::Vector2i& size_diff)
     {
         prepareText();
     }

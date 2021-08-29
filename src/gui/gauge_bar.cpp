@@ -6,7 +6,7 @@
 
 namespace gui
 {
-    void Gauge_bar::redraw(const sf::Vector2i& size_diff)
+    void Gauge_bar::redraw()
     {
         const float percentage = (current_value-min_value)/std::abs(min_value - max_value);
 

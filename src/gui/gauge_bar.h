@@ -25,7 +25,7 @@ namespace gui
     private:
         DIRECTION direction = L_TO_R;
 
-        void redraw(const sf::Vector2i& size_diff) override;
+        void redraw() override;
         bool redraw_required = true;
 
     public:

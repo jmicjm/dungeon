@@ -53,7 +53,7 @@ bool gui::Button::isHovered() const
     return is_hovered;
 }
 
-void gui::Button::redraw(const sf::Vector2i& size_diff)
+void gui::Button::redraw()
 {  
     auto drawText = [&](sf::Text& text)
     {

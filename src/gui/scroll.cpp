@@ -22,7 +22,7 @@ namespace gui
         return visible_content_length < 0 ? getSize().y : visible_content_length;
     }
 
-    void Scroll::redraw(const sf::Vector2i& size_diff)
+    void Scroll::redraw()
     {
         draw(line);
         draw(top_arrow, false);
@@ -42,7 +42,7 @@ namespace gui
             || line.isRedrawRequired();
     }
 
-    void Scroll::resizeEvent()
+    void Scroll::resizeEvent(const sf::Vector2i& size_diff)
     {
         setTopPosition(getTopPosition());
     }
