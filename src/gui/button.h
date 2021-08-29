@@ -48,7 +48,7 @@ namespace gui
         bool isPressed() const;
 
         void update() override;
-        bool isRedrawRequired() override;
+        bool isRedrawRequired() const override;
 
         void setType(TYPE t);
 

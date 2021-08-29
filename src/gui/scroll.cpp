@@ -33,7 +33,7 @@ namespace gui
         redraw_required = false;
     }
 
-    bool Scroll::isRedrawRequired()
+    bool Scroll::isRedrawRequired() const
     {
         return redraw_required 
             || top_arrow.isRedrawRequired() 

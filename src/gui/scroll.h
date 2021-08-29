@@ -33,7 +33,7 @@ namespace gui
         Scroll(sf::RenderWindow& rw);
 
         void update() override;
-        bool isRedrawRequired() override;
+        bool isRedrawRequired() const override;
 
         void setContentLength(int length);
         int  getContentLength() const;

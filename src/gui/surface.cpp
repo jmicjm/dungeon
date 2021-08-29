@@ -80,7 +80,7 @@ namespace gui
             aspr->setPosition(position);
         }
     }
-    bool Surface::hasChanged()
+    bool Surface::hasChanged() const
     {
         Animated_sprite* aspr = std::get_if<Animated_sprite>(&surf);
         if (aspr != nullptr)

@@ -45,7 +45,7 @@ namespace gui
         redraw_required = false;
     }
 
-    bool Gauge_bar::isRedrawRequired()
+    bool Gauge_bar::isRedrawRequired() const
     {
         return redraw_required || bar_surface.hasChanged();
     }

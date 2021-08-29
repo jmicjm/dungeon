@@ -97,7 +97,7 @@ namespace gui
         redraw_required = false;
     }
 
-    bool Button::isRedrawRequired()
+    bool Button::isRedrawRequired() const
     {
         const bool surf_req = (isPressed() ? appearance.pressed : appearance.released).hasChanged();
         const bool hover_req = isHovered() ? (isPressed() ? appearance.pressed_hovered_overlay : appearance.released_hovered_overlay).hasChanged() : false;

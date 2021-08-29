@@ -49,7 +49,7 @@ namespace gui
         rtex.draw(elem_sprite);
     }
 
-    bool Gui_element::isRedrawRequired()
+    bool Gui_element::isRedrawRequired() const
     {
         return true;
     }

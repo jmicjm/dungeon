@@ -32,7 +32,7 @@ namespace gui
     public:
         using Gui_element::Gui_element;
 
-        bool isRedrawRequired() override;
+        bool isRedrawRequired() const override;
 
         void setDirection(DIRECTION dir);
 

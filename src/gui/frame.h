@@ -17,7 +17,7 @@ namespace gui
     public:
         using Gui_element::Gui_element;
 
-        bool isRedrawRequired() override;
+        bool isRedrawRequired() const override;
 
         void setAppearance(const Frame_appearance& a);
         Frame_appearance getAppearance() const;

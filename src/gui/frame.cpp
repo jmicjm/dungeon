@@ -9,7 +9,7 @@ namespace gui
         redraw_required = false;
     }
 
-    bool Frame::isRedrawRequired()
+    bool Frame::isRedrawRequired() const
     {
         return redraw_required || background.hasChanged();
     }

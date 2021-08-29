@@ -40,7 +40,7 @@ namespace gui
 
         void draw(bool update = true);
         virtual void update() {}
-        virtual bool isRedrawRequired();
+        virtual bool isRedrawRequired() const;
 
         bool isHovered() const;
 
