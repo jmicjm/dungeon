@@ -58,6 +58,7 @@ namespace gui
             resizeSpriteT(*aspr);
         }
     }
+
     void Surface::setPosition(const sf::Vector2f& position)
     {
         sf::RectangleShape* rs = std::get_if<sf::RectangleShape>(&surf);
@@ -80,16 +81,9 @@ namespace gui
             aspr->setPosition(position);
         }
     }
+
     bool Surface::hasChanged() const
     {
-        Animated_sprite* aspr = std::get_if<Animated_sprite>(&surf);
-        if (aspr != nullptr)
-        {
-            const unsigned int old_frame = aspr->getFrameIdx();
-            aspr->updateFrameIdx();
-            return old_frame != aspr->getFrameIdx();
-        }
-
-        return false;
+        return std::get_if<Animated_sprite>(&surf);
     }
 }
