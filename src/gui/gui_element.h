@@ -36,6 +36,10 @@ namespace gui
 
     public:
         Gui_element(sf::RenderWindow* rw);
+        Gui_element(const Gui_element& other);
+        Gui_element(Gui_element&& other) noexcept;
+        Gui_element& operator=(const Gui_element& other);
+        Gui_element& operator=(Gui_element&& other) noexcept;
         virtual ~Gui_element() = default;
 
         void draw(bool update = true);

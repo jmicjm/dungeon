@@ -57,6 +57,52 @@ namespace gui
     Gui_element::Gui_element(sf::RenderWindow* rw)
         : window(rw) {}
 
+    Gui_element::Gui_element(const Gui_element& other)
+        : window(other.window),
+        pos_info(other.pos_info),
+        size_info(other.size_info),
+        anchor(other.anchor),
+        anchor_pos_info(other.anchor_pos_info),
+        parent(other.parent) {}
+
+    Gui_element::Gui_element(Gui_element&& other) noexcept
+        : window(std::move(other.window)),
+        pos_info(std::move(other.pos_info)),
+        size_info(std::move(other.size_info)),
+        anchor(std::move(other.anchor)),
+        anchor_pos_info(std::move(other.anchor_pos_info)),
+        parent(std::move(other.parent)) {}
+
+    Gui_element& Gui_element::operator=(const Gui_element& other)
+    {
+        window = other.window;
+        pos_info = other.pos_info;
+        size_info = other.size_info;
+        anchor = other.anchor;
+        anchor_pos_info = other.anchor_pos_info;
+        parent = other.parent;
+
+        rtex.~RenderTexture();
+        new(&rtex) sf::RenderTexture;
+
+        return *this;
+    }
+
+    Gui_element& Gui_element::operator=(Gui_element&& other) noexcept
+    {
+        window = std::move(other.window);
+        pos_info = std::move(other.pos_info);
+        size_info = std::move(other.size_info);
+        anchor = std::move(other.anchor);
+        anchor_pos_info = std::move(other.anchor_pos_info);
+        parent = std::move(other.parent);
+
+        rtex.~RenderTexture();
+        new(&rtex) sf::RenderTexture;
+
+        return *this;
+    }
+
     void Gui_element::draw(bool u)
     {
         if (u) update();
