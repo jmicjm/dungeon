@@ -47,7 +47,7 @@ namespace gui
         setTopPosition(getTopPosition());
     }
 
-    Scroll::Scroll(sf::RenderWindow& rw) 
+    Scroll::Scroll(sf::RenderWindow* rw) 
         : Gui_element(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
     {
         top_arrow.setParent(this);

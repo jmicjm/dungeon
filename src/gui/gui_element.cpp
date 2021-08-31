@@ -12,7 +12,7 @@ namespace gui
     }
     sf::Vector2i Gui_element::getParentSize() const
     {
-        return parent ? parent->getSize() : sf::Vector2i{ window.getSize() };
+        return parent ? parent->getSize() : sf::Vector2i{ window->getSize() };
     }
     void Gui_element::updateTex()
     {
@@ -54,29 +54,29 @@ namespace gui
         return true;
     }
 
-    Gui_element::Gui_element(sf::RenderWindow& rw)
+    Gui_element::Gui_element(sf::RenderWindow* rw)
         : window(rw) {}
 
     void Gui_element::draw(bool u)
     {
         if (u) update();
 
-        const sf::View old_view = window.getView();
-        const sf::View view{ sf::FloatRect{ 0,0, window.getSize().x * 1.f, window.getSize().y * 1.f } };
-        window.setView(view);
+        const sf::View old_view = window->getView();
+        const sf::View view{ sf::FloatRect{ 0,0, window->getSize().x * 1.f, window->getSize().y * 1.f } };
+        window->setView(view);
 
         updateTex();
 
         sf::Sprite elem_sprite(rtex.getTexture());
         elem_sprite.setPosition(getGlobalPosition());
-        window.draw(elem_sprite);
+        window->draw(elem_sprite);
 
-        window.setView(old_view);
+        window->setView(old_view);
     }
 
     bool Gui_element::isHovered() const
     {
-        const sf::Vector2i mp = sf::Mouse::getPosition(window);
+        const sf::Vector2i mp = sf::Mouse::getPosition(*window);
         const sf::Vector2f tl = getGlobalPosition();
         const sf::Vector2f br = tl + sf::Vector2f{ getSize() };
         return mp.x >= tl.x && mp.x <= br.x 

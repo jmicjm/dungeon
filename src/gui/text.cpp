@@ -61,7 +61,7 @@ namespace gui
         prepareText();
     }
 
-    Text::Text(sf::RenderWindow& rw) 
+    Text::Text(sf::RenderWindow* rw) 
         : Gui_element(rw), scroll(rw)
     {
         scroll.setSizeInfo({ {16,0}, {0,1} });

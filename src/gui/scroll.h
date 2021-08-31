@@ -30,7 +30,7 @@ namespace gui
         void resizeEvent(const sf::Vector2i& size_diff) override;
 
     public:
-        Scroll(sf::RenderWindow& rw);
+        Scroll(sf::RenderWindow* rw);
 
         void update() override;
         bool isRedrawRequired() const override;

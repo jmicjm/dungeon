@@ -26,7 +26,7 @@ namespace gui
         void resizeEvent(const sf::Vector2i& size_diff) override;
 
     public:
-        Text(sf::RenderWindow& rw);
+        Text(sf::RenderWindow* rw);
 
         void update() override;
 

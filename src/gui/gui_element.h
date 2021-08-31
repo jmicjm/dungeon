@@ -11,7 +11,7 @@ namespace gui
 {
     class Gui_element
     {
-        sf::RenderWindow& window;
+        sf::RenderWindow* window;
         sf::RenderTexture rtex;
 
         Position_info pos_info;
@@ -35,7 +35,7 @@ namespace gui
         virtual void resizeEvent(const sf::Vector2i& size_diff) {}
 
     public:
-        Gui_element(sf::RenderWindow& rw);
+        Gui_element(sf::RenderWindow* rw);
         virtual ~Gui_element() = default;
 
         void draw(bool update = true);
