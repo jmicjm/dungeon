@@ -17,6 +17,8 @@ namespace gui
         sf::RenderTexture rendered_str;
         sf::Font font;
         unsigned int character_size = 24;
+        float letter_spacing = 1;
+        float line_spacing = 0;
         Scroll scroll;
 
         void linkChilds();
@@ -41,6 +43,12 @@ namespace gui
 
         void setCharacterSize(unsigned int size);
         unsigned int getCharacterSize() const;
+
+        void  setLetterSpacing(float spacing);
+        float getLetterSpacing() const;
+
+        void  setLineSpacing(float spacing);
+        float getLineSpacing() const;
 
         void setAppearance(const Text_appearance& a);
         Text_appearance getAppearance() const;

@@ -1,5 +1,10 @@
 #include "text.h"
+#include "../utils/utf8ToUtf32.h"
+
 #include <vector>
+#include <utility>
+#include <cctype>
+
 
 namespace gui
 {
@@ -11,25 +16,63 @@ namespace gui
     void Text::prepareText()
     {
         std::vector<Primitive_sprite> prepared_text;
+        const std::u32string str = utf8ToUtf32(this->str);
 
-        const sf::Texture& tex = font.getTexture(character_size);
+        const sf::Texture& tex = font.getTexture(character_size);    
 
         const unsigned int width = getSize().x - scroll.getSize().x;
         unsigned int height = 0;
 
         unsigned int line = 0;
-        unsigned int pos_in_line = 0;
-        for (const auto& c : str)
+        float pos_in_line = 0;
+        for (int i = 0; i < str.size(); i++)
         {
-            sf::Glyph glyph = font.getGlyph(c, character_size, false);
-            Primitive_sprite p_spr(&tex, glyph.textureRect);
-            if (pos_in_line + glyph.advance >= width)
+            auto moveToNextLine = [&]()
             {
                 line++;
                 pos_in_line = 0;
+            };
+
+            if (str[i] == U'\n')
+            {
+                moveToNextLine();
+                continue;
+            }            
+
+            sf::Glyph glyph = font.getGlyph(str[i], character_size, false);
+            Primitive_sprite p_spr(&tex, glyph.textureRect);
+
+            auto advance = [&](const sf::Glyph& glyph)
+            {
+                return glyph.bounds.width ? glyph.bounds.width + letter_spacing : glyph.advance;;
+            };
+            auto isWB = [](const char32_t& c)
+            {
+                return std::iscntrl(c) || std::isblank(c) || std::ispunct(c);
+            };
+            auto fitsInLine = [&]()
+            {
+                float word_width = 0;
+                for (int j = i; 
+                     j < str.size() && !isWB(str[j]) && pos_in_line + word_width <= width;
+                     j++)
+                {
+                    word_width += advance(font.getGlyph(str[j], character_size, false));
+                }
+                return pos_in_line + word_width <= width;
+            };
+
+            if (pos_in_line != 0 && ((i>0 ? isWB(str[i-1]) : true) && !fitsInLine()) || pos_in_line + advance(glyph) > width)
+            {
+                moveToNextLine();
             }
-            p_spr.move(sf::Vector2f( pos_in_line, line*character_size + character_size + glyph.bounds.top ));
-            pos_in_line += glyph.advance;
+            if (pos_in_line == 0 && std::isblank(str[i]))//skip spaces at the beginning of line
+            {
+                continue;
+            }
+
+            p_spr.move(sf::Vector2f( pos_in_line, line*(character_size+line_spacing) + character_size + glyph.bounds.top ));
+            pos_in_line += advance(glyph);
 
             height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
 
@@ -158,10 +201,32 @@ namespace gui
     {
         return character_size;
     }
+
+    void Text::setLetterSpacing(float spacing)
+    {
+        letter_spacing = spacing;
+    }
+
+    float Text::getLetterSpacing() const
+    {
+        return letter_spacing;
+    }
+
+    void Text::setLineSpacing(float spacing)
+    {
+        line_spacing = spacing;
+    }
+
+    float Text::getLineSpacing() const
+    {
+        return line_spacing;
+    }
+
     void Text::setAppearance(const Text_appearance& a)
     {
         scroll.setAppearance(a.scroll);
     }
+
     Text_appearance Text::getAppearance() const
     {
         return { scroll.getAppearance() };

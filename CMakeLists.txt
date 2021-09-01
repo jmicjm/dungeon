@@ -40,6 +40,7 @@ add_executable(dungeon
     src/input/input.cpp
     src/gui/scroll.cpp
     src/gui/text.cpp
+    src/utils/utf8ToUtf32.cpp
 )
 
 target_link_libraries(dungeon sfml-graphics)
