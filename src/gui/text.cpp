@@ -3,6 +3,11 @@
 
 namespace gui
 {
+    void Text::linkChilds()
+    {
+        scroll.setParent(this);
+    }
+
     void Text::prepareText()
     {
         std::vector<Primitive_sprite> prepared_text;
@@ -61,12 +66,64 @@ namespace gui
         prepareText();
     }
 
-    Text::Text(sf::RenderWindow* rw) 
+    Text::Text(sf::RenderWindow* rw)
         : Gui_element(rw), scroll(rw)
     {
         scroll.setSizeInfo({ {16,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
-        scroll.setParent(this);
+        linkChilds();
+    }
+
+    Text::Text(const Text& other)
+        : Gui_element(other),
+        str(other.str),
+        font(other.font),
+        character_size(other.character_size),
+        scroll(other.scroll)
+    {
+        linkChilds();
+    }
+
+    Text::Text(Text&& other) noexcept
+        : Gui_element(std::move(other)),
+        str(std::move(other.str)),
+        font(std::move(other.font)),
+        character_size(std::move(other.character_size)),
+        scroll(std::move(other.scroll))
+    {
+        linkChilds();
+    }
+
+    Text& Text::operator=(const Text& other)
+    {
+        Gui_element::operator=(other);
+        str = other.str;
+        font = other.font;
+        character_size = other.character_size;
+        scroll = other.scroll;
+
+        rendered_str.~RenderTexture();
+        new(&rendered_str) sf::RenderTexture;
+
+        linkChilds();
+
+        return *this;
+    }
+
+    Text& Text::operator=(Text&& other) noexcept
+    {
+        Gui_element::operator=(std::move(other));
+        str = std::move(other.str);
+        font = std::move(other.font);
+        character_size = std::move(other.character_size);
+        scroll = std::move(other.scroll);
+
+        rendered_str.~RenderTexture();
+        new(&rendered_str) sf::RenderTexture;
+
+        linkChilds();
+
+        return *this;
     }
 
     void Text::update()

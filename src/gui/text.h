@@ -19,14 +19,18 @@ namespace gui
         unsigned int character_size = 24;
         Scroll scroll;
 
+        void linkChilds();
         void prepareText();
 
         void redraw() override;
-
         void resizeEvent(const sf::Vector2i& size_diff) override;
 
     public:
         Text(sf::RenderWindow* rw);
+        Text(const Text& other);
+        Text(Text && other) noexcept;
+        Text& operator=(const Text& other);
+        Text& operator=(Text && other) noexcept;      
 
         void update() override;
 

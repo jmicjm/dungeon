@@ -4,7 +4,7 @@
 
 namespace gui
 {
-    void Scroll::updateHandle()
+    void Scroll_impl::updateHandle()
     {
         const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
 
@@ -17,12 +17,12 @@ namespace gui
         handle.setPositionInfo({ { 0,handle_pos } });
     }
 
-    int Scroll::visibleContentLength() const
+    int Scroll_impl::visibleContentLength() const
     {
         return visible_content_length < 0 ? getSize().y : visible_content_length;
     }
 
-    void Scroll::redraw()
+    void Scroll_impl::redraw()
     {
         draw(line);
         draw(top_arrow, false);
@@ -33,7 +33,7 @@ namespace gui
         redraw_required = false;
     }
 
-    bool Scroll::isRedrawRequired() const
+    bool Scroll_impl::isRedrawRequired() const
     {
         return redraw_required 
             || top_arrow.isRedrawRequired() 
@@ -42,22 +42,18 @@ namespace gui
             || line.isRedrawRequired();
     }
 
-    void Scroll::resizeEvent(const sf::Vector2i& size_diff)
+    void Scroll_impl::resizeEvent(const sf::Vector2i& size_diff)
     {
         setTopPosition(getTopPosition());
     }
 
-    Scroll::Scroll(sf::RenderWindow* rw) 
+    Scroll_impl::Scroll_impl(sf::RenderWindow* rw)
         : Gui_element(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
-    {
-        top_arrow.setParent(this);
-        top_arrow.setPressFunction([&]() {up(10); });
+    {        
         top_arrow.setPressDelay(std::chrono::milliseconds(0));
-        bottom_arrow.setParent(this);
-        bottom_arrow.setPressFunction([&]() {down(10); });
         bottom_arrow.setPressDelay(std::chrono::milliseconds(0));
-        handle.setParent(this);
-        line.setParent(this);
+        
+        linkChilds();
 
         top_arrow.setSizeInfo({ {0,0}, {1,0} });
         bottom_arrow.setSizeInfo({ {0,0}, {1,0} });
@@ -65,7 +61,17 @@ namespace gui
         line.setSizeInfo({ { 0,0 }, { 1,1 } });
     }
 
-    void Scroll::update()
+    void Scroll_impl::linkChilds()
+    {
+        top_arrow.setParent(this);
+        top_arrow.setPressFunction([&]() {up(10); });
+        bottom_arrow.setParent(this);
+        bottom_arrow.setPressFunction([&]() {down(10); });
+        handle.setParent(this);
+        line.setParent(this);
+    }
+
+    void Scroll_impl::update()
     {
         if (!is_holding_handle)
         {
@@ -106,50 +112,50 @@ namespace gui
 
     }
 
-    void Scroll::setContentLength(int length)
+    void Scroll_impl::setContentLength(int length)
     {
         content_length = length;
         setTopPosition(getTopPosition());
     }
 
-    int Scroll::getContentLength() const
+    int Scroll_impl::getContentLength() const
     {
         return content_length;
     }
 
-    void Scroll::setVisibleContentLength(int length)
+    void Scroll_impl::setVisibleContentLength(int length)
     {
         visible_content_length = length;
         redraw_required = true;
     }
 
-    int Scroll::getVisibleContentLength() const
+    int Scroll_impl::getVisibleContentLength() const
     {
         return visible_content_length;
     }
 
-    void Scroll::setTopPosition(int position)
+    void Scroll_impl::setTopPosition(int position)
     {
         top_position = std::clamp(position, 0, std::max(0,content_length - visibleContentLength()));
         redraw_required = true;
     }
 
-    int Scroll::getTopPosition() const
+    int Scroll_impl::getTopPosition() const
     {
         return top_position;
     }
 
-    void Scroll::up(int n)
+    void Scroll_impl::up(int n)
     {
         setTopPosition(top_position - n);
     }
 
-    void Scroll::down(int n)
+    void Scroll_impl::down(int n)
     {
         setTopPosition(top_position + n);
     }
 
-    void Scroll::setAppearance(const Scroll_appearance& a)
+    void Scroll_impl::setAppearance(const Scroll_appearance& a)
     {
         line.setAppearance(a.line);
         handle.setAppearance(a.handle);
@@ -165,7 +171,7 @@ namespace gui
         redraw_required = true;
     }
 
-    Scroll_appearance Scroll::getAppearance() const
+    Scroll_appearance Scroll_impl::getAppearance() const
     {
         Scroll_appearance a;
         a.line = line.getAppearance();
@@ -176,5 +182,37 @@ namespace gui
         a.button_percentage_height = top_arrow.getSizeInfo().percentage.y;
 
         return a;
+    }
+
+    Scroll::Scroll(sf::RenderWindow* rw) 
+        : Scroll_impl(rw) {}
+
+    Scroll::Scroll(const Scroll& other) 
+        : Scroll_impl(other)
+    {
+        linkChilds();
+    }
+
+    Scroll::Scroll(Scroll&& other) noexcept
+        : Scroll_impl(std::move(other))
+    {
+        linkChilds();
+    }
+
+    Scroll& Scroll::operator=(const Scroll& other)
+    {
+        Scroll_impl::operator=(other);
+        linkChilds();
+
+        return *this;
+    }
+
+    Scroll& Scroll::operator=(Scroll&& other) noexcept
+    {
+        Scroll_impl::operator=(std::move(other));
+        linkChilds();
+
+        return *this;
+
     }
 }

@@ -6,7 +6,7 @@
 
 namespace gui
 {
-    class Scroll : public Gui_element
+    class Scroll_impl : public Gui_element
     {
         Button top_arrow;
         Button bottom_arrow;
@@ -29,9 +29,16 @@ namespace gui
         void redraw() override;
         void resizeEvent(const sf::Vector2i& size_diff) override;
 
-    public:
-        Scroll(sf::RenderWindow* rw);
+    protected:
+        Scroll_impl(sf::RenderWindow* rw);
+        Scroll_impl(const Scroll_impl& other) = default;
+        Scroll_impl(Scroll_impl&& other) = default;
+        Scroll_impl& operator=(const Scroll_impl& other) = default;
+        Scroll_impl& operator=(Scroll_impl&& other) = default;
 
+        void linkChilds();
+
+    public:
         void update() override;
         bool isRedrawRequired() const override;
 
@@ -47,5 +54,15 @@ namespace gui
 
         void setAppearance(const Scroll_appearance& a);
         Scroll_appearance getAppearance() const;
+    };
+
+    class Scroll : public Scroll_impl
+    {
+    public:
+        Scroll(sf::RenderWindow* rw);
+        Scroll(const Scroll& other);
+        Scroll(Scroll && other) noexcept;
+        Scroll& operator=(const Scroll & other);
+        Scroll& operator=(Scroll && other) noexcept;
     };
 }
