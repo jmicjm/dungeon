@@ -13,14 +13,14 @@ namespace gui
         scroll.setParent(this);
     }
 
-    void Text::prepareText()
+    bool Text::renderText(bool with_scroll)
     {
         std::vector<Primitive_sprite> prepared_text;
         const std::u32string str = utf8ToUtf32(this->str);
 
         const sf::Texture& tex = font.getTexture(character_size);    
 
-        const unsigned int width = getSize().x - scroll.getSize().x;
+        const unsigned int width = getSize().x - with_scroll*scroll.getSize().x;
         unsigned int height = 0;
 
         unsigned int line = 0;
@@ -76,6 +76,8 @@ namespace gui
 
             height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
 
+            if (!with_scroll && height >= getSize().y) return false;
+
             prepared_text.push_back(p_spr);
         }
 
@@ -88,6 +90,13 @@ namespace gui
         rendered_str.display();
 
         scroll.setContentLength(rendered_str.getSize().y);
+
+        return true;
+    }
+
+    void Text::renderText()
+    {
+        if (!renderText(false)) renderText(true);
     }
 
     void Text::redraw()
@@ -101,12 +110,12 @@ namespace gui
         );
 
         draw(str_sprite);
-        draw(scroll);
+        if(rendered_str.getSize().y >= getSize().y) draw(scroll);     
     }
 
     void Text::resizeEvent(const sf::Vector2i& size_diff)
     {
-        prepareText();
+        renderText();
     }
 
     Text::Text(sf::RenderWindow* rw)
@@ -177,7 +186,7 @@ namespace gui
     void Text::setString(std::string str)
     {
         this->str = str;
-        prepareText();
+        renderText();
     }
 
     const std::string& Text::getString() const
@@ -188,13 +197,13 @@ namespace gui
     void Text::setFont(const std::string& filename)
     {
         font.loadFromFile(filename);
-        prepareText();
+        renderText();
     }
 
     void Text::setCharacterSize(unsigned int size)
     {
         character_size = size;
-        prepareText();
+        renderText();
     }
 
     unsigned int Text::getCharacterSize() const
@@ -205,6 +214,7 @@ namespace gui
     void Text::setLetterSpacing(float spacing)
     {
         letter_spacing = spacing;
+        renderText();
     }
 
     float Text::getLetterSpacing() const
@@ -215,6 +225,7 @@ namespace gui
     void Text::setLineSpacing(float spacing)
     {
         line_spacing = spacing;
+        renderText();
     }
 
     float Text::getLineSpacing() const

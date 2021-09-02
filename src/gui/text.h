@@ -22,7 +22,8 @@ namespace gui
         Scroll scroll;
 
         void linkChilds();
-        void prepareText();
+        bool renderText(bool with_scroll);
+        void renderText();
 
         void redraw() override;
         void resizeEvent(const sf::Vector2i& size_diff) override;
