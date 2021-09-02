@@ -121,7 +121,7 @@ namespace gui
     Text::Text(sf::RenderWindow* rw)
         : Gui_element(rw), scroll(rw)
     {
-        scroll.setSizeInfo({ {16,0}, {0,1} });
+        scroll.setSizeInfo({ {0,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
         linkChilds();
     }
@@ -236,10 +236,11 @@ namespace gui
     void Text::setAppearance(const Text_appearance& a)
     {
         scroll.setAppearance(a.scroll);
+        scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
     }
 
     Text_appearance Text::getAppearance() const
     {
-        return { scroll.getAppearance() };
+        return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
     }
 }
