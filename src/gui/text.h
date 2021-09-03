@@ -22,7 +22,7 @@ namespace gui
         Scroll scroll;
 
         void linkChilds();
-        bool renderText(bool with_scroll);
+        bool renderText(const std::u32string& str, bool with_scroll);
         void renderText();
 
         bool redraw_required = true;

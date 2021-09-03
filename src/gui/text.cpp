@@ -13,10 +13,9 @@ namespace gui
         scroll.setParent(this);
     }
 
-    bool Text::renderText(bool with_scroll)
+    bool Text::renderText(const std::u32string& str, bool with_scroll)
     {
         std::vector<Primitive_sprite> prepared_text;
-        const std::u32string str = utf8ToUtf32(this->str);
 
         const sf::Texture& tex = font.getTexture(character_size);    
 
@@ -96,7 +95,9 @@ namespace gui
 
     void Text::renderText()
     {
-        if (!renderText(false)) renderText(true);
+        const std::u32string str = utf8ToUtf32(this->str);
+
+        if (!renderText(str, false)) renderText(str, true);
     }
 
     void Text::redraw()
