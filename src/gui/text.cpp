@@ -101,6 +101,11 @@ namespace gui
 
     void Text::redraw()
     {
+        if (std::exchange(redraw_required, false))
+        {
+            renderText();
+        }
+
         sf::Sprite str_sprite(rendered_str.getTexture());
         str_sprite.setTextureRect(
             { 
@@ -111,14 +116,10 @@ namespace gui
 
         draw(str_sprite);
         if(rendered_str.getSize().y >= getSize().y) draw(scroll, false);  
-
-        redraw_required = false;
     }
 
     void Text::resizeEvent(const sf::Vector2i& size_diff)
     {
-        renderText();
-
         redraw_required = true;
     }
 
@@ -195,7 +196,6 @@ namespace gui
     void Text::setString(std::string str)
     {
         this->str = str;
-        renderText();
 
         redraw_required = true;
     }
@@ -208,7 +208,6 @@ namespace gui
     void Text::setFont(const std::string& filename)
     {
         font.loadFromFile(filename);
-        renderText();
 
         redraw_required = true;
     }
@@ -216,7 +215,6 @@ namespace gui
     void Text::setCharacterSize(unsigned int size)
     {
         character_size = size;
-        renderText();
 
         redraw_required = true;
     }
@@ -229,7 +227,6 @@ namespace gui
     void Text::setLetterSpacing(float spacing)
     {
         letter_spacing = spacing;
-        renderText();
 
         redraw_required = true;
     }
@@ -242,7 +239,6 @@ namespace gui
     void Text::setLineSpacing(float spacing)
     {
         line_spacing = spacing;
-        renderText();
 
         redraw_required = true;
     }
