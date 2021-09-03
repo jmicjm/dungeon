@@ -25,6 +25,7 @@ namespace gui
         bool renderText(bool with_scroll);
         void renderText();
 
+        bool redraw_required = true;
         void redraw() override;
         void resizeEvent(const sf::Vector2i& size_diff) override;
 
@@ -36,6 +37,7 @@ namespace gui
         Text& operator=(Text && other) noexcept;      
 
         void update() override;
+        bool isRedrawRequired() const override;
 
         void setString(std::string str);
         const std::string& getString() const;
