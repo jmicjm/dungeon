@@ -110,7 +110,7 @@ namespace gui
         );
 
         draw(str_sprite);
-        if(rendered_str.getSize().y >= getSize().y) draw(scroll);     
+        if(rendered_str.getSize().y >= getSize().y) draw(scroll, false);     
     }
 
     void Text::resizeEvent(const sf::Vector2i& size_diff)
