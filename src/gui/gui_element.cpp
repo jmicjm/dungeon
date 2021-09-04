@@ -3,10 +3,11 @@
 #include "SFML/Graphics/Sprite.hpp"
 
 #include <cmath>
+#include <algorithm>
 
 namespace gui
 {
-    sf::Vector2f Gui_element::getParentPosition() const
+    sf::Vector2f Gui_element::getParentGlobalPosition() const
     {
         return parent ? parent->getGlobalPosition() : sf::Vector2f{0,0};
     }
@@ -123,10 +124,18 @@ namespace gui
     bool Gui_element::isHovered() const
     {
         const sf::Vector2i mp = sf::Mouse::getPosition(*window);
-        const sf::Vector2f tl = getGlobalPosition();
-        const sf::Vector2f br = tl + sf::Vector2f{ getSize() };
-        return mp.x >= tl.x && mp.x <= br.x 
-            && mp.y >= tl.y && mp.y <= br.y;
+        const sf::Vector2f tl =
+        {
+            std::max(getGlobalPosition().x, getParentGlobalPosition().x),
+            std::max(getGlobalPosition().y, getParentGlobalPosition().y)
+        };
+        const sf::Vector2f br = 
+        {
+            std::min(getGlobalPosition().x + getSize().x, getParentGlobalPosition().x + getParentSize().x),
+            std::min(getGlobalPosition().y + getSize().y, getParentGlobalPosition().y + getParentSize().y)
+        };
+        return mp.x >= tl.x && mp.x < br.x 
+            && mp.y >= tl.y && mp.y < br.y;
     }
 
     sf::Vector2f Gui_element::getPosition() const
@@ -181,7 +190,7 @@ namespace gui
 
     sf::Vector2f Gui_element::getGlobalPosition() const
     {
-        return getParentPosition() + getPosition();
+        return getParentGlobalPosition() + getPosition();
     }
 
     void Gui_element::setPositionInfo(Position_info p_info)

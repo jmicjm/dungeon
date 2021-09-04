@@ -21,7 +21,7 @@ namespace gui
         Anchor_position_info anchor_pos_info;
 
         const Gui_element* parent = nullptr;
-        sf::Vector2f getParentPosition() const;
+        sf::Vector2f getParentGlobalPosition() const;
         sf::Vector2i getParentSize() const;
 
         void updateTex();
