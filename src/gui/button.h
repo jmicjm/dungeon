@@ -1,12 +1,10 @@
 #pragma once
 #include "gui_element.h"
-#include "../gfx/animated_sprite/animated_sprite.h"
+#include "button_appearance.h"
+#include "surface.h"
 
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Text.hpp"
 
-#include <variant>
 #include <functional>
 #include <chrono>
 
@@ -15,12 +13,7 @@ namespace gui
 {
     class Button : public Gui_element
     {
-        using surface_type = std::variant<sf::RectangleShape, sf::Sprite, Animated_sprite>;
-
-        surface_type pressed_surface;
-        surface_type released_surface;
-        surface_type pressed_hovered_overlay;
-        surface_type released_hovered_overlay;
+        Button_appearance appearance;
 
         sf::Text pressed_text;
         sf::Text released_text;
@@ -31,9 +24,12 @@ namespace gui
         std::chrono::milliseconds press_delay = std::chrono::milliseconds(100);
         std::chrono::steady_clock::time_point press_tp = std::chrono::steady_clock::now();
 
-        bool isLocked();
+        bool isLocked() const;
 
         bool is_pressed = false;
+        bool is_hovered = false;
+
+        bool isHovered() const;
 
     public:
         enum TYPE
@@ -43,7 +39,8 @@ namespace gui
     private:
         TYPE type = PUSH;
 
-        void drawAction() override;
+        void redraw() override;
+        bool redraw_required = true;
 
     public:
         using Gui_element::Gui_element;
@@ -51,15 +48,14 @@ namespace gui
         bool isPressed() const;
 
         void update() override;
+        bool isRedrawRequired() const override;
 
         void setType(TYPE t);
 
         void setPressDelay(const std::chrono::milliseconds& delay);
 
-        void setPressedSurface (const surface_type& surface);
-        void setReleasedSurface(const surface_type& surface);
-        void setPressedHoveredOverlay(const surface_type& surface);
-        void setReleasedHoveredOverlay(const surface_type& surface);
+        void setAppearance(const Button_appearance& a);
+        Button_appearance getAppearance() const;
 
         void setPressedText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);

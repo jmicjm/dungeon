@@ -24,6 +24,7 @@ add_executable(dungeon
     src/gfx/view_range_overlay.cpp
     src/gfx/utils/setQuad.cpp
     src/gfx/utils/mergeTexture.cpp
+    src/gfx/utils/visibleAreaBounds.cpp
     src/level/level.cpp
     src/level/level_structure.cpp
     src/level/tile_reveal_mask.cpp
@@ -35,8 +36,14 @@ add_executable(dungeon
     src/entities/entity.cpp
     src/entities/player.cpp
     src/gui/gui_element.cpp 
-    src/gui/button.cpp 
-    src/gfx/utils/visibleAreaBounds.cpp
+    src/gui/surface.cpp
+    src/gui/button.cpp   
+    src/gui/gauge_bar.cpp
+    src/gui/frame.cpp  
+    src/gui/scroll.cpp
+    src/gui/text.cpp
+    src/input/input.cpp
+    src/utils/utf8ToUtf32.cpp   
 )
 
 target_link_libraries(dungeon sfml-graphics)

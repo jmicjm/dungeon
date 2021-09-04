@@ -1,31 +1,77 @@
 #pragma once
 #include "position_info.h"
-#include "SFML/Graphics/Drawable.hpp"
+#include "size_info.h"
+#include "anchor_position_info.h"
+
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
+
+#include <functional>
 
 namespace gui
 {
     class Gui_element
     {
-        Position_info pos_info;
-        sf::Vector2f size;   
-    protected:
-        sf::RenderWindow& window;
+        sf::RenderWindow* window;
+        sf::RenderTexture rtex;
 
-        virtual void drawAction() = 0;
+        Position_info pos_info;
+        Size_info size_info;   
+
+        const Gui_element* anchor = nullptr;
+        Anchor_position_info anchor_pos_info;
+
+        const Gui_element* parent = nullptr;
+        sf::Vector2f getParentGlobalPosition() const;
+        sf::Vector2i getParentSize() const;
+
+        std::function<sf::Vector2f()> pos_function;
+        std::function<sf::Vector2i()> size_function;
+
+        void updateTex();
+
+    protected:       
+        void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
+        void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
+        void draw(Gui_element& element, bool u = true);
+        virtual void redraw() = 0;
+
+        virtual void resizeEvent(const sf::Vector2i& size_diff) {}
 
     public:
-        Gui_element(sf::RenderWindow& rw);
+        Gui_element(sf::RenderWindow* rw);
+        Gui_element(const Gui_element& other);
+        Gui_element(Gui_element&& other) noexcept;
+        Gui_element& operator=(const Gui_element& other);
+        Gui_element& operator=(Gui_element&& other) noexcept;
+        virtual ~Gui_element() = default;
 
         void draw(bool update = true);
         virtual void update() {}
+        virtual bool isRedrawRequired() const;
 
         bool isHovered() const;
 
-        sf::Vector2f getPosition() const;
-        void setPositionInfo(const Position_info& p_info);
+        void setPositionInfo(Position_info p_info);
         Position_info getPositionInfo() const;
-        void setSize(const sf::Vector2f& s);
-        sf::Vector2f getSize() const;
+        sf::Vector2f getPosition() const;
+        sf::Vector2f getGlobalPosition() const;
+
+        void setSizeInfo(Size_info s_info);
+        Size_info getSizeInfo() const;
+        sf::Vector2i getSize() const;
+
+        void setAnchor(const Gui_element* a);
+        const Gui_element* getAnchor() const;
+        void setAnchorPositionInfo(Anchor_position_info a_info);
+        Anchor_position_info getAnchorPositionInfo() const;
+
+        void setParent(const Gui_element* p);
+        const Gui_element* getParent() const;
+
+        void setPositionFunction(std::function<sf::Vector2f()> func);
+        std::function<sf::Vector2f()> getPositionFunction() const;
+        void setSizeFunction(std::function<sf::Vector2i()> func);
+        std::function<sf::Vector2i()> getSizeFunction() const;
     };
 }
