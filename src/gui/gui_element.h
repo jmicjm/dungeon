@@ -6,6 +6,7 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
 
+#include <functional>
 
 namespace gui
 {
@@ -23,6 +24,9 @@ namespace gui
         const Gui_element* parent = nullptr;
         sf::Vector2f getParentGlobalPosition() const;
         sf::Vector2i getParentSize() const;
+
+        std::function<sf::Vector2f()> pos_function;
+        std::function<sf::Vector2i()> size_function;
 
         void updateTex();
 
@@ -64,5 +68,10 @@ namespace gui
 
         void setParent(const Gui_element* p);
         const Gui_element* getParent() const;
+
+        void setPositionFunction(std::function<sf::Vector2f()> func);
+        std::function<sf::Vector2f()> getPositionFunction() const;
+        void setSizeFunction(std::function<sf::Vector2i()> func);
+        std::function<sf::Vector2i()> getSizeFunction() const;
     };
 }

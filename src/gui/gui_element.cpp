@@ -140,19 +140,11 @@ namespace gui
 
     sf::Vector2f Gui_element::getPosition() const
     {
-        if (!anchor)
+        if (pos_function)
         {
-            const sf::Vector2i ps = getParentSize();
-            const auto& [off, poff, rel] = pos_info;
-            const sf::Vector2f pos =
-            {
-                off.x + poff.x * ps.x + ps.x * rel.x - getSize().x * rel.x,
-                off.y + poff.y * ps.y + ps.y * rel.y - getSize().y * rel.y
-            };
-
-            return pos;
+            return pos_function();
         }
-        else
+        else if (anchor)
         {
             const auto& [side, offset, relative_to] = anchor_pos_info;
 
@@ -186,6 +178,18 @@ namespace gui
 
             return pos;
         }
+        else
+        {
+            const sf::Vector2i ps = getParentSize();
+            const auto& [off, poff, rel] = pos_info;
+            const sf::Vector2f pos =
+            {
+                off.x + poff.x * ps.x + ps.x * rel.x - getSize().x * rel.x,
+                off.y + poff.y * ps.y + ps.y * rel.y - getSize().y * rel.y
+            };
+
+            return pos;
+        }
     }
 
     sf::Vector2f Gui_element::getGlobalPosition() const
@@ -215,10 +219,23 @@ namespace gui
 
     sf::Vector2i Gui_element::getSize() const
     {
-        const auto& p = size_info.percentage;
-        const auto  s = getParentSize();
-        return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x)),
-                 static_cast<int>(std::round(size_info.fixed.y + s.y * p.y)) };
+        const sf::Vector2i size = [&]() -> sf::Vector2i
+        {
+            if (size_function)
+            {
+                return size_function();
+            }
+            else
+            {
+                const auto& p = size_info.percentage;
+                const auto  s = getParentSize();
+                return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x)),
+                         static_cast<int>(std::round(size_info.fixed.y + s.y * p.y)) };
+            }
+        }();
+
+        return { std::max(0, size.x),
+                 std::max(0, size.y) };
     }
 
     void Gui_element::setAnchor(const Gui_element* a)
@@ -247,5 +264,21 @@ namespace gui
     const Gui_element* Gui_element::getParent() const
     {
         return parent;
+    }
+    void Gui_element::setPositionFunction(std::function<sf::Vector2f()> func)
+    {
+        pos_function = func;
+    }
+    std::function<sf::Vector2f()> Gui_element::getPositionFunction() const
+    {
+        return pos_function;
+    }
+    void Gui_element::setSizeFunction(std::function<sf::Vector2i()> func)
+    {
+        size_function = func;
+    }
+    std::function<sf::Vector2i()> Gui_element::getSizeFunction() const
+    {
+        return size_function;
     }
 }
