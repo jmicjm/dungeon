@@ -11,16 +11,13 @@
 
 #include "entities/player.h"
 #include "gfx/view_follower.h"
-#include "gfx/view_range_overlay.h"
 
-#include "utils/quadtree.h"
 
-#include "gui/button.h"
 
 int main()
 {
     Gen_params g_params;
-    g_params.level_size = { 50, 50 };
+    g_params.level_size = { 500, 500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
     g_params.min_hallway_segment_length = 2;
@@ -35,11 +32,11 @@ int main()
     level.create({ {64,64}, {30,30}, g_params });
 
 
-    sf::RenderWindow window(sf::VideoMode(1600, 901), "");
+    sf::RenderWindow window(sf::VideoMode(1600, 900), "");
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(75);
 
-    sf::View view(sf::FloatRect(0, 0, 1600, 901));
+    sf::View view(sf::FloatRect(0, 0, 1600, 900));
     float zoom = 1;
     float camera_velocity = 10;
 
@@ -55,10 +52,12 @@ int main()
     auto anim_red = anim;
     anim_red.setColor({ 255,0,0,255 });
 
-    Player player(&level, { level.ls.getRoomRect(0).tl.x,  level.ls.getRoomRect(0).tl.y }, anim);
+    std::shared_ptr<Player> player = std::make_shared<Player>(&level, sf::Vector2i{ level.structure.getRoomRect(0).tl.x,  level.structure.getRoomRect(0).tl.y }, anim);
+
+    auto pptr = level.entities.insert({player->getPosition(), std::static_pointer_cast<Entity>(player) });
 
     View_follower vf;
-    vf.target_position = [&]() {return sf::Vector2f(player.getPosition()) * 64.f + sf::Vector2f(32,0); };
+    vf.target_position = [&]() {return sf::Vector2f(player->getPosition()) * 64.f + sf::Vector2f(32,0); };
     vf.velocity = 300;
     vf.view = &view;
     vf.edge_dst = 64*3+32;
@@ -68,31 +67,6 @@ int main()
 
     vf_instant.followCenter();
 
-    gui::Button bt(window);
-    bt.setSize({ 100,100 });
-    bt.setPositionInfo({ {0,0}, {100,100} });
-
-    sf::RectangleShape rs;
-    rs.setFillColor({ 255,255,255,64 });
-
-    bt.setReleasedSurface(anim);
-    bt.setPressedSurface(anim_red);
-    bt.setPressedHoveredOverlay(rs);
-    bt.setReleasedHoveredOverlay(rs);
-    bt.setPressFunction([]() {std::cout << "PRESSED\n"; });
-    bt.setReleaseFunction([]() {std::cout << "RELEASED\n"; });
-    bt.setType(gui::Button::SWITCH);
-    sf::Font font;
-    font.loadFromFile("arial.ttf");
-    sf::Text pressed_text;
-    pressed_text.setFont(font);
-    pressed_text.setString("ON");
-    sf::Text released_text = pressed_text;
-    released_text.setString("OFF");
-    bt.setPressedText(pressed_text);
-    bt.setReleasedText(released_text);
-
-    View_range_overlay view_range;
 
     std::chrono::steady_clock::time_point lt = std::chrono::steady_clock::now();
     while (window.isOpen())
@@ -114,10 +88,6 @@ int main()
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::F5))
-        {
-            level.create({ {64,64}, {30,30}, g_params });
-        }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
         {
             view.move(0, -camera_velocity*zoom);
@@ -141,7 +111,18 @@ int main()
 
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool move = (t - lt) >= std::chrono::milliseconds(200);
-        player.updateState(move);
+
+
+        sf::Vector2i pold = player->getPosition();
+        if(move) player->updateState(true);
+        if (move) lt = t;
+        if (pold != player->getPosition())
+        {
+            level.entities.erase(pptr);
+            pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
+        }
+        level.door_controller.update(window.getView());
+
         vf.follow();
         vf_instant.follow();
 
@@ -149,24 +130,22 @@ int main()
         sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
         display_view.setCenter(tl+ view.getSize()/2.f);
         window.setView(display_view);
-
-        window.draw(level.tmap);
-        window.draw(player);
-        if (move) lt = t;
-
-        auto v_tiles = player.getVisibleTiles();
-        level.reveal_mask.reveal(v_tiles);
-        view_range.update(level, v_tiles, level.reveal_mask, window);
-        window.draw(view_range);
-
         
+        
+        auto v_tiles = player->getVisibleTiles();
+        std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> vt;
+        for (auto& i : v_tiles)
+        {
+            vt.push_back({i.first, i.second});
+        }
 
-        bt.draw(true);
+        level.reveal_mask.reveal(vt);
+        level.view_range_overlay.update(level, vt, level.reveal_mask, window);
 
-       // std::cout << "pressed: " << bt.isPressed() << '\n';
+        window.draw(level);
 
 
         window.display();
     }
-    level.ls.printToFile("mapa.txt");
+    level.structure.printToFile("mapa.txt");
 }

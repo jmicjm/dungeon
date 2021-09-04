@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-void Level_structure::setSize(const Vec2i size)
+void Level_structure::setSize(const sf::Vector2i& size)
 {
     tiles.resize(size.x);
     for (auto& i : tiles)
@@ -10,22 +10,22 @@ void Level_structure::setSize(const Vec2i size)
         i.resize(size.y);
     }
 }
-Vec2i Level_structure::getSize() const 
+sf::Vector2i Level_structure::getSize() const
 {
-    return tiles.size() > 0 ? Vec2i{ (int)tiles.size(), (int)tiles[0].size() } : Vec2i{ 0, 0 }; 
+    return tiles.size() > 0 ? sf::Vector2i{ (int)tiles.size(), (int)tiles[0].size() } : sf::Vector2i{ 0, 0 };
 }
 
-Tile& Level_structure::at(const Vec2i pos) 
+Tile& Level_structure::at(const sf::Vector2i& pos)
 {
     return tiles[pos.x][pos.y]; 
 }
 
-const Tile& Level_structure::at(const Vec2i pos) const
+const Tile& Level_structure::at(const sf::Vector2i& pos) const
 {
     return tiles[pos.x][pos.y];
 }
 
-bool Level_structure::isPositionValid(const Vec2i pos) const
+bool Level_structure::isPositionValid(const sf::Vector2i& pos) const
 {
     return pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x&& pos.y < getSize().y;
 }
@@ -35,7 +35,7 @@ size_t Level_structure::roomCount() const
     return room_rects.size();
 }
 
-Rect_i Level_structure::getRoomRect(size_t room_idx) const
+Rect<sf::Vector2i> Level_structure::getRoomRect(size_t room_idx) const
 {
     return room_rects[room_idx];
 }

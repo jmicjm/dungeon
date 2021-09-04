@@ -1,10 +1,11 @@
 #pragma once
-#include "../level/level.h"
+#include "../level/level.fwd.h"
 #include "../level/tile_reveal_mask.h"
 #include "../level/tile_visibility_info.h"
 #include "../level/tile_sprite_id_enum.h"
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 
 #include <map>
 
@@ -18,9 +19,8 @@ class View_range_overlay : public sf::Drawable
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-    void drawTileOverlay(const sf::Vector2i& position, 
-                         const Tile& tile, 
-                         const sf::Vector2i& tile_size,
+    void drawTileOverlay(const Level& l,
+                         const sf::Vector2i& position,
                          const Tile_visibility_info tvi);
 
 public:

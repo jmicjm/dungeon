@@ -1,6 +1,10 @@
 #include "level_structure_generator.h"
 #include "../utils/rand.h"
 
+#include <algorithm>
+#include <random>
+
+
 void Level_structure_generator::fill(const Tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -12,7 +16,7 @@ void Level_structure_generator::fill(const Tile t)
     }
 }
 
-void Level_structure_generator::setTiles(const Rect_i r, const TILE_TYPE Tile)
+void Level_structure_generator::setTiles(const Rect_i& r, const TILE_TYPE Tile)
 {
     for (int x = r.tl.x; x<= r.br.x;x++)
     {
@@ -26,13 +30,26 @@ void Level_structure_generator::setTiles(const Rect_i r, const TILE_TYPE Tile)
     }
 }
 
-bool Level_structure_generator::generateHallway(const Vec2i start_p)
+bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
 {
     enum class DIRECTION
     {
         LEFT, RIGHT, UP, DOWN
     };
-
+    auto advance = [](sf::Vector2i pos, const DIRECTION dir)
+    {
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+            return pos + sf::Vector2i{ -1, 0 };
+        case DIRECTION::UP:
+            return pos + sf::Vector2i{  0,-1 };
+        case DIRECTION::RIGHT:
+            return pos + sf::Vector2i{  1, 0 };
+        case DIRECTION::DOWN:
+            return pos + sf::Vector2i{  0, 1 };
+        }
+    };
     auto oppositeDir = [](const DIRECTION dir)
     {
         switch (dir)
@@ -47,7 +64,7 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
             return DIRECTION::UP;
         }
     };
-    auto randomDir = [&](const DIRECTION dir, const Vec2i pos)
+    auto randomDir = [&](const DIRECTION dir, const sf::Vector2i& pos)
     {
         std::vector<DIRECTION> dirs = { DIRECTION::LEFT, DIRECTION::UP, DIRECTION::RIGHT, DIRECTION::DOWN };
         auto remDir = [&](const DIRECTION dir)
@@ -63,15 +80,15 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
         remDir(oppositeDir(dir));
 
         if (pos.x >= ls->getSize().x - 2) { remDir(DIRECTION::RIGHT); }
-        if (pos.x <= 1) { remDir(DIRECTION::LEFT); }
-        if (pos.y >= ls->getSize().y - 2) { remDir(DIRECTION::DOWN); }
-        if (pos.y <= 1) { remDir(DIRECTION::UP); }
+        if (pos.x <= 1)                   { remDir(DIRECTION::LEFT);  }
+        if (pos.y >= ls->getSize().y - 2) { remDir(DIRECTION::DOWN);  }
+        if (pos.y <= 1)                   { remDir(DIRECTION::UP);    }
 
         return dirs[rand(0, dirs.size() - 1)];
     };
     auto initDir = [&]()
     {
-        auto TileCheck = [&](const Vec2i pos, const auto& cmp)
+        auto TileCheck = [&](const sf::Vector2i& pos, const auto& cmp)
         {
             return ls->isPositionValid(pos) && cmp(ls->at(pos).type);
         };
@@ -80,46 +97,69 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
         {
             auto r_cmp = [](const TILE_TYPE ttype) {return ttype == TILE_TYPE::ROOM; };
 
-            if (TileCheck(start_p + Vec2i{ -1,  0 }, r_cmp)) { return DIRECTION::RIGHT; }
-            if (TileCheck(start_p + Vec2i{  1,  0 }, r_cmp)) { return DIRECTION::LEFT;  }
-            if (TileCheck(start_p + Vec2i{  0, -1 }, r_cmp)) { return DIRECTION::DOWN;  }
-            if (TileCheck(start_p + Vec2i{  0,  1 }, r_cmp)) { return DIRECTION::UP;    }
+            if (TileCheck(start_p + sf::Vector2i{ -1,  0 }, r_cmp)) { return DIRECTION::RIGHT; }
+            if (TileCheck(start_p + sf::Vector2i{  1,  0 }, r_cmp)) { return DIRECTION::LEFT;  }
+            if (TileCheck(start_p + sf::Vector2i{  0, -1 }, r_cmp)) { return DIRECTION::DOWN;  }
+            if (TileCheck(start_p + sf::Vector2i{  0,  1 }, r_cmp)) { return DIRECTION::UP;    }
         }
         else
         {
             auto w_cmp = [](const TILE_TYPE ttype) {return ttype != TILE_TYPE::WALL; };
 
-            if (TileCheck(start_p + Vec2i{ -1,  0 }, w_cmp)) { return DIRECTION::RIGHT; }
-            if (TileCheck(start_p + Vec2i{  1,  0 }, w_cmp)) { return DIRECTION::LEFT;  }
-            if (TileCheck(start_p + Vec2i{  0, -1 }, w_cmp)) { return DIRECTION::DOWN;  }
-            if (TileCheck(start_p + Vec2i{  0,  1 }, w_cmp)) { return DIRECTION::UP;    }
+            if (TileCheck(start_p + sf::Vector2i{ -1,  0 }, w_cmp)) { return DIRECTION::RIGHT; }
+            if (TileCheck(start_p + sf::Vector2i{  1,  0 }, w_cmp)) { return DIRECTION::LEFT;  }
+            if (TileCheck(start_p + sf::Vector2i{  0, -1 }, w_cmp)) { return DIRECTION::DOWN;  }
+            if (TileCheck(start_p + sf::Vector2i{  0,  1 }, w_cmp)) { return DIRECTION::UP;    }
         }
 
         return DIRECTION::UP;
     };
-
-    auto sideTileCount = [&](const Vec2i pos, const DIRECTION dir, const TILE_TYPE ttype)
+    auto sideTileCount = [&](const sf::Vector2i& pos, const DIRECTION dir, const TILE_TYPE ttype)
     {
         switch (dir)
         {
         case DIRECTION::LEFT:
         case DIRECTION::RIGHT:
         {
-            const Vec2i t = pos + Vec2i{ 0,-1 };
-            const Vec2i b = pos + Vec2i{ 0, 1 };
-            return TileCount({ t,t }, ttype) + TileCount({ b, b }, ttype);
+            const sf::Vector2i t = pos + sf::Vector2i{ 0,-1 };
+            const sf::Vector2i b = pos + sf::Vector2i{ 0, 1 };
+            return tileCount({ t,t }, ttype) + tileCount({ b, b }, ttype);
         }
         case DIRECTION::UP:
         case DIRECTION::DOWN:
         {
-            const Vec2i l = pos + Vec2i{ -1,0 };
-            const Vec2i r = pos + Vec2i{  1,0 };
-            return TileCount({ l,l }, ttype) + TileCount({ r, r }, ttype);
+            const sf::Vector2i l = pos + sf::Vector2i{ -1,0 };
+            const sf::Vector2i r = pos + sf::Vector2i{  1,0 };
+            return tileCount({ l,l }, ttype) + tileCount({ r, r }, ttype);
         }
+        }
+    };
+    auto isTouchingCorner = [&](const sf::Vector2i& pos, const DIRECTION dir)
+    {
+        const sf::Vector2i tlp = pos + sf::Vector2i{ -1,-1 };
+        const sf::Vector2i trp = pos + sf::Vector2i{  1,-1 };
+        const sf::Vector2i blp = pos + sf::Vector2i{ -1, 1 };
+        const sf::Vector2i brp = pos + sf::Vector2i{  1, 1 };
+        const bool tl = tileCount({ tlp,tlp }, TILE_TYPE::WALL) == 0;
+        const bool tr = tileCount({ trp,trp }, TILE_TYPE::WALL) == 0;
+        const bool bl = tileCount({ blp,blp }, TILE_TYPE::WALL) == 0;
+        const bool br = tileCount({ brp,brp }, TILE_TYPE::WALL) == 0;
+
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+            return tl || bl;
+        case DIRECTION::UP:
+            return tl || tr;
+        case DIRECTION::RIGHT:
+            return tr || br;
+        case DIRECTION::DOWN:
+            return bl || br;
         }
     };
 
     DIRECTION dir = initDir();//direction opposite to adjacent room/hallway
+    DIRECTION prev_dir = dir;
 
     if (   ls->at(start_p).type != TILE_TYPE::WALL
         || adjacentTileCount(start_p, AXIS, TILE_TYPE::DOORWAY) > 0
@@ -132,11 +172,20 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
         return false;
     }
 
-    Vec2i curr_pos = start_p;
-    Vec2i prev_pos = start_p;
-    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count)-1;
+    sf::Vector2i curr_pos = start_p;
+    sf::Vector2i prev_pos = start_p;
+
+    std::vector<sf::Vector2i> modified_tiles;
+    auto undoHallway = [&]()
+    {
+        for (const auto& tile_pos : modified_tiles)
+        {
+            ls->at(tile_pos).type = TILE_TYPE::WALL;
+        }
+    };
 
     unsigned int total_len = 0;
+    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count) - 1;
     for (int seg = m_segment_count; seg >= 0; seg--)
     {
         const unsigned int m_seg_len = rand(params.min_hallway_segment_length, params.max_hallway_segment_length);
@@ -158,27 +207,37 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
                     {
                         ls->at(curr_pos).type = TILE_TYPE::HALLWAY;
                     }
+                    modified_tiles.push_back(curr_pos);
+
+                    //undo in case of three-way doors
+                    if (ls->at(advance(curr_pos, prev_dir)).type == TILE_TYPE::DOORWAY)
+                    {
+                        undoHallway();
+                        return false;
+                    }
                     
+                    //room or another hallway reached
                     if(adjacentTileCount(curr_pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(curr_pos, AXIS)-1)
                     {
                        return true;
                     }
 
-                    prev_pos = curr_pos;
-                    switch (dir)
+                    /*
+                    undo in case like: 
+                    RR__
+                    RR__
+                    __CH
+                    where R-room, H-hallway, C-curr_pos
+                    */
+                    if (isTouchingCorner(curr_pos, prev_dir))
                     {
-                    case DIRECTION::LEFT:
-                        curr_pos.x--;
-                        break;
-                    case DIRECTION::UP:
-                        curr_pos.y--;
-                        break;
-                    case DIRECTION::RIGHT:
-                        curr_pos.x++;
-                        break;
-                    case DIRECTION::DOWN:
-                        curr_pos.y++;
+                        undoHallway();
+                        return false;
                     }
+
+                    prev_dir = dir;
+                    prev_pos = curr_pos;
+                    curr_pos = advance(curr_pos, dir);
                 }
                 else return true;
             }
@@ -206,7 +265,7 @@ bool Level_structure_generator::generateHallway(const Vec2i start_p)
     }
 }
 
-bool Level_structure_generator::generateRoom(const Vec2i start_p)
+bool Level_structure_generator::generateRoom(const sf::Vector2i& start_p)
 {
     if(    ls->at(start_p).type != TILE_TYPE::WALL
         || adjacentTileCount(start_p, AXIS|DIAG, TILE_TYPE::ROOM) > 0)
@@ -215,7 +274,7 @@ bool Level_structure_generator::generateRoom(const Vec2i start_p)
     }
 
     Rect_i r = { start_p,start_p };
-    const Vec2i max_size = 
+    const sf::Vector2i max_size =
     { 
         rand(params.min_room_size.x, params.max_room_size.x),
         rand(params.min_room_size.y, params.max_room_size.y) 
@@ -229,21 +288,21 @@ bool Level_structure_generator::generateRoom(const Vec2i start_p)
     while (   (left_expansion_possible || right_expansion_possible ) && r.size().x < max_size.x
            || (top_expansion_possible  || bottom_expansion_possible) && r.size().y < max_size.y)
     {
-        auto expansionCheck = [&](const Rect_i scan_area)
+        auto expansionCheck = [&](const Rect_i& scan_area)
         {
-            return !(TileCount(scan_area, TILE_TYPE::WALL) < TileCount(scan_area));
+            return !(tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area));
         };
 
-        left_expansion_possible = r.tl.x > 1 && expansionCheck({ r.tl + Vec2i{-2,-1}, r.tl + Vec2i{-1,r.size().y} });
+        left_expansion_possible = r.tl.x > 1 && expansionCheck({ r.tl + sf::Vector2i{-2,-1}, r.tl + sf::Vector2i{-1,r.size().y} });
         if (left_expansion_possible && r.size().x < max_size.x) { r.tl.x--; }
 
-        top_expansion_possible = r.tl.y > 1 && expansionCheck({ r.tl + Vec2i{-1,-2}, r.tl + Vec2i{r.size().x,-1} });
+        top_expansion_possible = r.tl.y > 1 && expansionCheck({ r.tl + sf::Vector2i{-1,-2}, r.tl + sf::Vector2i{r.size().x,-1} });
         if (top_expansion_possible && r.size().y < max_size.y) { r.tl.y--; }
 
-        right_expansion_possible = r.br.x < ls->getSize().x-2 && expansionCheck({ r.br + Vec2i{1,-r.size().y}, r.br + Vec2i{2,1} });
+        right_expansion_possible = r.br.x < ls->getSize().x-2 && expansionCheck({ r.br + sf::Vector2i{1,-r.size().y}, r.br + sf::Vector2i{2,1} });
         if (right_expansion_possible && r.size().x < max_size.x) { r.br.x++; }
 
-        bottom_expansion_possible = r.br.y < ls->getSize().y-2 && expansionCheck({ r.br + Vec2i{-r.size().x, 1}, r.br + Vec2i{1,2} });
+        bottom_expansion_possible = r.br.y < ls->getSize().y-2 && expansionCheck({ r.br + sf::Vector2i{-r.size().x, 1}, r.br + sf::Vector2i{1,2} });
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
     }
 
@@ -260,21 +319,21 @@ bool Level_structure_generator::generateRoom(const Vec2i start_p)
 
 void Level_structure_generator::fillEmptyAreas()
 {
-    Vec2i tl = (ls->getSize() - params.max_empty_area_size) / 2;
-    Vec2i br = tl;
+    sf::Vector2i tl = (ls->getSize() - params.max_empty_area_size) / 2;
+    sf::Vector2i br = tl;
 
-    auto fill = [&](const Vec2i p)
+    auto fill = [&](const sf::Vector2i& p)
     {
         const Rect_i check_area = { p, p + params.max_empty_area_size };
 
-        while (TileCount(check_area, TILE_TYPE::WALL) == TileCount(check_area))
+        while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
         {
             fillEmptyArea(check_area);
         }
     };
 
-    const Vec2i min_p = Vec2i{ 1, 1 };
-    const Vec2i max_p = ls->getSize() - params.max_empty_area_size - Vec2i{ 2,2 };
+    const sf::Vector2i min_p = { 1, 1 };
+    const sf::Vector2i max_p = ls->getSize() - params.max_empty_area_size - sf::Vector2i{ 2,2 };
 
     while (tl != min_p || br != max_p)
     { 
@@ -304,7 +363,7 @@ void Level_structure_generator::fillEmptyAreas()
 
 void Level_structure_generator::fillEmptyArea(Rect_i area)
 {
-    auto tryGen = [&](const Vec2i pos)
+    auto tryGen = [&](const sf::Vector2i& pos)
     {
         if (adjacentTileCount(pos, AXIS, TILE_TYPE::WALL) < adjacentTileCount(pos, AXIS))
         {
@@ -313,28 +372,37 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
         return false;
     };
 
-    bool try_left   = true;
-    bool try_top    = true;
-    bool try_right  = true;
-    bool try_bottom = true;
-
-    const Vec2i min_p = Vec2i{ 1, 1 };
-    const Vec2i max_p = ls->getSize() - Vec2i{ 2,2 };
+    const sf::Vector2i min_p = { 1, 1 };
+    const sf::Vector2i max_p = ls->getSize() - sf::Vector2i{ 2,2 };
 
     while (area != Rect_i{ min_p, max_p })
     {
+        std::vector<sf::Vector2i> to_try;
+        to_try.reserve(
+              std::max(0, 2 * (area.br.x - area.tl.x    )) 
+            + std::max(0, 2 * (area.br.y - area.tl.y - 2))
+        );
+
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
-            if (try_top    && tryGen({ x, area.tl.y })) return; 
-            if (try_bottom && tryGen({ x, area.br.y })) return; 
+            to_try.push_back({ x, area.tl.y });
+            to_try.push_back({ x, area.br.y });
         }
-        for (int y = area.tl.y; y <= area.br.y; y++)
+        for (int y = area.tl.y+1; y <= area.br.y-1; y++)
         {
-            if (try_left   && tryGen({ area.tl.x, y })) return; 
-            if (try_right  && tryGen({ area.br.x, y })) return;
+            to_try.push_back({ area.tl.x, y });
+            to_try.push_back({ area.br.x, y });
         }
 
-        const Rect_i old_area = area;
+        static std::random_device dev;
+        static std::mt19937 rng(dev());
+        std::shuffle(to_try.begin(), to_try.end(), rng);
+
+        for (const auto& pos : to_try)
+        {
+            if (tryGen(pos)) return;
+        }
+
         area =
         {
             {
@@ -346,11 +414,6 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
             std::min(max_p.y, area.br.y + 1)
             }
         };
-
-        try_left   = old_area.tl.x != area.tl.x;
-        try_top    = old_area.tl.y != area.tl.y;
-        try_right  = old_area.br.x != area.br.x;
-        try_bottom = old_area.br.y != area.br.y;
     }
 }
 
@@ -369,7 +432,7 @@ void Level_structure_generator::generate(Level_structure& l, Gen_params p)
 }
 
 template<typename T>
-unsigned int Level_structure_generator::TileCount(Rect_i r, const T& pred)
+unsigned int Level_structure_generator::tileCount(Rect_i r, const T& pred)
 {
     clipRectToLevelSize(r);
 
@@ -384,21 +447,21 @@ unsigned int Level_structure_generator::TileCount(Rect_i r, const T& pred)
     return c;
 }
 
-unsigned int Level_structure_generator::TileCount(Rect_i r)
+unsigned int Level_structure_generator::tileCount(Rect_i r)
 {
     clipRectToLevelSize(r);
 
     return r.size().x * r.size().y;
 }
 
-unsigned int Level_structure_generator::TileCount(const Rect_i r, const TILE_TYPE ttype)
+unsigned int Level_structure_generator::tileCount(Rect_i r, const TILE_TYPE ttype)
 {
-    auto pred = [&](const Vec2i p)
+    auto pred = [&](const sf::Vector2i& p)
     {
         return ls->at(p).type == ttype;
     };
 
-    return TileCount(r, pred);
+    return tileCount(r, pred);
 }
 
 void Level_structure_generator::clipRectToLevelSize(Rect_i& r)
@@ -417,31 +480,31 @@ void Level_structure_generator::clipRectToLevelSize(Rect_i& r)
 }
 
 template<typename T>
-unsigned int Level_structure_generator::adjacentTileCount(const Vec2i pos, const uint8_t area, const T& pred)
+unsigned int Level_structure_generator::adjacentTileCount(const sf::Vector2i& pos, const uint8_t area, const T& pred)
 {
     unsigned int c = 0;
 
     if (area & AXIS)
     {
-        c += pred(pos + Vec2i{ -1, 0 })
-           + pred(pos + Vec2i{  1, 0 })
-           + pred(pos + Vec2i{  0,-1 })
-           + pred(pos + Vec2i{  0, 1 });
+        c += pred(pos + sf::Vector2i{ -1, 0 })
+           + pred(pos + sf::Vector2i{  1, 0 })
+           + pred(pos + sf::Vector2i{  0,-1 })
+           + pred(pos + sf::Vector2i{  0, 1 });
     }
     if (area & DIAG)
     {
-        c += pred(pos + Vec2i{ -1,-1 })
-           + pred(pos + Vec2i{  1,-1 })
-           + pred(pos + Vec2i{  1, 1 })
-           + pred(pos + Vec2i{ -1, 1 });
+        c += pred(pos + sf::Vector2i{ -1,-1 })
+           + pred(pos + sf::Vector2i{  1,-1 })
+           + pred(pos + sf::Vector2i{  1, 1 })
+           + pred(pos + sf::Vector2i{ -1, 1 });
     }
 
     return c;
 }
 
-unsigned int Level_structure_generator::adjacentTileCount(const Vec2i pos, const uint8_t area)
+unsigned int Level_structure_generator::adjacentTileCount(const sf::Vector2i& pos, const uint8_t area)
 {
-    auto pred = [&](const Vec2i p)
+    auto pred = [&](const sf::Vector2i& p)
     {
         return ls->isPositionValid(p);
     };
@@ -449,9 +512,9 @@ unsigned int Level_structure_generator::adjacentTileCount(const Vec2i pos, const
     return adjacentTileCount(pos, area, pred);
 }
 
-unsigned int Level_structure_generator::adjacentTileCount(const Vec2i pos, const uint8_t area, const TILE_TYPE ttype)
+unsigned int Level_structure_generator::adjacentTileCount(const sf::Vector2i& pos, const uint8_t area, const TILE_TYPE ttype)
 {
-    auto pred = [&](const Vec2i p) 
+    auto pred = [&](const sf::Vector2i& p)
     {
         return ls->isPositionValid(p) && ls->at(p).type == ttype; 
     };

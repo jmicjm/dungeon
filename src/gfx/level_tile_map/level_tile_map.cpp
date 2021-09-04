@@ -1,4 +1,5 @@
 #include "level_tile_map.h"
+#include "../utils/visibleAreaBounds.h"
 #include <algorithm>
 #include <cmath>
 
@@ -46,14 +47,7 @@ void Level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         return;
     }
 
-    const sf::View view = rt.getView();
-
-    const sf::FloatRect view_rect = { view.getCenter() - view.getSize()/2.f, view.getSize() };
-    const sf::FloatRect bounding_box = sf::Transform{}.rotate(view.getRotation(), view.getCenter()).transformRect(view_rect);
-
-    const sf::Vector2f tl_px = { bounding_box.left, bounding_box.top };
-    const sf::Vector2f br_px = tl_px + sf::Vector2f{bounding_box.width, bounding_box.height};
-
+    const auto [tl_px, br_px] = visibleAreaBounds(rt.getView());
     const sf::Vector2i tl_chunk = 
     {
         std::max(0, (int)tl_px.x / chunk_size_px.x),

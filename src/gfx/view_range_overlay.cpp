@@ -1,4 +1,5 @@
 #include "view_range_overlay.h"
+#include "../level/level.h"
 #include "../asset_storage/texture_bank.h"
 
 #include "SFML/Graphics/RectangleShape.hpp"
@@ -68,19 +69,19 @@ void View_range_overlay::update(const Level& l,
         };
         const sf::Vector2i br_tile_visible =
         {
-            std::min(l.ls.getSize().x-1, static_cast<int>(br_px_visible.x) / l.tile_size.x),
-            std::min(l.ls.getSize().y-1, static_cast<int>(br_px_visible.y) / l.tile_size.y)
+            std::min(l.structure.getSize().x-1, static_cast<int>(br_px_visible.x) / l.tile_size.x),
+            std::min(l.structure.getSize().y-1, static_cast<int>(br_px_visible.y) / l.tile_size.y)
         };
 
         for (int x = tl_tile_visible.x; x<= br_tile_visible.x; x++)
         {
             for (int y = tl_tile_visible.y; y <= br_tile_visible.y; y++)
             {
-                if (l.ls.isPositionValid({ x,y }))
+                if (l.structure.isPositionValid({ x,y }))
                 {
                     if (revealed_tiles.at({ x,y }).isVisible())
                     {
-                        drawTileOverlay({ x,y }, l.ls.at({ x,y }), l.tile_size, revealed_tiles.at({ x,y }));
+                        drawTileOverlay(l, { x,y }, revealed_tiles.at({ x,y }));
                     }
                 }
             }
@@ -96,9 +97,9 @@ void View_range_overlay::update(const Level& l,
         for (const auto& tile : visible_tiles)
         {
             const auto& [position, tvi] = tile;
-            if (l.ls.isPositionValid({ position.x,position.y }))
+            if (l.structure.isPositionValid({ position.x,position.y }))
             {
-                drawTileOverlay(position, l.ls.at({ position.x, position.y }), l.tile_size, tvi);
+                drawTileOverlay(l, position, tvi);
             }
         }
 
@@ -108,18 +109,29 @@ void View_range_overlay::update(const Level& l,
     last_display_view = rt.getView();
 }
 
-void View_range_overlay::drawTileOverlay(const sf::Vector2i& position,
-                                         const Tile& tile,
-                                         const sf::Vector2i& tile_size,
+void View_range_overlay::drawTileOverlay(const Level& l, 
+                                         const sf::Vector2i& position,
                                          const Tile_visibility_info tvi)
 {
-    const tile_sprite_id_t id = [&]() {
+    const sf::Vector2i tile_size = l.tile_size;
+    const tile_sprite_id_t id = [&]() 
+    {
         const auto& [tl, tr, bl, br] = tvi;
-        if (tile.type != TILE_TYPE::WALL)
+        const bool is_closed_door = [&]()
         {
-            return TL | TR | BL | BR;
+            auto doors = l.door_controller.doors.find(position);
+            return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
+        }();
+
+        if (l.structure.at(position).type == TILE_TYPE::WALL)
+        {
+            return tl * TL | tr * TR | bl * BL | br * BR;
         }
-        return tl * TL | tr * TR | bl * BL | br * BR;
+        if (is_closed_door)
+        {
+            return tl * TL | tr * TR | bl * BL | br * BR;
+        }
+        return TL | TR | BL | BR;       
     }();
 
     auto it = sprites.find(id);

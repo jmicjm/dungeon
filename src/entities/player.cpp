@@ -23,7 +23,7 @@ void Player::move(sf::Vector2i& offset)
 void Player::updateAnimationPosition()
 {
     const auto [px, py] = Entity::getPosition();
-    const auto [tx, ty] = m_level->tile_size;
+    const auto [tx, ty] = level->tile_size;
     const sf::Vector2f anim_pos(px * tx, py * ty - ty/2);
 
     animation.setPosition(anim_pos);

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <list>
 #include <memory>
 
 #include "SFML/System/Vector2.hpp"
@@ -19,7 +20,7 @@ class Quadtree
         }
         bool contains(const Vec2& point) const
         {
-            return point.x >= tl.x && point.x < br.x && point.y >= tl.y && point.y < br.y;
+            return point.x >= tl.x && point.x < br.x&& point.y >= tl.y && point.y < br.y;
         }
         bool intersects(const Area& other) const
         {
@@ -29,9 +30,10 @@ class Quadtree
     } area;
 
     constexpr static size_t max_size = 16;
-    using value_type = std::pair<Vec2, T>;
-
-    std::vector<value_type> elements; 
+public:
+    using value_type = std::pair<const Vec2, T>;
+private:
+    std::list<value_type> elements;
 
     std::unique_ptr<Quadtree<T>> tl;
     std::unique_ptr<Quadtree<T>> tr;
@@ -40,10 +42,10 @@ class Quadtree
 
     void split();
     bool isLeaf() const;
-    std::vector<value_type> get() const;
+    std::list<value_type> get();
 
 public:
-    Quadtree(const Area& area) 
+    Quadtree(const Area& area = { {0,0}, {0,0} })
         : area(area) {}
     Quadtree(const Quadtree<T>& other)
         : area(other.area),
@@ -68,29 +70,41 @@ public:
         tr = other.tr ? std::make_unique<Quadtree<T>>(*other.tr) : nullptr;
         bl = other.bl ? std::make_unique<Quadtree<T>>(*other.bl) : nullptr;
         br = other.br ? std::make_unique<Quadtree<T>>(*other.br) : nullptr;
+
+        return *this;
     }
 
     Quadtree<T>& operator=(Quadtree<T>&& other)
     {
         area = other.area;
-        elements =std::move(other.elements);
+        elements = std::move(other.elements);
         tl = std::move(other.tl);
         tr = std::move(other.tr);
         bl = std::move(other.bl);
         br = std::move(other.br);
+
+        return *this;
     }
 
     size_t size() const;
     Area getArea() const { return area; }
 
-    void insert(const value_type& key_elem);
-    void erase (const value_type& key_elem);
-    std::vector<value_type> find(const Vec2& key ) const;
-    std::vector<value_type> find(const Area& area) const;
+    value_type* insert(value_type key_elem);
+    void        erase(const value_type* key_elem);
+    std::vector<const value_type*> find(const Vec2& key) const;
+    std::vector<value_type*>       find(const Vec2& key);
+    std::vector<value_type*>       find(const Area& area);
+    std::vector<const value_type*> find(const Area& area) const;
+private:
+    void insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src);
+    template<typename value_t, typename subtree_t>
+    std::vector<value_t> find(const Vec2& key) const;
+    template<typename value_t, typename subtree_t>
+    std::vector<value_t> find(const Area& area) const;
 };
 
 template<typename T>
-inline void Quadtree<T>::split()
+void Quadtree<T>::split()
 {
     const Vec2 half_size = area.size() / 2;
     const Area tl_area = { area.tl, area.tl + half_size };
@@ -103,18 +117,18 @@ inline void Quadtree<T>::split()
     bl = std::make_unique<Quadtree<T>>(bl_area);
     br = std::make_unique<Quadtree<T>>(br_area);
 
-    for (const auto& elem : elements)
+    while (!elements.empty())
     {
-        if      (tl->area.contains(elem.first)) tl->insert(elem);
-        else if (tr->area.contains(elem.first)) tr->insert(elem);
-        else if (bl->area.contains(elem.first)) bl->insert(elem);
-        else if (br->area.contains(elem.first)) br->insert(elem);
+        auto elem = elements.begin();
+        if (tl->area.contains(elem->first)) tl->insert(elem, elements);
+        else if (tr->area.contains(elem->first)) tr->insert(elem, elements);
+        else if (bl->area.contains(elem->first)) bl->insert(elem, elements);
+        else if (br->area.contains(elem->first)) br->insert(elem, elements);
     }
-    elements.clear();
 }
 
 template<typename T>
-inline size_t Quadtree<T>::size() const
+size_t Quadtree<T>::size() const
 {
     if (isLeaf())
     {
@@ -127,76 +141,86 @@ inline size_t Quadtree<T>::size() const
 }
 
 template<typename T>
-inline bool Quadtree<T>::isLeaf() const
+bool Quadtree<T>::isLeaf() const
 {
     return !(tl || tr || bl || br);
 }
 
 template<typename T>
-inline std::vector<typename Quadtree<T>::value_type> Quadtree<T>::get() const
+std::list<typename Quadtree<T>::value_type> Quadtree<T>::get()
 {
-    if (isLeaf())
-    {     
-        return elements;
-    }
-    auto combine = [](auto& a, const auto& b)
-    {
-        a.insert(a.end(), b.begin(), b.end());
-    };
+    std::list<value_type> el;
 
-    std::vector<value_type> el;
-    combine(el, tl->get());
-    combine(el, tr->get());
-    combine(el, bl->get());
-    combine(el, br->get());
+    if (isLeaf())
+    {
+        el.splice(el.begin(), elements);
+        return el;
+    }
+
+    el.splice(el.begin(), tl->get());
+    el.splice(el.begin(), tr->get());
+    el.splice(el.begin(), bl->get());
+    el.splice(el.begin(), br->get());
 
     return el;
 }
 
 template<typename T>
-inline void Quadtree<T>::insert(const value_type& key_elem)
+typename Quadtree<T>::value_type* Quadtree<T>::insert(value_type key_elem)
 {
-    if (!area.contains(key_elem.first))
+    std::list<value_type> l;
+    l.push_back(std::move(key_elem));
+    value_type* i = &*l.begin();
+    insert(l.begin(), l);
+
+    return i;
+}
+
+template<typename T>
+void Quadtree<T>::insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src)
+{
+    if (!area.contains(it->first))
     {
         return;
     }
     if (isLeaf())
     {
-        if (elements.size() < max_size || area.size() == Vec2{1,1})
+        if (elements.size() < max_size || area.size() == Vec2{ 1,1 })
         {
-            elements.push_back(key_elem);
+            elements.splice(elements.begin(), src, it);
             return;
         }
         split();
     }
-    if      (tl->area.contains(key_elem.first)) tl->insert(key_elem);
-    else if (tr->area.contains(key_elem.first)) tr->insert(key_elem);
-    else if (bl->area.contains(key_elem.first)) bl->insert(key_elem);
-    else if (br->area.contains(key_elem.first)) br->insert(key_elem);
+    if      (tl->area.contains(it->first)) tl->insert(it, src);
+    else if (tr->area.contains(it->first)) tr->insert(it, src);
+    else if (bl->area.contains(it->first)) bl->insert(it, src);
+    else if (br->area.contains(it->first)) br->insert(it, src);
 }
 
 template<typename T>
-inline void Quadtree<T>::erase(const value_type& key_elem)
+void Quadtree<T>::erase(const value_type* key_elem)
 {
     if (isLeaf())
     {
-        for (int i = elements.size() - 1; i >= 0; i--)
+        for (auto it = elements.begin(); it != elements.end(); it++)
         {
-            if (elements[i] == key_elem)
+            if (&*it == key_elem)
             {
-                elements.erase(elements.begin() + i);
+                elements.erase(it);
+                return;
             }
         }
     }
     else
     {
-        if      (tl->area.contains(key_elem.first)) tl->erase(key_elem);
-        else if (tr->area.contains(key_elem.first)) tr->erase(key_elem);
-        else if (bl->area.contains(key_elem.first)) bl->erase(key_elem);
-        else if (br->area.contains(key_elem.first)) br->erase(key_elem);
+        if      (tl->area.contains(key_elem->first)) tl->erase(key_elem);
+        else if (tr->area.contains(key_elem->first)) tr->erase(key_elem);
+        else if (bl->area.contains(key_elem->first)) bl->erase(key_elem);
+        else if (br->area.contains(key_elem->first)) br->erase(key_elem);
         if (size() <= max_size)
         {
-            elements = get();
+            elements.splice(elements.begin(), get());
             tl.reset();
             tr.reset();
             bl.reset();
@@ -206,47 +230,75 @@ inline void Quadtree<T>::erase(const value_type& key_elem)
 }
 
 template<typename T>
-inline std::vector<typename Quadtree<T>::value_type> Quadtree<T>::find(const Vec2& key) const
+std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key) const
 {
-    if (isLeaf())
-    {
-        std::vector<value_type> el;
-        for (const auto& elem : elements)
-        {
-            if (elem.first == key) el.push_back(elem);
-        }       
-        return el;
-    }
-    if (tl->area.contains(key)) return tl->find(key);
-    if (tr->area.contains(key)) return tr->find(key);
-    if (bl->area.contains(key)) return bl->find(key);
-    if (br->area.contains(key)) return br->find(key);
-
-    return std::vector<value_type>();
+    return find<const value_type*, decltype(*this)>(key);
 }
 
 template<typename T>
-inline std::vector<typename Quadtree<T>::value_type> Quadtree<T>::find(const Area& a) const
+std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key)
 {
-    std::vector<value_type> el;
+    return find<value_type*, decltype(*this)>(key);
+}
 
+template<typename T>
+template<typename value_t, typename subtree_t>
+std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
+{
     if (isLeaf())
     {
-        for (const auto& elem : elements)
+        std::vector<value_t> el;
+
+        for (auto it = elements.begin(); it != elements.end(); it++)
         {
-            if (a.contains(elem.first)) el.push_back(elem);
+            if (it->first == key) el.push_back(const_cast<value_t>(&*it));
         }
         return el;
     }
+    if (tl->area.contains(key)) return const_cast<subtree_t&>(*tl).find(key);
+    if (tr->area.contains(key)) return const_cast<subtree_t&>(*tr).find(key);
+    if (bl->area.contains(key)) return const_cast<subtree_t&>(*bl).find(key);
+    if (br->area.contains(key)) return const_cast<subtree_t&>(*br).find(key);
+
+    return std::vector<value_t>();
+}
+
+template<typename T>
+std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a) const
+{
+    return find<const value_type*, decltype(*this)>(a);
+}
+
+template<typename T>
+std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a)
+{
+    return find<value_type*, decltype(*this)>(a);
+}
+
+template<typename T>
+template<typename value_t, typename subtree_t>
+std::vector<value_t> Quadtree<T>::find(const Area& a) const
+{
+    std::vector<value_t> el;
+
+    if (isLeaf())
+    {
+        for (auto it = elements.begin(); it != elements.end(); it++)
+        {
+            if (a.contains(it->first)) el.push_back(const_cast<value_t>(&*it));
+        }
+        return el;
+    }
+
     auto combine = [](auto& a, const auto& b)
     {
-        a.insert(a.end(), b.begin(), b.end());
+        a.insert(a.begin(), b.begin(), b.end());
     };
 
-    if (tl->area.intersects(a)) combine(el, tl->find(a));
-    if (tr->area.intersects(a)) combine(el, tr->find(a));
-    if (bl->area.intersects(a)) combine(el, bl->find(a));
-    if (br->area.intersects(a)) combine(el, br->find(a));
+    if (tl->area.intersects(a)) combine(el, const_cast<subtree_t&>(*tl).find(a));
+    if (tr->area.intersects(a)) combine(el, const_cast<subtree_t&>(*tr).find(a));
+    if (bl->area.intersects(a)) combine(el, const_cast<subtree_t&>(*bl).find(a));
+    if (br->area.intersects(a)) combine(el, const_cast<subtree_t&>(*br).find(a));
 
     return el;
 }

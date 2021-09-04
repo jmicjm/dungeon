@@ -1,5 +1,5 @@
 #pragma once
-#include "vec2.h"
+#include "SFML/System/Vector2.hpp"
 
 #include <type_traits>
 
@@ -37,5 +37,5 @@ bool operator!=(const Rect<T>& a, const Rect<T>& b)
     return !(a == b);
 }
 
-using Rect_i = Rect<Vec2i>;
-using Rect_f = Rect<Vec2f>;
+using Rect_i = Rect<sf::Vector2i>;
+using Rect_f = Rect<sf::Vector2f>;
