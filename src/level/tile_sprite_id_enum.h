@@ -5,7 +5,9 @@ namespace TILE_SPRITE_ID
 {
     using tile_sprite_id_t = uint32_t;
 
-    enum TILE_SPRITE_SURROUNDINGS : tile_sprite_id_t
+    constexpr unsigned int surroundings_offset = 0;
+    constexpr tile_sprite_id_t surroundings_mask = 0xFF;
+    enum SURROUNDINGS : tile_sprite_id_t
     {
         /*
         TL | T | TR  
@@ -25,19 +27,25 @@ namespace TILE_SPRITE_ID
         BL = 1 << 7
     };
 
-    enum TILE_SPRITE_SUBTYPE : tile_sprite_id_t
+    constexpr unsigned int surface_offset = 8;
+    constexpr tile_sprite_id_t surface_mask = 0xF << surface_offset;
+    enum SURFACE : tile_sprite_id_t
     {
-        ROCK   = 1 << 8,
-        WOOD   = 2 << 8,
-        CARPET = 3 << 8
+        WALL    = 1 << surface_offset,
+        FLOOR   = 2 << surface_offset,
+        HALLWAY = 3 << surface_offset,
+        DOORWAY = 4 << surface_offset
     };
 
-    enum TILE_SPRITE_TYPE : tile_sprite_id_t
+    constexpr unsigned int type_offset = 12;
+    constexpr tile_sprite_id_t type_mask = 0xFFF << type_offset;
+    enum TYPE : tile_sprite_id_t
     {
-        WALL    = 1 << 28,
-        FLOOR   = 2 << 28,
-        HALLWAY = 3 << 28
+        ROCK   = 1 << type_offset,
+        WOOD   = 2 << type_offset,
+        CARPET = 3 << type_offset
     };
 
-    constexpr tile_sprite_id_t OVERLAY = 1 << 31;
+    constexpr unsigned int private_use_offset = 24;
+    constexpr tile_sprite_id_t private_use_mask = 0xFF << private_use_offset;
 }

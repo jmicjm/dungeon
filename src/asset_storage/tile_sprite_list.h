@@ -164,55 +164,55 @@
     }
 },
 {
-    FLOOR | OVERLAY | CARPET,
+    FLOOR | CARPET,
     {
         {"assets/tiles/carpet_overlay.png", {0,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | L | T,
+    FLOOR | CARPET | L | T,
     {
         {"assets/tiles/carpet_overlay.png", {64,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | R | T,
+    FLOOR | CARPET | R | T,
     {
         {"assets/tiles/carpet_overlay.png", {128,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | L | B,
+    FLOOR | CARPET | L | B,
     {
         {"assets/tiles/carpet_overlay.png", {192,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | R | B,
+    FLOOR | CARPET | R | B,
     {
         {"assets/tiles/carpet_overlay.png", {256,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | T,
+    FLOOR | CARPET | T,
     {
         {"assets/tiles/carpet_overlay.png", {320,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | B,
+    FLOOR | CARPET | B,
     {
         {"assets/tiles/carpet_overlay.png", {384,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | L,
+    FLOOR | CARPET | L,
     {
         {"assets/tiles/carpet_overlay.png", {448,0,64,64}}
     }
 },
 {
-    FLOOR | OVERLAY | CARPET | R,
+    FLOOR | CARPET | R,
     {
         {"assets/tiles/carpet_overlay.png", {512,0,64,64}}
     }

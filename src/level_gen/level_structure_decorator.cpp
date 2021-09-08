@@ -186,7 +186,7 @@ void Level_structure_decorator::placeCarpet(const Rect_i& area)
     {
         for (int y = area.tl.y; y <= area.br.y; y++)
         {
-            const tile_sprite_id_t id = OVERLAY | CARPET | FLOOR | getSurroundingsId({ x,y });
+            const tile_sprite_id_t id = CARPET | FLOOR | getSurroundingsId({ x,y });
             addSprite({ x,y }, id);
         }
     }
