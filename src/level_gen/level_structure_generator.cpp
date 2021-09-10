@@ -249,16 +249,12 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
         {
             if (ls->isPositionValid(curr_pos) && ls->at(curr_pos).type == TILE_TYPE::WALL)
             {
-                ls->at(prev_pos).type = TILE_TYPE::DOORWAY;
-                if (!generateRoom(curr_pos))
+                if (generateRoom(curr_pos))
                 {
-                    if (total_len > 1)
-                    {
-                        ls->at(prev_pos).type = TILE_TYPE::HALLWAY;
-                    }
-                    seg++;
+                    ls->at(prev_pos).type = TILE_TYPE::DOORWAY;
+                    return true;
                 }
-                else return true;
+                else seg++;
             }
         }
         dir = randomDir(dir, curr_pos);
