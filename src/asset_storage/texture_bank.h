@@ -8,7 +8,7 @@
 //uses file path as key
 class Texture_bank
 {
-    static std::map<std::string, sf::Texture> texture_map;
+    inline static std::map<std::string, sf::Texture> texture_map;
 
 public:
     /**
