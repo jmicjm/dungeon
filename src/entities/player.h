@@ -18,5 +18,5 @@ class Player : public Entity
 public:
     Player(Level* lvl, sf::Vector2i position, Animated_sprite anim);
 
-    void updateState(const bool make_action) override;
+    bool updateState(const bool take_action) override;
 };

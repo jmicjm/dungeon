@@ -40,8 +40,6 @@ void Entity::move(sf::Vector2i& offset)
     }
 }
 
-void Entity::updateState(const bool make_action) {}
-
 std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles() const
 {
     const sf::Vector2i ts = level->tile_size;

@@ -34,11 +34,11 @@ Player::Player(Level* lvl, sf::Vector2i position, Animated_sprite anim) : Entity
     updateAnimationPosition();
 }
 
-void Player::updateState(const bool make_action)
+bool Player::updateState(const bool take_action)
 {
     animation.updateFrameIdx();
 
-    if (make_action)
+    if (take_action)
     {
         sf::Vector2i offset = { 0,0 };
 
@@ -47,6 +47,10 @@ void Player::updateState(const bool make_action)
         offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
         offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 
+        const sf::Vector2i old_pos = getPosition();
         move(offset);
+        
+        return old_pos != getPosition();
     }
+    return false;
 }
