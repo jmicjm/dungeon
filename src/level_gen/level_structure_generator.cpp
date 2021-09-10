@@ -328,7 +328,7 @@ void Level_structure_generator::fillEmptyAreas()
 
         while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
         {
-            fillEmptyArea(check_area);
+            if(!fillEmptyArea(check_area)) return;
         }
     };
 
@@ -361,7 +361,7 @@ void Level_structure_generator::fillEmptyAreas()
     }
 }
 
-void Level_structure_generator::fillEmptyArea(Rect_i area)
+bool Level_structure_generator::fillEmptyArea(Rect_i area)
 {
     auto tryGen = [&](const sf::Vector2i& pos)
     {
@@ -400,7 +400,7 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
 
         for (const auto& pos : to_try)
         {
-            if (tryGen(pos)) return;
+            if (tryGen(pos)) return true;
         }
 
         area =
@@ -415,6 +415,7 @@ void Level_structure_generator::fillEmptyArea(Rect_i area)
             }
         };
     }
+    return false;
 }
 
 void Level_structure_generator::generate(Level_structure& l, Gen_params p)

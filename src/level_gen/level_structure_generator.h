@@ -16,7 +16,7 @@ class Level_structure_generator
     bool generateRoom(const sf::Vector2i& start_p);
 
     void fillEmptyAreas();
-    void fillEmptyArea(Rect_i area);
+    bool fillEmptyArea(Rect_i area);
 
     template<typename T>
     unsigned int tileCount(Rect_i r, const T& pred);
