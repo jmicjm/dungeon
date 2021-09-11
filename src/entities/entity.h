@@ -22,10 +22,10 @@ public:
     Entity(Level* level, const sf::Vector2i& position);
     virtual ~Entity() = default;
 
-    virtual void setPosition(const sf::Vector2i& position);
+    void setPosition(const sf::Vector2i& position);
     sf::Vector2i getPosition() const;
 
-    virtual void move(sf::Vector2i& offset);
+    void move(sf::Vector2i& offset);
 
     virtual bool updateState(const bool take_action) = 0;
 

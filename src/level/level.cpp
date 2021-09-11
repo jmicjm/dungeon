@@ -14,7 +14,14 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
     for (auto entity : area_entites)
     {
         entity->second->updateState(false);
-        rt.draw(*entity->second);
+        
+        const auto [px, py] = entity->second->getPosition();
+        const auto [tx, ty] = tile_size;
+        const sf::Vector2f pos(px * tx, py * ty - ty / 2);
+        sf::RenderStates st;
+        st.transform.translate(pos);
+
+        rt.draw(*entity->second, st);
     }
     rt.draw(view_range_overlay);
 }

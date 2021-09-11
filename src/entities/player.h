@@ -11,10 +11,6 @@ class Player : public Entity
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-    void setPosition(const sf::Vector2i& position) override;
-    void move(sf::Vector2i& offset) override;
-
-    void updateAnimationPosition();
 public:
     Player(Level* lvl, sf::Vector2i position, Animated_sprite anim);
 
