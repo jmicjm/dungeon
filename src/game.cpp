@@ -20,7 +20,7 @@ int main()
     g_params.level_size = { 500, 500 };
     g_params.min_room_size = { 2,2 };
     g_params.max_room_size = { 10,10 };
-    g_params.min_hallway_segment_length = 2;
+    g_params.min_hallway_segment_length = 1;
     g_params.max_hallway_segment_length = 5;
     g_params.min_hallway_segment_count = 1;
     g_params.max_hallway_segment_count = 5;

@@ -209,8 +209,15 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
                     }
                     modified_tiles.push_back(curr_pos);
 
-                    //undo in case of three-way doors
-                    if (ls->at(advance(curr_pos, prev_dir)).type == TILE_TYPE::DOORWAY)
+                    /*
+                    1. undo in cases of three-way doors
+                    2. undo in cases like:
+                       _CH_
+                       HHHH
+                       where H-hallway, C-curr_pos
+                     */
+                    if (ls->at(advance(curr_pos, prev_dir)).type == TILE_TYPE::DOORWAY //1
+                        || sideTileCount(curr_pos, prev_dir, TILE_TYPE::WALL) != 2) //2
                     {
                         undoHallway();
                         return false;
@@ -223,7 +230,7 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
                     }
 
                     /*
-                    undo in case like: 
+                    undo in cases like: 
                     RR__
                     RR__
                     __CH
