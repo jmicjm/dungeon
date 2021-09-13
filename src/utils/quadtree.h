@@ -97,9 +97,9 @@ public:
     std::vector<const value_type*> find(const Area& area) const;
 private:
     void insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src);
-    template<typename value_t, typename subtree_t>
+    template<typename value_t>
     std::vector<value_t> find(const Vec2& key) const;
-    template<typename value_t, typename subtree_t>
+    template<typename value_t>
     std::vector<value_t> find(const Area& area) const;
 };
 
@@ -232,17 +232,17 @@ void Quadtree<T>::erase(const value_type* key_elem)
 template<typename T>
 std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key) const
 {
-    return find<const value_type*, decltype(*this)>(key);
+    return find<const value_type*>(key);
 }
 
 template<typename T>
 std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key)
 {
-    return find<value_type*, decltype(*this)>(key);
+    return find<value_type*>(key);
 }
 
 template<typename T>
-template<typename value_t, typename subtree_t>
+template<typename value_t>
 std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
 {
     if (isLeaf())
@@ -255,10 +255,10 @@ std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
         }
         return el;
     }
-    if (tl->area.contains(key)) return const_cast<subtree_t&>(*tl).find(key);
-    if (tr->area.contains(key)) return const_cast<subtree_t&>(*tr).find(key);
-    if (bl->area.contains(key)) return const_cast<subtree_t&>(*bl).find(key);
-    if (br->area.contains(key)) return const_cast<subtree_t&>(*br).find(key);
+    if (tl->area.contains(key)) return tl->template find<value_t>(key);
+    if (tr->area.contains(key)) return tr->template find<value_t>(key);
+    if (bl->area.contains(key)) return bl->template find<value_t>(key);
+    if (br->area.contains(key)) return br->template find<value_t>(key);
 
     return std::vector<value_t>();
 }
@@ -266,17 +266,17 @@ std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
 template<typename T>
 std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a) const
 {
-    return find<const value_type*, decltype(*this)>(a);
+    return find<const value_type*>(a);
 }
 
 template<typename T>
 std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a)
 {
-    return find<value_type*, decltype(*this)>(a);
+    return find<value_type*>(a);
 }
 
 template<typename T>
-template<typename value_t, typename subtree_t>
+template<typename value_t>
 std::vector<value_t> Quadtree<T>::find(const Area& a) const
 {
     std::vector<value_t> el;
@@ -295,10 +295,10 @@ std::vector<value_t> Quadtree<T>::find(const Area& a) const
         a.insert(a.begin(), b.begin(), b.end());
     };
 
-    if (tl->area.intersects(a)) combine(el, const_cast<subtree_t&>(*tl).find(a));
-    if (tr->area.intersects(a)) combine(el, const_cast<subtree_t&>(*tr).find(a));
-    if (bl->area.intersects(a)) combine(el, const_cast<subtree_t&>(*bl).find(a));
-    if (br->area.intersects(a)) combine(el, const_cast<subtree_t&>(*br).find(a));
+    if (tl->area.intersects(a)) combine(el, tl->template find<value_t>(a));
+    if (tr->area.intersects(a)) combine(el, tr->template find<value_t>(a));
+    if (bl->area.intersects(a)) combine(el, bl->template find<value_t>(a));
+    if (br->area.intersects(a)) combine(el, br->template find<value_t>(a));
 
     return el;
 }
