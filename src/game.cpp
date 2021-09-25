@@ -1,5 +1,4 @@
 #include "level/level.h"
-#include "asset_storage/tile_sprite_storage.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -27,8 +26,6 @@ int main()
     g_params.max_empty_area_size = { 10,10 };
 
     Level level;
-
-    Tile_sprite_storage::loadSprites();
     level.create({ {64,64}, {30,30}, g_params });
 
 

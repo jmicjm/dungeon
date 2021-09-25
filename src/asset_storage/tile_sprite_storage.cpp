@@ -1,16 +1,16 @@
 #include "tile_sprite_storage.h"
-#include "texture_bank.h"
 
 #include "SFML/Graphics/Rect.hpp"
 
 #include <string>
 
 
-Tile_sprite_storage::Tile_sprite_map Tile_sprite_storage::sprite_map = Tile_sprite_map();
-
-void Tile_sprite_storage::loadSprites()
+Tile_sprite_storage::Tile_sprite_map Tile_sprite_storage::createSpriteMap()
 {
     using namespace TILE_SPRITE_ID;
+
+    Tile_sprite_map map;
+
     struct s_data
     {
         struct spr 
@@ -43,8 +43,9 @@ void Tile_sprite_storage::loadSprites()
             sc.chance = j.chance;
             tmp_spr_vec.push_back(sc);
         }
-        sprite_map.insert({ i.tile_type_id, tmp_spr_vec });
+        map.insert({ i.tile_type_id, tmp_spr_vec });
     }
+    return map;
 }
 
 std::vector<Tile_sprite_storage::Sprite_chance>* Tile_sprite_storage::getSprite(TILE_SPRITE_ID::tile_sprite_id_t key)
