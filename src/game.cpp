@@ -13,7 +13,7 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "");
-    window.setVerticalSyncEnabled(true);
+    window.setFramerateLimit(60);
     sf::View view = window.getView();
 
 
