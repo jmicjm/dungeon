@@ -3,10 +3,14 @@
 #include "../gfx/utils/visibleAreaBounds.h"
 #include "level.h"
 
+#include <algorithm>
+
 void Door_controller::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     const auto vis = visibleAreaBounds(rt.getView(), level->tile_size);
     auto drs = doors.find({ vis.first, vis.second + sf::Vector2i{1,1} });
+
+    std::sort(drs.begin(), drs.end(), [](const auto& a, const auto& b) { return a->first.y < b->first.y; });
 
     for (auto& i : drs)
     {
