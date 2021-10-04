@@ -19,7 +19,7 @@ add_executable(dungeon
     src/gfx/animated_sprite/animated_sprite_frames.cpp
     src/gfx/level_tile_map/level_tile_map.cpp
     src/gfx/level_tile_map/level_tile_map_chunk.cpp
-    src/gfx/level_tile_map/level_tile_map_texture.cpp
+    src/gfx/combined_texture.cpp
     src/gfx/view_follower.cpp
     src/gfx/view_range_overlay.cpp
     src/gfx/utils/setQuad.cpp

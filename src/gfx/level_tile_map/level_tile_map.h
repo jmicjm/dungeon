@@ -1,6 +1,6 @@
 #pragma once
 #include "level_tile_map_chunk.h"
-#include "level_tile_map_texture.h"
+#include "../combined_texture.h"
 
 #include <SFML/Graphics/Drawable.hpp>
 
@@ -12,7 +12,7 @@ class Level_tile_map : public sf::Drawable
     std::vector<std::vector<Level_tile_map_chunk>> chunks;
     sf::Vector2i chunk_size_px;
 
-    Level_tile_map_texture texture;
+    Combined_texture texture;
 
     Level_tile_map_chunk& at(const sf::Vector2i& pos);
     const Level_tile_map_chunk& at(const sf::Vector2i& pos) const;

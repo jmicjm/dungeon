@@ -5,7 +5,7 @@
 
 void Level_tile_map_chunk::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    st.texture = &texture->getCombinedTexture();
+    st.texture = &texture->getTexture();
     rt.draw(vertices, st);
 }
 
@@ -42,7 +42,7 @@ void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2
     copyToBuffer(vertex_array);
 }
 
-void Level_tile_map_chunk::setTexture(Level_tile_map_texture* tex)
+void Level_tile_map_chunk::setTexture(Combined_texture* tex)
 {
     texture = tex;
 }

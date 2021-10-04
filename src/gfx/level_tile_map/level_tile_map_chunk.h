@@ -1,6 +1,6 @@
 #pragma once
 #include "../../level/level_structure.h"
-#include "level_tile_map_texture.h"
+#include "../combined_texture.h"
 
 #include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/Graphics/VertexBuffer.hpp>
@@ -11,7 +11,7 @@
 
 class Level_tile_map_chunk : public sf::Drawable
 {
-    Level_tile_map_texture* texture = nullptr;
+    Combined_texture* texture = nullptr;
     sf::VertexBuffer vertices;
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
@@ -20,5 +20,5 @@ class Level_tile_map_chunk : public sf::Drawable
 
 public:
     void populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
-    void setTexture(Level_tile_map_texture* tex);
+    void setTexture(Combined_texture* tex);
 };
