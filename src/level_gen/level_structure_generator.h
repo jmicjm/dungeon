@@ -34,6 +34,9 @@ class Level_structure_generator
     unsigned int adjacentTileCount(const sf::Vector2i& pos, const uint8_t area);
     unsigned int adjacentTileCount(const sf::Vector2i& pos, const uint8_t area, const TILE_TYPE ttype);
 
+    template<typename T>
+    bool contains(Rect_i area, const T& pred);
+
 public:
     void generate(Level_structure& l, Gen_params p);
 };

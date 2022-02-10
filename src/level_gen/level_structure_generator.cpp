@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <random>
 
-
 void Level_structure_generator::fill(const Tile t)
 {
     for (int x = 0; x < ls->getSize().x; x++)
@@ -330,7 +329,7 @@ void Level_structure_generator::fillEmptyAreas()
     {
         const Rect_i check_area = { p, p + params.max_empty_area_size };
 
-        while (tileCount(check_area, TILE_TYPE::WALL) == tileCount(check_area))
+        while (!contains(check_area, [&](const sf::Vector2i& pos) {return ls->at(pos).type != TILE_TYPE::WALL; }))
         {
             if(!fillEmptyArea(check_area)) return;
         }
@@ -339,17 +338,20 @@ void Level_structure_generator::fillEmptyAreas()
     const sf::Vector2i min_p = { 1, 1 };
     const sf::Vector2i max_p = ls->getSize() - params.max_empty_area_size - sf::Vector2i{ 2,2 };
 
+    std::vector<sf::Vector2i> subareas;
+
+    int layer = 0;
     while (tl != min_p || br != max_p)
     { 
         for (int x = tl.x; x <= br.x; x++)
         {
-            fill({ x, tl.y });
-            fill({ x, br.y });
+            subareas.push_back({ x, tl.y });
+            subareas.push_back({ x, br.y });
         }
         for (int y = tl.y; y <= br.y; y++)
         {
-            fill({ tl.x, y });
-            fill({ br.x, y });
+            subareas.push_back({ tl.x, y });
+            subareas.push_back({ br.x, y });
         }
 
         tl =
@@ -362,6 +364,19 @@ void Level_structure_generator::fillEmptyAreas()
             std::min(max_p.x, br.x+1),
             std::min(max_p.y, br.y+1)
         };
+
+        if (   layer++ % (params.max_empty_area_size.x + params.max_empty_area_size.y)/2 == 0 
+            || (tl == min_p && br == max_p))
+        {
+            static std::mt19937 rng(std::random_device{}());
+            std::shuffle(subareas.begin(), subareas.end(), rng);
+
+            for (const auto& subarea : subareas)
+            {
+                fill(subarea);
+            }
+            subareas.clear();
+        }
     }
 }
 
@@ -398,8 +413,7 @@ bool Level_structure_generator::fillEmptyArea(Rect_i area)
             to_try.push_back({ area.br.x, y });
         }
 
-        static std::random_device dev;
-        static std::mt19937 rng(dev());
+        static std::mt19937 rng(std::random_device{}());
         std::shuffle(to_try.begin(), to_try.end(), rng);
 
         for (const auto& pos : to_try)
@@ -525,4 +539,19 @@ unsigned int Level_structure_generator::adjacentTileCount(const sf::Vector2i& po
     };
 
     return adjacentTileCount(pos, area, pred);
+}
+
+template<typename T>
+bool Level_structure_generator::contains(Rect_i r, const T& pred)
+{
+    clipRectToLevelSize(r);
+
+    for (int x = r.tl.x; x <= r.br.x; x++)
+    {
+        for (int y = r.tl.y; y <= r.br.y; y++)
+        {
+            if (pred({ x,y })) return true;
+        }
+    }
+    return false;
 }
