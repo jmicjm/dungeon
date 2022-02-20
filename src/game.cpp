@@ -19,12 +19,9 @@ int main()
 
     Gen_params g_params;
     g_params.level_size = { 500, 500 };
-    g_params.min_room_size = { 2,2 };
-    g_params.max_room_size = { 10,10 };
-    g_params.min_hallway_segment_length = 1;
-    g_params.max_hallway_segment_length = 5;
-    g_params.min_hallway_segment_count = 1;
-    g_params.max_hallway_segment_count = 5;
+    g_params.room_size = { { 2,2 }, { 10,10 } };
+    g_params.hallway_segment_length = { 1,5 };
+    g_params.hallway_segment_count = { 1,5 };
     g_params.max_empty_area_size = { 10,10 };
 
     Level level;
@@ -57,6 +54,7 @@ int main()
     vf_instant.velocity = -1;
     vf_instant.edge_dst = 32;
     vf_instant.followCenter();
+
 
 
     std::chrono::steady_clock::time_point player_update_time = std::chrono::steady_clock::now();

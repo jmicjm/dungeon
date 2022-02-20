@@ -4,27 +4,26 @@
 #include <algorithm>
 #include <random>
 
-void Level_structure_generator::fill(const Tile t)
+
+void Level_structure_generator::fill(const Tile tile)
 {
     for (int x = 0; x < ls->getSize().x; x++)
     {
         for (int y = 0; y < ls->getSize().y; y++)
         {
-            ls->at({ x,y }) = t;
+            ls->at({ x,y }) = tile;
         }
     }
 }
 
-void Level_structure_generator::setTiles(const Rect_i& r, const TILE_TYPE Tile)
+void Level_structure_generator::setTiles(Rect_i r, const TILE_TYPE ttype)
 {
-    for (int x = r.tl.x; x<= r.br.x;x++)
+    clipRectToLevelSize(r);
+    for (int x = r.tl.x; x <= r.br.x; x++)
     {
-        for (int y = r.tl.y;y<= r.br.y;y++)
+        for (int y = r.tl.y; y <= r.br.y; y++)
         {
-            if (ls->isPositionValid({ x,y }))
-            {
-                ls->at({ x,y }).type = Tile;
-            }
+            ls->at({ x,y }).type = ttype;
         }
     }
 }
@@ -87,7 +86,7 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
     };
     auto initDir = [&]()
     {
-        auto TileCheck = [&](const sf::Vector2i& pos, const auto& cmp)
+        auto tileCheck = [&](const sf::Vector2i& pos, const auto& cmp)
         {
             return ls->isPositionValid(pos) && cmp(ls->at(pos).type);
         };
@@ -96,64 +95,62 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
         {
             auto r_cmp = [](const TILE_TYPE ttype) {return ttype == TILE_TYPE::ROOM; };
 
-            if (TileCheck(start_p + sf::Vector2i{ -1,  0 }, r_cmp)) { return DIRECTION::RIGHT; }
-            if (TileCheck(start_p + sf::Vector2i{  1,  0 }, r_cmp)) { return DIRECTION::LEFT;  }
-            if (TileCheck(start_p + sf::Vector2i{  0, -1 }, r_cmp)) { return DIRECTION::DOWN;  }
-            if (TileCheck(start_p + sf::Vector2i{  0,  1 }, r_cmp)) { return DIRECTION::UP;    }
+            if (tileCheck(start_p + sf::Vector2i{ -1,  0 }, r_cmp)) { return DIRECTION::RIGHT; }
+            if (tileCheck(start_p + sf::Vector2i{  1,  0 }, r_cmp)) { return DIRECTION::LEFT;  }
+            if (tileCheck(start_p + sf::Vector2i{  0, -1 }, r_cmp)) { return DIRECTION::DOWN;  }
+            if (tileCheck(start_p + sf::Vector2i{  0,  1 }, r_cmp)) { return DIRECTION::UP;    }
         }
         else
         {
             auto w_cmp = [](const TILE_TYPE ttype) {return ttype != TILE_TYPE::WALL; };
 
-            if (TileCheck(start_p + sf::Vector2i{ -1,  0 }, w_cmp)) { return DIRECTION::RIGHT; }
-            if (TileCheck(start_p + sf::Vector2i{  1,  0 }, w_cmp)) { return DIRECTION::LEFT;  }
-            if (TileCheck(start_p + sf::Vector2i{  0, -1 }, w_cmp)) { return DIRECTION::DOWN;  }
-            if (TileCheck(start_p + sf::Vector2i{  0,  1 }, w_cmp)) { return DIRECTION::UP;    }
+            if (tileCheck(start_p + sf::Vector2i{ -1,  0 }, w_cmp)) { return DIRECTION::RIGHT; }
+            if (tileCheck(start_p + sf::Vector2i{  1,  0 }, w_cmp)) { return DIRECTION::LEFT;  }
+            if (tileCheck(start_p + sf::Vector2i{  0, -1 }, w_cmp)) { return DIRECTION::DOWN;  }
+            if (tileCheck(start_p + sf::Vector2i{  0,  1 }, w_cmp)) { return DIRECTION::UP;    }
         }
 
         return DIRECTION::UP;
     };
     auto sideTileCount = [&](const sf::Vector2i& pos, const DIRECTION dir, const TILE_TYPE ttype)
     {
-        switch (dir)
+        auto isT = [&](const sf::Vector2i& offset)
         {
-        case DIRECTION::LEFT:
-        case DIRECTION::RIGHT:
-        {
-            const sf::Vector2i t = pos + sf::Vector2i{ 0,-1 };
-            const sf::Vector2i b = pos + sf::Vector2i{ 0, 1 };
-            return tileCount({ t,t }, ttype) + tileCount({ b, b }, ttype);
-        }
-        case DIRECTION::UP:
-        case DIRECTION::DOWN:
-        {
-            const sf::Vector2i l = pos + sf::Vector2i{ -1,0 };
-            const sf::Vector2i r = pos + sf::Vector2i{  1,0 };
-            return tileCount({ l,l }, ttype) + tileCount({ r, r }, ttype);
-        }
-        }
-    };
-    auto isTouchingCorner = [&](const sf::Vector2i& pos, const DIRECTION dir)
-    {
-        const sf::Vector2i tlp = pos + sf::Vector2i{ -1,-1 };
-        const sf::Vector2i trp = pos + sf::Vector2i{  1,-1 };
-        const sf::Vector2i blp = pos + sf::Vector2i{ -1, 1 };
-        const sf::Vector2i brp = pos + sf::Vector2i{  1, 1 };
-        const bool tl = tileCount({ tlp,tlp }, TILE_TYPE::WALL) == 0;
-        const bool tr = tileCount({ trp,trp }, TILE_TYPE::WALL) == 0;
-        const bool bl = tileCount({ blp,blp }, TILE_TYPE::WALL) == 0;
-        const bool br = tileCount({ brp,brp }, TILE_TYPE::WALL) == 0;
+            return ls->isPositionValid(pos + offset) && ls->at(pos + offset).type == ttype;
+        };
 
         switch (dir)
         {
         case DIRECTION::LEFT:
-            return tl || bl;
-        case DIRECTION::UP:
-            return tl || tr;
         case DIRECTION::RIGHT:
-            return tr || br;
+            return isT({ 0,-1 }) + isT({ 0,1 });
+        case DIRECTION::UP:
         case DIRECTION::DOWN:
-            return bl || br;
+            return isT({ -1,0 }) + isT({ 1,0 });
+        }
+    };
+    auto isTouchingCorner = [&](const sf::Vector2i& pos, const DIRECTION dir)
+    {
+        auto isWall = [&](const sf::Vector2i& offset)
+        {
+            return ls->isPositionValid(pos + offset) && ls->at(pos + offset).type == TILE_TYPE::WALL;
+        };
+
+        static const auto tl = sf::Vector2i{ -1,-1 };
+        static const auto tr = sf::Vector2i{  1,-1 };
+        static const auto bl = sf::Vector2i{ -1, 1 };
+        static const auto br = sf::Vector2i{  1, 1 };
+
+        switch (dir)
+        {
+        case DIRECTION::LEFT:
+            return !isWall(bl) || !isWall(tl);
+        case DIRECTION::UP:
+            return !isWall(tl) || !isWall(tr);
+        case DIRECTION::RIGHT:
+            return !isWall(tr) || !isWall(br);
+        case DIRECTION::DOWN:
+            return !isWall(br) || !isWall(bl);
         }
     };
 
@@ -184,10 +181,10 @@ bool Level_structure_generator::generateHallway(const sf::Vector2i& start_p)
     };
 
     unsigned int total_len = 0;
-    const unsigned int m_segment_count = rand(params.min_hallway_segment_count, params.max_hallway_segment_count) - 1;
+    const unsigned int m_segment_count = rand(params.hallway_segment_count.getMin(), params.hallway_segment_count.getMax()) - 1;
     for (int seg = m_segment_count; seg >= 0; seg--)
     {
-        const unsigned int m_seg_len = rand(params.min_hallway_segment_length, params.max_hallway_segment_length);
+        const unsigned int m_seg_len = rand(params.hallway_segment_length.getMin(), params.hallway_segment_length.getMax());
 
         for (unsigned int len = 0; len < m_seg_len; len++, total_len++)
         {
@@ -277,11 +274,8 @@ bool Level_structure_generator::generateRoom(const sf::Vector2i& start_p)
     }
 
     Rect_i r = { start_p,start_p };
-    const sf::Vector2i max_size =
-    { 
-        rand(params.min_room_size.x, params.max_room_size.x),
-        rand(params.min_room_size.y, params.max_room_size.y) 
-    };
+    const sf::Vector2i max_size = { rand(params.room_size.getMin().x, params.room_size.getMax().x),
+                                    rand(params.room_size.getMin().y, params.room_size.getMax().y) };
 
     bool left_expansion_possible   = true;
     bool top_expansion_possible    = true;
@@ -293,7 +287,7 @@ bool Level_structure_generator::generateRoom(const sf::Vector2i& start_p)
     {
         auto expansionCheck = [&](const Rect_i& scan_area)
         {
-            return !(tileCount(scan_area, TILE_TYPE::WALL) < tileCount(scan_area));
+            return !contains(scan_area, [&](const sf::Vector2i& pos) { return ls->at(pos).type != TILE_TYPE::WALL; });
         };
 
         left_expansion_possible = r.tl.x > 1 && expansionCheck({ r.tl + sf::Vector2i{-2,-1}, r.tl + sf::Vector2i{-1,r.size().y} });
@@ -309,7 +303,7 @@ bool Level_structure_generator::generateRoom(const sf::Vector2i& start_p)
         if (bottom_expansion_possible && r.size().y < max_size.y) { r.br.y++; }
     }
 
-    if (r.size().x >= params.min_room_size.x && r.size().y >= params.min_room_size.y)
+    if (r.size().x >= params.room_size.getMin().x && r.size().y >= params.room_size.getMin().y)
     {
         setTiles(r, TILE_TYPE::ROOM);
         ls->room_rects.push_back(r);
@@ -329,7 +323,7 @@ void Level_structure_generator::fillEmptyAreas()
     {
         const Rect_i check_area = { p, p + params.max_empty_area_size };
 
-        while (!contains(check_area, [&](const sf::Vector2i& pos) {return ls->at(pos).type != TILE_TYPE::WALL; }))
+        while (!contains(check_area, [&](const sf::Vector2i& pos) { return ls->at(pos).type != TILE_TYPE::WALL; }))
         {
             if(!fillEmptyArea(check_area)) return;
         }
@@ -354,18 +348,12 @@ void Level_structure_generator::fillEmptyAreas()
             subareas.push_back({ br.x, y });
         }
 
-        tl =
-        {
-            std::max(min_p.x, tl.x-1),
-            std::max(min_p.y, tl.y-1)
-        };
-        br =
-        {
-            std::min(max_p.x, br.x+1),
-            std::min(max_p.y, br.y+1)
-        };
+        tl = { std::max(min_p.x, tl.x-1),
+               std::max(min_p.y, tl.y-1) };
+        br = { std::min(max_p.x, br.x+1),
+               std::min(max_p.y, br.y+1) };
 
-        if (   layer++ % (params.max_empty_area_size.x + params.max_empty_area_size.y)/2 == 0 
+        if (layer++ % (params.max_empty_area_size.x + params.max_empty_area_size.y) / 2 == 0 
             || (tl == min_p && br == max_p))
         {
             static std::mt19937 rng(std::random_device{}());
@@ -397,10 +385,7 @@ bool Level_structure_generator::fillEmptyArea(Rect_i area)
     while (area != Rect_i{ min_p, max_p })
     {
         std::vector<sf::Vector2i> to_try;
-        to_try.reserve(
-              std::max(0, 2 * (area.br.x - area.tl.x    )) 
-            + std::max(0, 2 * (area.br.y - area.tl.y - 2))
-        );
+        to_try.reserve(std::max(0, 2 * area.size().x) + std::max(0, 2 * (area.size().y - 2)));
 
         for (int x = area.tl.x; x <= area.br.x; x++)
         {
@@ -423,20 +408,16 @@ bool Level_structure_generator::fillEmptyArea(Rect_i area)
 
         area =
         {
-            {
-            std::max(min_p.x, area.tl.x - 1),
-            std::max(min_p.y, area.tl.y - 1)
-            },
-            {
-            std::min(max_p.x, area.br.x + 1),
-            std::min(max_p.y, area.br.y + 1)
-            }
+            { std::max(min_p.x, area.tl.x - 1),
+              std::max(min_p.y, area.tl.y - 1) },
+            { std::min(max_p.x, area.br.x + 1),
+              std::min(max_p.y, area.br.y + 1) }
         };
     }
     return false;
 }
 
-void Level_structure_generator::generate(Level_structure& l, Gen_params p)
+void Level_structure_generator::generate(Level_structure& l, Gen_params p) &&
 {
     ls = &l;
     params = p;
@@ -450,51 +431,14 @@ void Level_structure_generator::generate(Level_structure& l, Gen_params p)
     fillEmptyAreas();
 }
 
-template<typename T>
-unsigned int Level_structure_generator::tileCount(Rect_i r, const T& pred)
-{
-    clipRectToLevelSize(r);
-
-    unsigned int c = 0;
-    for (int x = r.tl.x; x <= r.br.x; x++)
-    {
-        for (int y = r.tl.y; y <= r.br.y; y++)
-        {
-            c += pred({ x,y });
-        }
-    }
-    return c;
-}
-
-unsigned int Level_structure_generator::tileCount(Rect_i r)
-{
-    clipRectToLevelSize(r);
-
-    return r.size().x * r.size().y;
-}
-
-unsigned int Level_structure_generator::tileCount(Rect_i r, const TILE_TYPE ttype)
-{
-    auto pred = [&](const sf::Vector2i& p)
-    {
-        return ls->at(p).type == ttype;
-    };
-
-    return tileCount(r, pred);
-}
-
 void Level_structure_generator::clipRectToLevelSize(Rect_i& r)
 {
     r =
     {
-        {
-        std::clamp(r.tl.x, 0, ls->getSize().x-1),
-        std::clamp(r.tl.y, 0, ls->getSize().y-1)
-        },
-        {
-        std::clamp(r.br.x, 0, ls->getSize().x-1),
-        std::clamp(r.br.y, 0, ls->getSize().y-1)
-        }
+        { std::clamp(r.tl.x, 0, ls->getSize().x-1),
+          std::clamp(r.tl.y, 0, ls->getSize().y-1) },
+        { std::clamp(r.br.x, 0, ls->getSize().x-1),
+          std::clamp(r.br.y, 0, ls->getSize().y-1) }
     };
 }
 
@@ -545,7 +489,6 @@ template<typename T>
 bool Level_structure_generator::contains(Rect_i r, const T& pred)
 {
     clipRectToLevelSize(r);
-
     for (int x = r.tl.x; x <= r.br.x; x++)
     {
         for (int y = r.tl.y; y <= r.br.y; y++)
