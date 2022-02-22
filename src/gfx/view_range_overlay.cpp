@@ -2,6 +2,7 @@
 #include "../level/level.h"
 #include "../asset_storage/texture_bank.h"
 #include "../utils/sf_vector2_utils.h"
+#include "../asset_storage/tile_sprite_storage.h"
 #include "utils/visibleAreaBounds.h"
 
 #include "SFML/Graphics/RectangleShape.hpp"
@@ -62,7 +63,7 @@ void View_range_overlay::update(const Level& l,
 
         const auto [tl_tile, br_tile] = [&]()
         {
-            const auto bounds = visibleAreaBounds(rt.getView(), l.tile_size);
+            const auto bounds = visibleAreaBoundsTiles(rt.getView());
             const sf::Vector2i tl_tile = { std::max(0, bounds.first.x),
                                            std::max(0, bounds.first.y) };
             const sf::Vector2i br_tile = { std::min(l.structure.getSize().x-1, bounds.second.x),
@@ -125,7 +126,7 @@ void View_range_overlay::drawTileOverlay(const Level& l,
 
     if (auto it = sprites.find(id); it != sprites.end())
     {
-        it->second.setPosition(sf::Vector2f{ vecMul(position, l.tile_size) });
+        it->second.setPosition(sf::Vector2f{ vecMul(position, Tile_sprite_storage::tile_size) });
         overlay_tex.draw(it->second, sf::BlendMultiply);
     }
 }

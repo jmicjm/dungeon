@@ -21,4 +21,6 @@ class Tile_sprite_storage
 
 public:    
     static std::vector<Sprite_chance>* getSprite(TILE_SPRITE_ID::tile_sprite_id_t key);
+
+    inline static const sf::Vector2i tile_size = { 64,64 };
 };

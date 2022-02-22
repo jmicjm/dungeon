@@ -4,7 +4,6 @@
 
 struct Level_params
 {
-    sf::Vector2f tile_size;
     sf::Vector2i tile_map_chunk_size;
     Gen_params gen_params;
 };

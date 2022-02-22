@@ -17,8 +17,7 @@ class Level : public sf::Drawable
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 public:
     Level_structure structure;
-    Level_tile_map tile_map;
-    sf::Vector2i tile_size;
+    Level_tile_map tile_map; 
     Tile_reveal_mask reveal_mask;
     View_range_overlay view_range_overlay;
 

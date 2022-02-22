@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "../utils/sf_vector2_utils.h"
+#include "../asset_storage/tile_sprite_storage.h"
 
 #include <algorithm>
 #include <cmath>
@@ -42,7 +43,7 @@ void Entity::move(sf::Vector2i& offset)
 
 std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles() const
 {
-    const sf::Vector2i ts = level->tile_size;
+    const sf::Vector2i ts = Tile_sprite_storage::tile_size;
 
     auto isOpaque = [&](const sf::Vector2i& pos)
     {

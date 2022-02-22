@@ -25,7 +25,7 @@ int main()
     g_params.max_empty_area_size = { 10,10 };
 
     Level level;
-    level.create({ {64,64}, {30,30}, g_params });
+    level.create({ {30,30}, g_params });
     level.structure.printToFile("map.txt");
 
     

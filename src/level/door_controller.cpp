@@ -7,7 +7,7 @@
 
 void Door_controller::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    const auto vis = visibleAreaBounds(rt.getView(), level->tile_size);
+    const auto vis = visibleAreaBoundsTiles(rt.getView());
     auto drs = doors.find({ vis.first, vis.second });
 
     std::sort(drs.begin(), drs.end(), [](const auto& a, const auto& b) { return a->first.y < b->first.y; });
@@ -26,7 +26,7 @@ Door_controller::Door_controller(Level* level) : level(level)
 
 void Door_controller::update(const sf::View& view)
 {
-    const auto vis = visibleAreaBounds(view, level->tile_size);
+    const auto vis = visibleAreaBoundsTiles(view);
     auto drs = doors.find({ vis.first, vis.second });
 
     for (auto& door : drs)

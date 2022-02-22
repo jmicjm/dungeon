@@ -47,7 +47,7 @@ void Level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         return;
     }
 
-    const auto [tl_px, br_px] = visibleAreaBounds(rt.getView());
+    const auto [tl_px, br_px] = visibleAreaBoundsPixels(rt.getView());
     const sf::Vector2i tl_chunk = 
     {
         std::max(0, (int)tl_px.x / chunk_size_px.x),
