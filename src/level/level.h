@@ -14,16 +14,19 @@
 
 class Level : public sf::Drawable
 {
-    void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
-public:
     Level_structure structure;
-    Level_tile_map tile_map; 
+    Level_tile_map tile_map;
     Tile_reveal_mask reveal_mask;
     View_range_overlay view_range_overlay;
 
+    void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
+
+public:  
     Quadtree<std::shared_ptr<Entity>> entities;
-    Door_controller door_controller{this};
+    Door_controller door_controller;
 
+    Level(const Level_params& params);
 
-    void create(const Level_params& params);
+    const Level_structure& getStructure() const;
+    void updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt);
 };

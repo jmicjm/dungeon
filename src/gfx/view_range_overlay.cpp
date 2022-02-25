@@ -66,8 +66,8 @@ void View_range_overlay::update(const Level& l,
             const auto bounds = visibleAreaBoundsTiles(rt.getView());
             const sf::Vector2i tl_tile = { std::max(0, bounds.first.x),
                                            std::max(0, bounds.first.y) };
-            const sf::Vector2i br_tile = { std::min(l.structure.getSize().x-1, bounds.second.x),
-                                           std::min(l.structure.getSize().y-1, bounds.second.y) };
+            const sf::Vector2i br_tile = { std::min(l.getStructure().getSize().x - 1, bounds.second.x),
+                                           std::min(l.getStructure().getSize().y-1, bounds.second.y) };
             return std::pair{ tl_tile, br_tile };
         }();
 
@@ -92,7 +92,7 @@ void View_range_overlay::update(const Level& l,
         for (const auto& tile : visible_tiles)
         {
             const auto& [position, tvi] = tile;
-            if (l.structure.isPositionValid(position))
+            if (l.getStructure().isPositionValid(position))
             {
                 drawTileOverlay(l, position, tvi);
             }
@@ -117,7 +117,7 @@ void View_range_overlay::drawTileOverlay(const Level& l,
             return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
         }();
 
-        if (l.structure.at(position).type == TILE_TYPE::WALL || is_closed_door)
+        if (l.getStructure().at(position).type == TILE_TYPE::WALL || is_closed_door)
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }
