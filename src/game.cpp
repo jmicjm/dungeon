@@ -85,7 +85,7 @@ int main()
         sf::Vector2i old_pos = player->getPosition();
         if (player_action_allowed)
         {
-            if(player->updateState(true)) player_update_time = t;
+            if(player->performAction()) player_update_time = t;
         }
         if (old_pos != player->getPosition())
         {

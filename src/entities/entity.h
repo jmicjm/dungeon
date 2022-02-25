@@ -27,7 +27,8 @@ public:
 
     void move(sf::Vector2i& offset);
 
-    virtual bool updateState(const bool take_action) = 0;
+    virtual void update() = 0;
+    virtual bool performAction() = 0;
 
     std::unordered_map<sf::Vector2i, Tile_visibility_info> getVisibleTiles() const;
 };

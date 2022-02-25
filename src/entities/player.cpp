@@ -11,23 +11,22 @@ void Player::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 Player::Player(Level* lvl, sf::Vector2i position, Animated_sprite anim) 
     : Entity(lvl, position), animation(anim) {}
 
-bool Player::updateState(const bool take_action)
+void Player::update()
 {
     animation.updateFrameIdx();
+}
 
-    if (take_action)
-    {
-        sf::Vector2i offset = { 0,0 };
+bool Player::performAction()
+{
+    sf::Vector2i offset = { 0,0 };
 
-        offset.x += sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-        offset.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-        offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-        offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+    offset.x += sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+    offset.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+    offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+    offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 
-        const sf::Vector2i old_pos = getPosition();
-        move(offset);
-        
-        return old_pos != getPosition();
-    }
-    return false;
+    const sf::Vector2i old_pos = getPosition();
+    move(offset);
+
+    return old_pos != getPosition();
 }

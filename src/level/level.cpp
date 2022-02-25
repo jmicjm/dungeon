@@ -12,7 +12,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
     auto area_entites = entities.find({ tl, br });
     for (auto entity : area_entites)
     {
-        entity->second->updateState(false);
+        entity->second->update();
         
         const auto [px, py] = entity->second->getPosition();
         const auto [tx, ty] = Tile_sprite_storage::tile_size;
