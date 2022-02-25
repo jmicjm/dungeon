@@ -113,7 +113,7 @@ void View_range_overlay::drawTileOverlay(const Level& l,
         const auto& [tl, tr, bl, br] = tvi;
         const bool is_closed_door = [&]()
         {
-            auto doors = l.door_controller.doors.find(position);
+            auto doors = l.door_controller.getDoors().find(position);
             return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
         }();
 

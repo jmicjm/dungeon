@@ -8,6 +8,22 @@
 #include <vector>
 
 
+void Entity::updateQtPosition(const sf::Vector2i& new_pos)
+{
+    auto qt_ptr = [&]//todo: replace with member variable 
+    {
+        auto entities = level->entities.find(position);
+        auto it = std::find_if(entities.begin(), entities.end(), [&](const auto& v) { return v->second.get() == this; });
+        return it != entities.end() ? *it : nullptr;
+    }();
+    if (qt_ptr)
+    {
+        auto sptr = std::move(qt_ptr->second);
+        level->entities.erase(qt_ptr);
+        level->entities.insert({ new_pos, std::move(sptr) });
+    }
+}
+
 Entity::Entity(Level* level, const sf::Vector2i& position) : level(level)
 {
     setPosition(position);
@@ -16,6 +32,7 @@ Entity::Entity(Level* level, const sf::Vector2i& position) : level(level)
 void Entity::setPosition(const sf::Vector2i& position)
 {
     //todo: if position is on unreachable tile(wall, closed door, occupied tile) find closest reachable tile
+    updateQtPosition(position);
     this->position = position;
 }
 
@@ -30,14 +47,32 @@ void Entity::move(sf::Vector2i& offset)
     offset.y = std::clamp(offset.y, -1, 1);
 
     const sf::Vector2i new_pos = position + offset;
+    const sf::Vector2i old_pos = position;
 
-    const sf::Vector2i new_pos_x = position + sf::Vector2i{ offset.x, 0 };
-    const sf::Vector2i new_pos_y = position + sf::Vector2i{ 0, offset.y };
+    if (new_pos == old_pos) return;
 
-    if (!(level->getStructure().at(new_pos_x).type == TILE_TYPE::WALL && level->getStructure().at(new_pos_y).type == TILE_TYPE::WALL)
-        && level->getStructure().at(new_pos).type != TILE_TYPE::WALL)
+    const bool move_allowed_structure = [&]
     {
-        position = new_pos;
+        const sf::Vector2i new_pos_x = position + sf::Vector2i{ offset.x, 0 };
+        const sf::Vector2i new_pos_y = position + sf::Vector2i{ 0, offset.y };
+
+        return !(level->getStructure().at(new_pos_x).type == TILE_TYPE::WALL && level->getStructure().at(new_pos_y).type == TILE_TYPE::WALL)
+            && level->getStructure().at(new_pos).type != TILE_TYPE::WALL;
+    }();
+
+    if (move_allowed_structure)
+    {
+        const bool move_allowed_door = [&]
+        {
+            if (level->getStructure().at(new_pos).type == TILE_TYPE::DOORWAY) return level->door_controller.openDoor(new_pos);
+            return true;
+        }();
+
+        if (move_allowed_door)
+        {   
+            setPosition(new_pos);
+            if (level->getStructure().at(old_pos).type == TILE_TYPE::DOORWAY) level->door_controller.closeDoor(old_pos);        
+        }
     }
 }
 
@@ -49,7 +84,7 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> Entity::getVisibleTiles()
     {
         auto isClosedDoor = [&]()
         {
-            auto doors = level->door_controller.doors.find(pos);
+            auto doors = level->door_controller.getDoors().find(pos);
             return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
         };
         return !level->getStructure().isPositionValid(pos)

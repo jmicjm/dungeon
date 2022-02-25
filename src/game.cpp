@@ -82,15 +82,9 @@ int main()
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool player_action_allowed = (t - player_update_time) >= std::chrono::milliseconds(200);
 
-        sf::Vector2i old_pos = player->getPosition();
         if (player_action_allowed)
         {
             if(player->performAction()) player_update_time = t;
-        }
-        if (old_pos != player->getPosition())
-        {
-            level.entities.erase(pptr);
-            pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
         }
 
         vf.follow();
@@ -101,7 +95,6 @@ int main()
         rounded_view.setCenter(tl + view.getSize() / 2.f);
         window.setView(rounded_view);//use rounded view to avoid rendering at non integer positions
 
-        level.door_controller.update(window.getView());
         level.updateVisibleTiles(player->getVisibleTiles(), window);
         window.draw(level);
 

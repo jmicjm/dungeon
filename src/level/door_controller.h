@@ -8,12 +8,15 @@
 
 class Door_controller : public sf::Drawable
 {
+    Quadtree<Door> doors;
     const Level* level = nullptr;
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
-public:
-    Quadtree<Door> doors;
 
+public:
     Door_controller(const Level* level);
-    void update(const sf::View& view);
+
+    const Quadtree<Door>& getDoors() const;
+    bool openDoor(const sf::Vector2i& pos);
+    bool closeDoor(const sf::Vector2i& pos);
 };

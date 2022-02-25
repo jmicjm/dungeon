@@ -61,20 +61,29 @@ Door_controller::Door_controller(const Level* level)
     }
 }
 
-void Door_controller::update(const sf::View& view)
+const Quadtree<Door>& Door_controller::getDoors() const
 {
-    const auto vis = visibleAreaBoundsTiles(view);
-    auto drs = doors.find({ vis.first, vis.second });
+    return doors;
+}
 
-    for (auto& door : drs)
+bool Door_controller::openDoor(const sf::Vector2i& pos)
+{
+    auto doors = this->doors.find(pos);
+    if (doors.size() > 0)
     {
-        if (level->entities.find(door->first).size() > 0)
-        {
-            door->second.state = Door::OPEN;
-        }
-        else
-        {
-            door->second.state = Door::CLOSED;
-        }
+        doors[0]->second.state = Door::OPEN;
+        return true;
     }
+    return false;
+}
+
+bool Door_controller::closeDoor(const sf::Vector2i& pos)
+{
+    auto doors = this->doors.find(pos);
+    if (doors.size() > 0 && level->entities.find(pos).size() == 0)
+    {
+        doors[0]->second.state = Door::CLOSED;
+        return true;
+    }
+    return false;
 }

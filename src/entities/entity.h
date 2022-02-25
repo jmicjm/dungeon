@@ -13,9 +13,10 @@ class Entity : public sf::Drawable
 private:
     sf::Vector2i position;
 
+    void updateQtPosition(const sf::Vector2i& new_pos);
+
 protected:
     Level* level = nullptr;
-
     unsigned int vision_radius = 6;
 
 public:
