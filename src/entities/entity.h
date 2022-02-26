@@ -13,9 +13,10 @@ class Entity : public sf::Drawable
 private:
     sf::Vector2i position;
 
+    void updateQtPosition(const sf::Vector2i& new_pos);
+
 protected:
     Level* level = nullptr;
-
     unsigned int vision_radius = 6;
 
 public:
@@ -27,7 +28,8 @@ public:
 
     void move(sf::Vector2i& offset);
 
-    virtual bool updateState(const bool take_action) = 0;
+    virtual void update() = 0;
+    virtual bool performAction() = 0;
 
     std::unordered_map<sf::Vector2i, Tile_visibility_info> getVisibleTiles() const;
 };

@@ -24,16 +24,9 @@ const Tile_visibility_info& Tile_reveal_mask::at(const sf::Vector2i& pos) const
     return mask[pos.x][pos.y];
 }
 
-void Tile_reveal_mask::create(const sf::Vector2i& size)
+Tile_reveal_mask::Tile_reveal_mask(const sf::Vector2i& size)
 {
     setSize(size);
-    for (int x = 0; x < getSize().x; x++)
-    {
-        for (int y = 0; y < getSize().y; y++)
-        {
-            at({ x,y }) = Tile_visibility_info{};
-        }
-    }
 }
 
 void Tile_reveal_mask::reveal(const std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>& tiles)

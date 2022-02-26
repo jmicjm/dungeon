@@ -6,17 +6,17 @@
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
-
 class Door_controller : public sf::Drawable
 {
-public:
-    Level* level = nullptr;
     Quadtree<Door> doors;
-
-    void populate();
+    const Level* level = nullptr;
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
-    Door_controller(Level* level);
-    void update(const sf::View& view);
+public:
+    Door_controller(const Level* level);
+
+    const Quadtree<Door>& getDoors() const;
+    bool openDoor(const sf::Vector2i& pos);
+    bool closeDoor(const sf::Vector2i& pos);
 };

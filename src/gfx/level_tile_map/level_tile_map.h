@@ -25,10 +25,9 @@ class Level_tile_map : public sf::Drawable
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
 public:
-    Level_tile_map() {}
+    Level_tile_map(const Level_structure& ls, const sf::Vector2f& Tile_size, const sf::Vector2i& chunk_size);
     Level_tile_map(const Level_tile_map& other);
     Level_tile_map(Level_tile_map&& other);
     Level_tile_map& operator=(const Level_tile_map& other);
     Level_tile_map& operator=(Level_tile_map&& other);
-    void populate(const Level_structure& ls, const sf::Vector2f& Tile_size, const sf::Vector2i& chunk_size);
 };

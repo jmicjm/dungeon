@@ -4,17 +4,18 @@
 
 
 template<typename T, typename Y>
-typename std::common_type<T, Y>::type rand(T min, Y max)
+std::common_type_t<T, Y> rand(T min, Y max)
 {
-    static std::random_device dev;
-    static std::mt19937 rng(dev());
+    static std::mt19937 rng(std::random_device{}());
 
-    if constexpr (std::is_floating_point<typename std::common_type<T, Y>::type>::value)
+    using return_t = std::common_type_t<T, Y>;
+
+    if constexpr (std::is_floating_point_v<return_t>)
     {
-        return std::uniform_real_distribution<>(min, max)(rng);
+        return std::uniform_real_distribution<return_t>(min, max)(rng);
     }
     else
     {
-        return std::uniform_int_distribution<>(min, max)(rng);
+        return std::uniform_int_distribution<return_t>(min, max)(rng);
     }
 }

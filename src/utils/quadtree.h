@@ -20,7 +20,7 @@ class Quadtree
         }
         bool contains(const Vec2& point) const
         {
-            return point.x >= tl.x && point.x < br.x&& point.y >= tl.y && point.y < br.y;
+            return point.x >= tl.x && point.x < br.x && point.y >= tl.y && point.y < br.y;
         }
         bool intersects(const Area& other) const
         {
@@ -54,13 +54,7 @@ public:
         tr(other.tr ? std::make_unique<Quadtree<T>>(*other.tr) : nullptr),
         bl(other.bl ? std::make_unique<Quadtree<T>>(*other.bl) : nullptr),
         br(other.br ? std::make_unique<Quadtree<T>>(*other.br) : nullptr) {}
-    Quadtree(Quadtree<T>&& other)
-        : area(other.area),
-        elements(std::move(other.elements)),
-        tl(std::move(other.tl)),
-        tr(std::move(other.tr)),
-        bl(std::move(other.bl)),
-        br(std::move(other.br)) {}
+    Quadtree(Quadtree<T>&& other) = default;
 
     Quadtree<T>& operator=(const Quadtree<T>& other)
     {
@@ -73,30 +67,26 @@ public:
 
         return *this;
     }
-
-    Quadtree<T>& operator=(Quadtree<T>&& other)
-    {
-        area = other.area;
-        elements = std::move(other.elements);
-        tl = std::move(other.tl);
-        tr = std::move(other.tr);
-        bl = std::move(other.bl);
-        br = std::move(other.br);
-
-        return *this;
-    }
+    Quadtree<T>& operator=(Quadtree<T>&& other) = default;
 
     size_t size() const;
     Area getArea() const { return area; }
 
-    value_type* insert(value_type key_elem);
-    void        erase(const value_type* key_elem);
+    value_type* insert(const value_type& key_elem);
+    value_type* insert(value_type&& key_elem);
+
+    void erase(const value_type* key_elem);
+
+    std::vector<value_type*> find(const Vec2& key);
     std::vector<const value_type*> find(const Vec2& key) const;
-    std::vector<value_type*>       find(const Vec2& key);
-    std::vector<value_type*>       find(const Area& area);
+
+    std::vector<value_type*> find(const Area& area);
     std::vector<const value_type*> find(const Area& area) const;
 private:
-    void insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src);
+    template<typename append_f>
+    value_type* insert(const Vec2& key, append_f append);
+    value_type* insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src);
+
     template<typename value_t>
     std::vector<value_t> find(const Vec2& key) const;
     template<typename value_t>
@@ -120,7 +110,7 @@ void Quadtree<T>::split()
     while (!elements.empty())
     {
         auto elem = elements.begin();
-        if (tl->area.contains(elem->first)) tl->insert(elem, elements);
+        if      (tl->area.contains(elem->first)) tl->insert(elem, elements);
         else if (tr->area.contains(elem->first)) tr->insert(elem, elements);
         else if (bl->area.contains(elem->first)) bl->insert(elem, elements);
         else if (br->area.contains(elem->first)) br->insert(elem, elements);
@@ -135,9 +125,9 @@ size_t Quadtree<T>::size() const
         return elements.size();
     }
     return (tl ? tl->size() : 0)
-         + (tr ? tr->size() : 0)
-         + (bl ? bl->size() : 0)
-         + (br ? br->size() : 0);
+        + (tr ? tr->size() : 0)
+        + (bl ? bl->size() : 0)
+        + (br ? br->size() : 0);
 }
 
 template<typename T>
@@ -166,37 +156,61 @@ std::list<typename Quadtree<T>::value_type> Quadtree<T>::get()
 }
 
 template<typename T>
-typename Quadtree<T>::value_type* Quadtree<T>::insert(value_type key_elem)
+auto Quadtree<T>::insert(const value_type& key_elem) -> value_type*
 {
-    std::list<value_type> l;
-    l.push_back(std::move(key_elem));
-    value_type* i = &*l.begin();
-    insert(l.begin(), l);
-
-    return i;
+    return insert(
+            key_elem.first,
+            [&](auto& elements)
+            {
+                return &*elements.insert(elements.begin(), key_elem);
+            });
 }
 
 template<typename T>
-void Quadtree<T>::insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src)
+auto Quadtree<T>::insert(value_type&& key_elem) -> value_type*
 {
-    if (!area.contains(it->first))
+    return insert(
+            key_elem.first,
+            [&](auto& elements)
+            {
+                return &*elements.insert(elements.begin(), std::move(key_elem));
+            });
+}
+
+template<typename T>
+auto Quadtree<T>::insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src) -> value_type*
+{
+    return insert(
+            it->first, 
+            [&](auto& elements) 
+            {
+                elements.splice(elements.begin(), src, it);
+                return &*elements.begin();
+            });
+}
+
+template<typename T>
+template<typename append_f>
+auto Quadtree<T>::insert(const Vec2& key, append_f append) -> value_type*
+{
+    if (!area.contains(key))
     {
-        return;
+        return nullptr;
     }
     if (isLeaf())
     {
         if (elements.size() < max_size || area.size() == Vec2{ 1,1 })
         {
-            elements.splice(elements.begin(), src, it);
-            return;
+            return append(elements);
         }
-        split();
+        else split();
     }
-    if      (tl->area.contains(it->first)) tl->insert(it, src);
-    else if (tr->area.contains(it->first)) tr->insert(it, src);
-    else if (bl->area.contains(it->first)) bl->insert(it, src);
-    else if (br->area.contains(it->first)) br->insert(it, src);
+    if      (tl->area.contains(key)) return tl->insert(key, append);
+    else if (tr->area.contains(key)) return tr->insert(key, append);
+    else if (bl->area.contains(key)) return bl->insert(key, append);
+    else if (br->area.contains(key)) return br->insert(key, append);
 }
+
 
 template<typename T>
 void Quadtree<T>::erase(const value_type* key_elem)
@@ -230,13 +244,13 @@ void Quadtree<T>::erase(const value_type* key_elem)
 }
 
 template<typename T>
-std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key) const
+auto Quadtree<T>::find(const Vec2& key) const -> std::vector<const value_type*>
 {
     return find<const value_type*>(key);
 }
 
 template<typename T>
-std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Vec2& key)
+auto Quadtree<T>::find(const Vec2& key) -> std::vector<value_type*>
 {
     return find<value_type*>(key);
 }
@@ -264,13 +278,13 @@ std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
 }
 
 template<typename T>
-std::vector<const typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a) const
+auto Quadtree<T>::find(const Area& a) const -> std::vector<const value_type*>
 {
     return find<const value_type*>(a);
 }
 
 template<typename T>
-std::vector<typename Quadtree<T>::value_type*> Quadtree<T>::find(const Area& a)
+auto Quadtree<T>::find(const Area& a) -> std::vector<value_type*>
 {
     return find<value_type*>(a);
 }
@@ -292,7 +306,7 @@ std::vector<value_t> Quadtree<T>::find(const Area& a) const
 
     auto combine = [](auto& a, const auto& b)
     {
-        a.insert(a.begin(), b.begin(), b.end());
+        a.insert(a.end(), b.begin(), b.end());
     };
 
     if (tl->area.intersects(a)) combine(el, tl->template find<value_t>(a));

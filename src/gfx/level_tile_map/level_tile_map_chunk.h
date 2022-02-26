@@ -19,6 +19,7 @@ class Level_tile_map_chunk : public sf::Drawable
     void copyToBuffer(const sf::VertexArray& vertex_array);
 
 public:
-    void populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area);
+    Level_tile_map_chunk() = default;
+    Level_tile_map_chunk(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area, Combined_texture* texture);
     void setTexture(Combined_texture* tex);
 };

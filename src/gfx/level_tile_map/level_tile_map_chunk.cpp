@@ -16,8 +16,9 @@ void Level_tile_map_chunk::copyToBuffer(const sf::VertexArray& vertex_array)
     vertices.update(&(vertex_array[0]));
 }
 
-void Level_tile_map_chunk::populate(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area)
+Level_tile_map_chunk::Level_tile_map_chunk(const Level_structure& ls, const sf::Vector2f& tile_size, const sf::IntRect& area, Combined_texture* texture)
 {
+    this->texture = texture;
     sf::VertexArray vertex_array;
 
     for (int x = area.left; x < ls.getSize().x && x < area.left + area.width; x++)

@@ -2,13 +2,13 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 
 //uses file path as key
 class Texture_bank
 {
-    inline static std::map<std::string, sf::Texture> texture_map;
+    inline static std::unordered_map<std::string, sf::Texture> texture_map;
 
 public:
     /**

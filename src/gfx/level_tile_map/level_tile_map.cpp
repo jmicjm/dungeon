@@ -47,7 +47,7 @@ void Level_tile_map::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         return;
     }
 
-    const auto [tl_px, br_px] = visibleAreaBounds(rt.getView());
+    const auto [tl_px, br_px] = visibleAreaBoundsPixels(rt.getView());
     const sf::Vector2i tl_chunk = 
     {
         std::max(0, (int)tl_px.x / chunk_size_px.x),
@@ -100,7 +100,7 @@ Level_tile_map& Level_tile_map::operator=(Level_tile_map&& other)
     return *this;
 }
 
-void Level_tile_map::populate(const Level_structure& ls, const sf::Vector2f& Tile_size, const sf::Vector2i& chunk_size)
+Level_tile_map::Level_tile_map(const Level_structure& ls, const sf::Vector2f& Tile_size, const sf::Vector2i& chunk_size)
 {
     const int width  = std::ceil(ls.getSize().x * 1.f / chunk_size.x);
     const int height = std::ceil(ls.getSize().y * 1.f / chunk_size.y);
@@ -113,7 +113,7 @@ void Level_tile_map::populate(const Level_structure& ls, const sf::Vector2f& Til
         {
             const sf::IntRect area = { {x * chunk_size.x, y * chunk_size.y}, {chunk_size.x, chunk_size.y} };
 
-            at({ x,y }).populate(ls, Tile_size, area);
+            at({ x,y }) = Level_tile_map_chunk{ ls, Tile_size, area, &texture };
         }
     }
     chunk_size_px = { chunk_size.x*(int)Tile_size.x, chunk_size.y*(int)Tile_size.y };

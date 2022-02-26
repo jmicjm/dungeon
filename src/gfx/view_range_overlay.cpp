@@ -1,6 +1,9 @@
 #include "view_range_overlay.h"
 #include "../level/level.h"
 #include "../asset_storage/texture_bank.h"
+#include "../utils/sf_vector2_utils.h"
+#include "../asset_storage/tile_sprite_storage.h"
+#include "utils/visibleAreaBounds.h"
 
 #include "SFML/Graphics/RectangleShape.hpp"
 
@@ -13,7 +16,7 @@ using namespace TILE_SPRITE_ID;
 void View_range_overlay::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     const sf::View current_view = rt.getView();
-    rt.setView(sf::View{ sf::FloatRect{{0.f,0.f}, sf::Vector2f{rt.getSize()}} });
+    rt.setView(sf::View{ sf::FloatRect{ { 0.f,0.f }, sf::Vector2f{ rt.getSize() } } });
     rt.draw(sf::Sprite{ overlay_tex.getTexture() });
     rt.setView(current_view);
 }
@@ -52,37 +55,29 @@ void View_range_overlay::update(const Level& l,
 {
     if (   visible_tiles != last_visible_tiles
         || rt.getView().getTransform() != last_display_view.getTransform()
-        || rt.getView().getSize() != last_display_view.getSize()
-        )
+        || rt.getView().getSize() != last_display_view.getSize())
     {
         overlay_tex.create(rt.getSize().x, rt.getSize().y);
         overlay_tex.clear({ 0,0,0,255 });
         overlay_tex.setView(rt.getView());
 
+        const auto [tl_tile, br_tile] = [&]()
+        {
+            const auto bounds = visibleAreaBoundsTiles(rt.getView());
+            const sf::Vector2i tl_tile = { std::max(0, bounds.first.x),
+                                           std::max(0, bounds.first.y) };
+            const sf::Vector2i br_tile = { std::min(l.getStructure().getSize().x - 1, bounds.second.x),
+                                           std::min(l.getStructure().getSize().y-1, bounds.second.y) };
+            return std::pair{ tl_tile, br_tile };
+        }();
 
-        const sf::Vector2f tl_px_visible = rt.getView().getCenter() - rt.getView().getSize() / 2.f;
-        const sf::Vector2f br_px_visible = rt.getView().getCenter() + rt.getView().getSize() / 2.f;
-        const sf::Vector2i tl_tile_visible = 
+        for (int x = tl_tile.x; x <= br_tile.x; x++)
         {
-            std::max(0, static_cast<int>(tl_px_visible.x) / l.tile_size.x),
-            std::max(0, static_cast<int>(tl_px_visible.y) / l.tile_size.y)
-        };
-        const sf::Vector2i br_tile_visible =
-        {
-            std::min(l.structure.getSize().x-1, static_cast<int>(br_px_visible.x) / l.tile_size.x),
-            std::min(l.structure.getSize().y-1, static_cast<int>(br_px_visible.y) / l.tile_size.y)
-        };
-
-        for (int x = tl_tile_visible.x; x<= br_tile_visible.x; x++)
-        {
-            for (int y = tl_tile_visible.y; y <= br_tile_visible.y; y++)
+            for (int y = tl_tile.y; y <= br_tile.y; y++)
             {
-                if (l.structure.isPositionValid({ x,y }))
+                if (revealed_tiles.at({ x,y }).isVisible())
                 {
-                    if (revealed_tiles.at({ x,y }).isVisible())
-                    {
-                        drawTileOverlay(l, { x,y }, revealed_tiles.at({ x,y }));
-                    }
+                    drawTileOverlay(l, { x,y }, revealed_tiles.at({ x,y }));
                 }
             }
         }
@@ -90,14 +85,14 @@ void View_range_overlay::update(const Level& l,
         sf::RectangleShape dark_overlay(sf::Vector2f{ overlay_tex.getSize() });
         dark_overlay.setFillColor({ 0,0,0,224 });
 
-        overlay_tex.setView(sf::View{ sf::FloatRect{{0,0}, sf::Vector2f{overlay_tex.getSize()} } });
+        overlay_tex.setView(sf::View{ sf::FloatRect{ { 0,0 }, sf::Vector2f{ overlay_tex.getSize() } } });
         overlay_tex.draw(dark_overlay);
         overlay_tex.setView(rt.getView());
 
         for (const auto& tile : visible_tiles)
         {
             const auto& [position, tvi] = tile;
-            if (l.structure.isPositionValid({ position.x,position.y }))
+            if (l.getStructure().isPositionValid(position))
             {
                 drawTileOverlay(l, position, tvi);
             }
@@ -113,33 +108,25 @@ void View_range_overlay::drawTileOverlay(const Level& l,
                                          const sf::Vector2i& position,
                                          const Tile_visibility_info tvi)
 {
-    const sf::Vector2i tile_size = l.tile_size;
     const tile_sprite_id_t id = [&]() 
     {
         const auto& [tl, tr, bl, br] = tvi;
         const bool is_closed_door = [&]()
         {
-            auto doors = l.door_controller.doors.find(position);
+            auto doors = l.door_controller.getDoors().find(position);
             return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
         }();
 
-        if (l.structure.at(position).type == TILE_TYPE::WALL)
-        {
-            return tl * TL | tr * TR | bl * BL | br * BR;
-        }
-        if (is_closed_door)
+        if (l.getStructure().at(position).type == TILE_TYPE::WALL || is_closed_door)
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }
         return TL | TR | BL | BR;       
     }();
 
-    auto it = sprites.find(id);
-    if (it != sprites.end())
+    if (auto it = sprites.find(id); it != sprites.end())
     {
-        const auto [tx, ty] = sf::Vector2f{ position };
-        const auto [sx, sy] = sf::Vector2f{ tile_size };
-        it->second.setPosition({tx*sx, ty*sy});
+        it->second.setPosition(sf::Vector2f{ vecMul(position, Tile_sprite_storage::tile_size) });
         overlay_tex.draw(it->second, sf::BlendMultiply);
     }
 }

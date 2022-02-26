@@ -19,17 +19,13 @@ int main()
 
     Gen_params g_params;
     g_params.level_size = { 500, 500 };
-    g_params.min_room_size = { 2,2 };
-    g_params.max_room_size = { 10,10 };
-    g_params.min_hallway_segment_length = 1;
-    g_params.max_hallway_segment_length = 5;
-    g_params.min_hallway_segment_count = 1;
-    g_params.max_hallway_segment_count = 5;
+    g_params.room_size = { { 2,2 }, { 10,10 } };
+    g_params.hallway_segment_length = { 1,5 };
+    g_params.hallway_segment_count = { 1,5 };
     g_params.max_empty_area_size = { 10,10 };
 
-    Level level;
-    level.create({ {64,64}, {30,30}, g_params });
-    level.structure.printToFile("map.txt");
+    Level level({ {30,30}, g_params });
+    level.getStructure().printToFile("map.txt");
 
     
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
@@ -44,7 +40,7 @@ int main()
     }();
     Animated_sprite player_animation(player_frames, 16);
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(&level, level.structure.getRoomRect(0).tl, player_animation);
+    std::shared_ptr<Player> player = std::make_shared<Player>(&level, level.getStructure().getRoomRect(0).tl, player_animation);
     auto pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
 
     View_follower vf;
@@ -57,6 +53,7 @@ int main()
     vf_instant.velocity = -1;
     vf_instant.edge_dst = 32;
     vf_instant.followCenter();
+
 
 
     std::chrono::steady_clock::time_point player_update_time = std::chrono::steady_clock::now();
@@ -85,15 +82,9 @@ int main()
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
         bool player_action_allowed = (t - player_update_time) >= std::chrono::milliseconds(200);
 
-        sf::Vector2i old_pos = player->getPosition();
         if (player_action_allowed)
         {
-            if(player->updateState(true)) player_update_time = t;
-        }
-        if (old_pos != player->getPosition())
-        {
-            level.entities.erase(pptr);
-            pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
+            if(player->performAction()) player_update_time = t;
         }
 
         vf.follow();
@@ -104,19 +95,7 @@ int main()
         rounded_view.setCenter(tl + view.getSize() / 2.f);
         window.setView(rounded_view);//use rounded view to avoid rendering at non integer positions
 
-        level.door_controller.update(window.getView());
-       
-        auto visible_tiles = [&]()
-        {       
-            auto map = player->getVisibleTiles();
-            std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> vec(map.size());
-            std::copy(map.begin(), map.end(), vec.begin());
-
-            return vec;
-        }();
-        level.reveal_mask.reveal(visible_tiles);
-        level.view_range_overlay.update(level, visible_tiles, level.reveal_mask, window);
-
+        level.updateVisibleTiles(player->getVisibleTiles(), window);
         window.draw(level);
 
         window.display();

@@ -1,39 +1,46 @@
 #include "level.h"
-#include "../level_gen/level_structure_generator.h"
-#include "../level_gen/level_structure_decorator.h"
 #include "../entities/entity.h"
 #include "../gfx/utils/visibleAreaBounds.h"
+#include "../level_gen/createLevelStructure.h"
 
 void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     rt.draw(tile_map, st);
     rt.draw(door_controller, st);
-    const auto [tl, br] = visibleAreaBounds(rt.getView(), tile_size);
+    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
 
-    auto area_entites = entities.find({ tl, br + sf::Vector2i{1,1} });
+    auto area_entites = entities.find({ tl, br });
     for (auto entity : area_entites)
     {
-        entity->second->updateState(false);
+        entity->second->update();
         
         const auto [px, py] = entity->second->getPosition();
-        const auto [tx, ty] = tile_size;
+        const auto [tx, ty] = Tile_sprite_storage::tile_size;
         const sf::Vector2f pos(px * tx, py * ty - ty / 2);
-        sf::RenderStates st;
-        st.transform.translate(pos);
+        sf::RenderStates st2 = st;
+        st2.transform.translate(pos);
 
-        rt.draw(*entity->second, st);
+        rt.draw(*entity->second, st2);
     }
     rt.draw(view_range_overlay);
 }
 
-void Level::create(const Level_params& params)
-{
-    Level_structure_generator{}.generate(structure, params.gen_params);
-    Level_structure_decorator{}.decorate(structure);
-    tile_map.populate(structure, params.tile_size, params.tile_map_chunk_size);
-    reveal_mask.create(params.gen_params.level_size);
-    tile_size = sf::Vector2i{ params.tile_size };
+Level::Level(const Level_params& params) 
+    : structure(createLevelStructure(params.gen_params)),
+    entities({ { 0,0 }, structure.getSize() }),
+    door_controller(this),
+    reveal_mask(params.gen_params.level_size),
+    tile_map(structure, sf::Vector2f{ Tile_sprite_storage::tile_size }, params.tile_map_chunk_size) {}
 
-    door_controller = Door_controller{ this };
-    entities = Quadtree<std::shared_ptr<Entity>>({ {0,0}, structure.getSize() });
+void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt)
+{
+    const auto visible_tiles_vec = std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>{ visible_tiles.begin(), visible_tiles.end() };
+
+    reveal_mask.reveal(visible_tiles_vec);
+    view_range_overlay.update(*this, visible_tiles_vec, reveal_mask, rt);
+}
+
+const Level_structure& Level::getStructure() const
+{
+    return structure;
 }
