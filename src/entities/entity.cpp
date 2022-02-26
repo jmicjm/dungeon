@@ -1,4 +1,5 @@
 #include "entity.h"
+#include "../level/level.h"
 #include "../utils/sf_vector2_utils.h"
 #include "../asset_storage/tile_sprite_storage.h"
 
@@ -10,17 +11,34 @@
 
 void Entity::updateQtPosition(const sf::Vector2i& new_pos)
 {
-    auto qt_ptr = [&]//todo: replace with member variable 
-    {
-        auto entities = level->entities.find(position);
-        auto it = std::find_if(entities.begin(), entities.end(), [&](const auto& v) { return v->second.get() == this; });
-        return it != entities.end() ? *it : nullptr;
-    }();
-    if (qt_ptr)
+    if (auto qt_ptr = qtPtr(); qt_ptr)
     {
         auto sptr = std::move(qt_ptr->second);
         level->entities.erase(qt_ptr);
         level->entities.insert({ new_pos, std::move(sptr) });
+    }
+}
+
+std::pair<const sf::Vector2i, std::shared_ptr<Entity>>* Entity::qtPtr()
+{
+    if (!level) return nullptr;
+    auto entities = level->entities.find(position);
+    auto it = std::find_if(entities.begin(), entities.end(), [&](const auto& v) { return v->second.get() == this; });
+    return it != entities.end() ? *it : nullptr;
+}
+
+void Entity::useEntrance(const Entrance& entrance)
+{
+    if (auto qt_ptr = qtPtr(); qt_ptr)
+    {
+        if (auto destination = entrance.getDestination().lock(); destination)
+        {
+            auto sptr = std::move(qt_ptr->second);
+            level->entities.erase(qt_ptr);
+            destination->entities.insert({ entrance.getDestinationPos(), std::move(sptr) });
+            position = entrance.getDestinationPos();
+            level = destination.get();
+        }
     }
 }
 

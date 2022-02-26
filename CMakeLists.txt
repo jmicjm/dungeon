@@ -31,6 +31,7 @@ add_executable(dungeon
     src/level/tile_visibility_info.cpp
     src/level/door.cpp
     src/level/door_controller.cpp
+    src/level/entrance.cpp
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
@@ -45,6 +46,7 @@ add_executable(dungeon
     src/gui/text.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
+    src/world/world.cpp
 )
 
 target_link_libraries(dungeon sfml-graphics)
