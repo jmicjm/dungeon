@@ -2,17 +2,12 @@
 #include "../level/level.h"
 
 
-Entrance::Entrance(std::weak_ptr<Level> level, sf::Vector2i destination_pos, Primitive_sprite sprite)
-    : destination(std::move(level)), destination_pos(destination_pos), sprite(sprite) {}
+Entrance::Entrance(Portal portal, Primitive_sprite sprite)
+    : portal(std::move(portal)), sprite(sprite) {}
 
-const std::weak_ptr<Level>& Entrance::getDestination() const
+const Portal& Entrance::getPortal() const
 {
-    return destination;
-}
-
-const sf::Vector2i& Entrance::getDestinationPos() const
-{
-    return destination_pos;
+    return portal;
 }
 
 const Primitive_sprite& Entrance::getSprite() const

@@ -4,7 +4,7 @@
 #include "../utils/sf_vector2_hash.h"
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML//Graphics/RenderWindow.hpp"
-#include "../level/entrance.h"
+#include "../level/portal.h"
 
 #include <utility>
 #include <unordered_map>
@@ -22,7 +22,7 @@ protected:
     Level* level = nullptr;
     unsigned int vision_radius = 6;
 
-    void useEntrance(const Entrance& entrance);
+    void usePortal(const Portal& portal);
 
 public:
     Entity(Level* level, const sf::Vector2i& position);

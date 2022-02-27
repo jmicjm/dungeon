@@ -29,9 +29,9 @@ bool Player::performAction()
         auto entrances = level->entrances.find(getPosition());
         if (entrances.size() > 0)
         {
-            if (auto destination = entrances[0]->second.getDestination().lock(); destination)
+            if (auto destination = entrances[0]->second.getPortal().destination.lock(); destination)
             {
-                useEntrance(entrances[0]->second);
+                usePortal(entrances[0]->second.getPortal());
                 world->current_level = destination;
                 return true;
             }

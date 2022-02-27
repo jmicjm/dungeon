@@ -27,16 +27,16 @@ std::pair<const sf::Vector2i, std::shared_ptr<Entity>>* Entity::qtPtr()
     return it != entities.end() ? *it : nullptr;
 }
 
-void Entity::useEntrance(const Entrance& entrance)
+void Entity::usePortal(const Portal& portal)
 {
     if (auto qt_ptr = qtPtr(); qt_ptr)
     {
-        if (auto destination = entrance.getDestination().lock(); destination)
+        if (auto destination = portal.destination.lock(); destination)
         {
             auto sptr = std::move(qt_ptr->second);
             level->entities.erase(qt_ptr);
-            destination->entities.insert({ entrance.getDestinationPos(), std::move(sptr) });
-            position = entrance.getDestinationPos();
+            destination->entities.insert({ portal.destination_pos, std::move(sptr)});
+            position = portal.destination_pos;
             level = destination.get();
         }
     }
