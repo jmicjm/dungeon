@@ -2,7 +2,7 @@
 #include "level_structure_generator.h"
 #include "level_structure_decorator.h"
 
-Level_structure createLevelStructure(const Gen_params& params)
+Level_structure createLevelStructure(const Level_structure_params& params)
 {
 	Level_structure structure;
 	Level_structure_generator{}.generate(structure, params);

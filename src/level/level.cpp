@@ -43,12 +43,12 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 }
 
 Level::Level(const Level_params& params) 
-    : structure(createLevelStructure(params.gen_params)),
+    : structure(createLevelStructure(params.structure_params)),
     entities({ { 0,0 }, structure.getSize() }),
     entrances({ { 0,0 }, structure.getSize() }),
     door_controller(this),
-    reveal_mask(params.gen_params.level_size),
-    tile_map(structure, sf::Vector2f{ Tile_sprite_storage::tile_size }, params.tile_map_chunk_size) {}
+    reveal_mask(params.structure_params.level_size),
+    tile_map(structure, sf::Vector2f{ Tile_sprite_storage::tile_size }, { 30,30 }) {}
 
 void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt)
 {

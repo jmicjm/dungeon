@@ -1,8 +1,10 @@
 #pragma once
-#include "../level_gen/gen_params.h"
+#include "../level/level_params.h"
+
+#include <vector>
+
 
 struct World_params
 {
-    Gen_params level_params;
-    int level_count;
+    std::vector<Level_params> level_params;
 };
