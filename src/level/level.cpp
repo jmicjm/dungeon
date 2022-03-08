@@ -7,7 +7,7 @@
 
 void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    rt.draw(tile_map, st);
+    if(tile_map) rt.draw(*tile_map, st);
     rt.draw(door_controller, st);
     const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
 
@@ -39,23 +39,22 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         rt.draw(*entity->second, st2);
     }
     
-    rt.draw(view_range_overlay);
+    if(view_range_overlay) rt.draw(*view_range_overlay);
 }
 
-Level::Level(const Level_params& params) 
+Level::Level(const Level_params& params)
     : structure(createLevelStructure(params.structure_params)),
     entities({ { 0,0 }, structure.getSize() }),
     entrances({ { 0,0 }, structure.getSize() }),
     door_controller(this),
-    reveal_mask(params.structure_params.level_size),
-    tile_map(structure, sf::Vector2f{ Tile_sprite_storage::tile_size }, { 30,30 }) {}
+    reveal_mask(params.structure_params.level_size) {}
 
 void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt)
 {
     const auto visible_tiles_vec = std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>{ visible_tiles.begin(), visible_tiles.end() };
 
     reveal_mask.reveal(visible_tiles_vec);
-    view_range_overlay.update(*this, visible_tiles_vec, reveal_mask, rt);
+    if(view_range_overlay) view_range_overlay->update(*this, visible_tiles_vec, reveal_mask, rt);
 }
 
 const Level_structure& Level::getStructure() const
@@ -70,4 +69,16 @@ void Level::update()
     {
         e->second->performAction();
     }
+}
+
+void Level::loadVisuals()
+{
+    if(!tile_map) tile_map = std::make_unique<Level_tile_map>(structure, sf::Vector2f{ Tile_sprite_storage::tile_size }, sf::Vector2i{ 30,30 });
+    if(!view_range_overlay) view_range_overlay = std::make_unique<View_range_overlay>();
+}
+
+void Level::unloadVisuals()
+{
+    tile_map = nullptr;
+    view_range_overlay = nullptr;
 }

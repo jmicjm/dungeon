@@ -11,13 +11,15 @@
 
 class Player : public Entity
 {
+    friend class World;
+
     Animated_sprite animation;
+    World* world = nullptr;
     std::chrono::steady_clock::time_point last_action_t = std::chrono::steady_clock::now();
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
 public:
-    World* world = nullptr;
     Player(Level* level, sf::Vector2i position, Animated_sprite anim);
 
     void update() override;

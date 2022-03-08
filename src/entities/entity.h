@@ -11,7 +11,6 @@
 
 class Entity : public sf::Drawable
 {
-    friend class World;
 private:
     sf::Vector2i position;
 

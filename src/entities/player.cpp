@@ -32,7 +32,7 @@ bool Player::performAction()
             if (auto destination = entrances[0]->second.getPortal().destination.lock(); destination)
             {
                 usePortal(entrances[0]->second.getPortal());
-                world->current_level = destination;
+                world->changeLevel(destination);
                 return true;
             }
         }

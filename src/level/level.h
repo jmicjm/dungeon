@@ -18,9 +18,9 @@
 class Level : public sf::Drawable
 {
     Level_structure structure;
-    Level_tile_map tile_map;
     Tile_reveal_mask reveal_mask;
-    View_range_overlay view_range_overlay;
+    std::unique_ptr<Level_tile_map> tile_map;
+    std::unique_ptr<View_range_overlay> view_range_overlay;
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
@@ -35,4 +35,7 @@ public:
     const Level_structure& getStructure() const;
     void updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt);
     void update();
+
+    void loadVisuals();
+    void unloadVisuals();
 };

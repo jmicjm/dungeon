@@ -35,9 +35,10 @@ World::World(const World_params& params, const std::shared_ptr<Player>& player)
     }
 
     current_level = *levels.begin();
+    current_level->loadVisuals();
     current_level->entities.insert({ current_level->getStructure().getRoomRect(0).tl, player });
     player->world = this;
-    static_cast<Entity*>(player.get())->level = current_level.get();
+    player->level = current_level.get();
     player->setPosition(current_level->getStructure().getRoomRect(0).tl);
 }
 
@@ -45,4 +46,12 @@ void World::update(const sf::RenderTarget& rt)
 {
     current_level->update();
     current_level->updateVisibleTiles(player->getVisibleTiles(), rt);
+}
+
+std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)
+{
+    if (current_level) current_level->unloadVisuals();
+    if (new_level) new_level->loadVisuals();
+
+    return std::exchange(current_level, new_level);
 }
