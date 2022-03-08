@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 
-struct Gen_params
+struct Level_structure_params
 {
     template<typename T>
     class Minmax

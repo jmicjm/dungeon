@@ -1,3 +1,4 @@
+#include "world/world.h"
 #include "level/level.h"
 #include "entities/player.h"
 #include "gfx/view_follower.h"
@@ -16,17 +17,6 @@ int main()
     window.setFramerateLimit(60);
     sf::View view = window.getView();
 
-
-    Gen_params g_params;
-    g_params.level_size = { 500, 500 };
-    g_params.room_size = { { 2,2 }, { 10,10 } };
-    g_params.hallway_segment_length = { 1,5 };
-    g_params.hallway_segment_count = { 1,5 };
-    g_params.max_empty_area_size = { 10,10 };
-
-    Level level({ {30,30}, g_params });
-    level.getStructure().printToFile("map.txt");
-
     
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
@@ -40,8 +30,34 @@ int main()
     }();
     Animated_sprite player_animation(player_frames, 16);
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(&level, level.getStructure().getRoomRect(0).tl, player_animation);
-    auto pptr = level.entities.insert({ player->getPosition(), std::static_pointer_cast<Entity>(player) });
+    std::shared_ptr<Player> player = std::make_shared<Player>(nullptr, sf::Vector2i{0,0}, player_animation);
+
+
+    Level_structure_params structure_params;
+    structure_params.level_size = { 500, 500 };
+    structure_params.room_size = { { 2,2 }, { 10,10 } };
+    structure_params.hallway_segment_length = { 1,5 };
+    structure_params.hallway_segment_count = { 1,5 };
+    structure_params.max_empty_area_size = { 10,10 };
+
+    Level_structure_params small_structure_params = structure_params;
+    small_structure_params.level_size = { 50,50 };
+
+    Level_structure_params hallways_structure_params = structure_params;
+    hallways_structure_params.hallway_segment_length = { 10,50 };
+
+    World_params world_params =
+    {
+        { 
+            { structure_params },
+            { small_structure_params },
+            { hallways_structure_params },
+            { structure_params }
+        },
+    };
+
+    World world(world_params, player);
+
 
     View_follower vf;
     vf.target_position = [&]() { return sf::Vector2f(player->getPosition()) * 64.f + sf::Vector2f(32,0); };
@@ -55,8 +71,6 @@ int main()
     vf_instant.followCenter();
 
 
-
-    std::chrono::steady_clock::time_point player_update_time = std::chrono::steady_clock::now();
     while (window.isOpen())
     {
         Input::update();
@@ -79,13 +93,6 @@ int main()
         window.clear();
         
 
-        std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
-        bool player_action_allowed = (t - player_update_time) >= std::chrono::milliseconds(200);
-
-        if (player_action_allowed)
-        {
-            if(player->performAction()) player_update_time = t;
-        }
 
         vf.follow();
         vf_instant.follow();
@@ -95,8 +102,8 @@ int main()
         rounded_view.setCenter(tl + view.getSize() / 2.f);
         window.setView(rounded_view);//use rounded view to avoid rendering at non integer positions
 
-        level.updateVisibleTiles(player->getVisibleTiles(), window);
-        window.draw(level);
+        world.update(window);
+        window.draw(world);
 
         window.display();
     }   

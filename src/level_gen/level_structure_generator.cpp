@@ -417,7 +417,7 @@ bool Level_structure_generator::fillEmptyArea(Rect_i area)
     return false;
 }
 
-void Level_structure_generator::generate(Level_structure& l, Gen_params p) &&
+void Level_structure_generator::generate(Level_structure& l, Level_structure_params p) &&
 {
     ls = &l;
     params = p;

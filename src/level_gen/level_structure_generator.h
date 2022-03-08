@@ -1,13 +1,13 @@
 #pragma once
 #include "../level/level_structure.h"
 #include "../utils/rect.h"
-#include "gen_params.h"
+#include "level_structure_params.h"
 
 
 class Level_structure_generator
 {
     Level_structure* ls = nullptr;
-    Gen_params params;
+    Level_structure_params params;
 
     void fill(const Tile tile);
     void setTiles(Rect_i r, const TILE_TYPE ttype);
@@ -34,5 +34,5 @@ class Level_structure_generator
     bool contains(Rect_i area, const T& pred);
 
 public:
-    void generate(Level_structure& l, Gen_params p) &&;
+    void generate(Level_structure& l, Level_structure_params p) &&;
 };
