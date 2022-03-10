@@ -48,7 +48,7 @@ namespace gui
     }
 
     Scroll_impl::Scroll_impl(sf::RenderWindow* rw)
-        : Gui_element(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
+        : Gui_component(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
     {        
         top_arrow.setPressDelay(std::chrono::milliseconds(0));
         bottom_arrow.setPressDelay(std::chrono::milliseconds(0));

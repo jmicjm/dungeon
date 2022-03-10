@@ -125,7 +125,7 @@ namespace gui
     }
 
     Text::Text(sf::RenderWindow* rw)
-        : Gui_element(rw), scroll(rw)
+        : Gui_component(rw), scroll(rw)
     {
         scroll.setSizeInfo({ {0,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
@@ -133,7 +133,7 @@ namespace gui
     }
 
     Text::Text(const Text& other)
-        : Gui_element(other),
+        : Gui_component(other),
         str(other.str),
         font(other.font),
         character_size(other.character_size),
@@ -143,7 +143,7 @@ namespace gui
     }
 
     Text::Text(Text&& other) noexcept
-        : Gui_element(std::move(other)),
+        : Gui_component(std::move(other)),
         str(std::move(other.str)),
         font(std::move(other.font)),
         character_size(std::move(other.character_size)),
@@ -154,7 +154,7 @@ namespace gui
 
     Text& Text::operator=(const Text& other)
     {
-        Gui_element::operator=(other);
+        Gui_component::operator=(other);
         str = other.str;
         font = other.font;
         character_size = other.character_size;
@@ -170,7 +170,7 @@ namespace gui
 
     Text& Text::operator=(Text&& other) noexcept
     {
-        Gui_element::operator=(std::move(other));
+        Gui_component::operator=(std::move(other));
         str = std::move(other.str);
         font = std::move(other.font);
         character_size = std::move(other.character_size);

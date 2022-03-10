@@ -1,12 +1,12 @@
 #pragma once
-#include "gui_element.h"
+#include "gui_component.h"
 #include "frame_appearance.h"
 #include "surface.h"
 
 
 namespace gui
 {
-    class Frame : public Gui_element
+    class Frame : public Gui_component
     {
         Surface background;
 
@@ -15,7 +15,7 @@ namespace gui
         void redraw() override;
 
     public:
-        using Gui_element::Gui_element;
+        using Gui_component::Gui_component;
 
         bool isRedrawRequired() const override;
 

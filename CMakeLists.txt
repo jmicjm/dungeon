@@ -37,7 +37,7 @@ add_executable(dungeon
     src/level_gen/createLevelStructure.cpp
     src/entities/entity.cpp
     src/entities/player.cpp
-    src/gui/gui_element.cpp 
+    src/gui/gui_component.cpp 
     src/gui/surface.cpp
     src/gui/button.cpp   
     src/gui/gauge_bar.cpp

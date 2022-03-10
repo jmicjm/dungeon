@@ -8,9 +8,10 @@
 
 #include <functional>
 
+
 namespace gui
 {
-    class Gui_element
+    class Gui_component
     {
         sf::RenderWindow* window;
         sf::RenderTexture rtex;
@@ -18,10 +19,10 @@ namespace gui
         Position_info pos_info;
         Size_info size_info;   
 
-        const Gui_element* anchor = nullptr;
+        const Gui_component* anchor = nullptr;
         Anchor_position_info anchor_pos_info;
 
-        const Gui_element* parent = nullptr;
+        const Gui_component* parent = nullptr;
         sf::Vector2f getParentGlobalPosition() const;
         sf::Vector2i getParentSize() const;
 
@@ -33,18 +34,18 @@ namespace gui
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
-        void draw(Gui_element& element, bool u = true);
+        void draw(Gui_component& component, bool u = true);
         virtual void redraw() = 0;
 
         virtual void resizeEvent(const sf::Vector2i& size_diff) {}
 
     public:
-        Gui_element(sf::RenderWindow* rw);
-        Gui_element(const Gui_element& other);
-        Gui_element(Gui_element&& other) noexcept;
-        Gui_element& operator=(const Gui_element& other);
-        Gui_element& operator=(Gui_element&& other) noexcept;
-        virtual ~Gui_element() = default;
+        Gui_component(sf::RenderWindow* rw);
+        Gui_component(const Gui_component& other);
+        Gui_component(Gui_component&& other) noexcept;
+        Gui_component& operator=(const Gui_component& other);
+        Gui_component& operator=(Gui_component&& other) noexcept;
+        virtual ~Gui_component() = default;
 
         void draw(bool update = true);
         virtual void update() {}
@@ -61,13 +62,13 @@ namespace gui
         Size_info getSizeInfo() const;
         sf::Vector2i getSize() const;
 
-        void setAnchor(const Gui_element* a);
-        const Gui_element* getAnchor() const;
+        void setAnchor(const Gui_component* anchor);
+        const Gui_component* getAnchor() const;
         void setAnchorPositionInfo(Anchor_position_info a_info);
         Anchor_position_info getAnchorPositionInfo() const;
 
-        void setParent(const Gui_element* p);
-        const Gui_element* getParent() const;
+        void setParent(const Gui_component* parent);
+        const Gui_component* getParent() const;
 
         void setPositionFunction(std::function<sf::Vector2f()> func);
         std::function<sf::Vector2f()> getPositionFunction() const;

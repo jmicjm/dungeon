@@ -18,7 +18,7 @@ namespace gui
         {
             is_pressed = false;
         }
-        is_hovered = Gui_element::isHovered();
+        is_hovered = Gui_component::isHovered();
         if (!isLocked() && isHovered() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
         {
             is_pressed = !is_pressed;
@@ -70,7 +70,7 @@ namespace gui
         {
             surf.setSize(sf::Vector2f{ getSize() });
             surf.setPosition({ 0,0 });
-            Gui_element::draw(surf);
+            Gui_component::draw(surf);
         };
 
         if (isPressed())

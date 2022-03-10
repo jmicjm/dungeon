@@ -1,5 +1,5 @@
 #pragma once
-#include "gui_element.h"
+#include "gui_component.h"
 #include "text_appearance.h"
 #include "scroll.h"
 #include "../gfx/primitive_sprite.h"
@@ -11,7 +11,7 @@
 
 namespace gui
 {
-    class Text : public Gui_element
+    class Text : public Gui_component
     {
         std::string str;
         sf::RenderTexture rendered_str;

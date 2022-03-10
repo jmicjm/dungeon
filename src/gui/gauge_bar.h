@@ -1,5 +1,5 @@
 #pragma once
-#include "gui_element.h"
+#include "gui_component.h"
 #include "gauge_bar_appearance.h"
 #include "surface.h"
 
@@ -7,7 +7,7 @@
 
 namespace gui
 {
-    class Gauge_bar : public Gui_element
+    class Gauge_bar : public Gui_component
     {
         float min_value = 0;
         float max_value = 0;
@@ -30,7 +30,7 @@ namespace gui
         bool redraw_required = true;
 
     public:
-        using Gui_element::Gui_element;
+        using Gui_component::Gui_component;
 
         bool isRedrawRequired() const override;
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "gui_element.h"
+#include "gui_component.h"
 #include "button_appearance.h"
 #include "surface.h"
 
@@ -11,7 +11,7 @@
 
 namespace gui
 {
-    class Button : public Gui_element
+    class Button : public Gui_component
     {
         Button_appearance appearance;
 
@@ -43,7 +43,7 @@ namespace gui
         bool redraw_required = true;
 
     public:
-        using Gui_element::Gui_element;
+        using Gui_component::Gui_component;
 
         bool isPressed() const;
 
