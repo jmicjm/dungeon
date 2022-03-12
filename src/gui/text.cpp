@@ -116,12 +116,22 @@ namespace gui
         );
 
         draw(str_sprite);
-        if(rendered_str.getSize().y >= getSize().y) draw(scroll, false);  
+        if(rendered_str.getSize().y >= getSize().y) draw(scroll);  
     }
 
     void Text::resizeEvent(const sf::Vector2i& size_diff)
     {
         redraw_required = true;
+    }
+
+    void Text::activateEvent()
+    {
+        scroll.activate();
+    }
+
+    void Text::deactivateEvent()
+    {
+        scroll.deactivate();
     }
 
     Text::Text(sf::RenderWindow* rw)

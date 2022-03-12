@@ -27,7 +27,10 @@ namespace gui
 
         bool redraw_required = true;
         void redraw() override;
+
         void resizeEvent(const sf::Vector2i& size_diff) override;
+        void activateEvent() override;
+        void deactivateEvent() override;
 
     protected:
         Scroll_impl(sf::RenderWindow* rw);

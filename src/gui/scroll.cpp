@@ -25,8 +25,8 @@ namespace gui
     void Scroll_impl::redraw()
     {
         draw(line);
-        draw(top_arrow, false);
-        draw(bottom_arrow, false);
+        draw(top_arrow);
+        draw(bottom_arrow);
         updateHandle();
         draw(handle);
 
@@ -45,6 +45,19 @@ namespace gui
     void Scroll_impl::resizeEvent(const sf::Vector2i& size_diff)
     {
         setTopPosition(getTopPosition());
+    }
+
+    void Scroll_impl::activateEvent()
+    {
+        top_arrow.activate();
+        bottom_arrow.activate();
+    }
+
+    void Scroll_impl::deactivateEvent()
+    {
+        top_arrow.deactivate();
+        bottom_arrow.deactivate();
+        is_holding_handle = false;
     }
 
     Scroll_impl::Scroll_impl(sf::RenderWindow* rw)
@@ -73,6 +86,8 @@ namespace gui
 
     void Scroll_impl::update()
     {
+        if (!isActive()) return;
+
         if (!is_holding_handle)
         {
             top_arrow.update();

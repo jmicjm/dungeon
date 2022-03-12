@@ -11,6 +11,8 @@ namespace gui
 
     void Button::update()
     {
+        if (!isActive()) return;
+
         const bool was_pressed = is_pressed;
         const bool was_hovered = is_hovered;
 
@@ -95,6 +97,14 @@ namespace gui
             }
         }
         redraw_required = false;
+    }
+
+    void Button::deactivateEvent()
+    {
+        is_hovered = false;
+        if (type == PUSH && std::exchange(is_pressed, false) && release_function) release_function();
+
+        redraw_required = true;
     }
 
     bool Button::isRedrawRequired() const

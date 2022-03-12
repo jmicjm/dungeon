@@ -31,13 +31,17 @@ namespace gui
 
         void updateTex();
 
+        bool is_active = false;
+
     protected:       
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
-        void draw(Gui_component& component, bool u = true);
+        void draw(Gui_component& component);
         virtual void redraw() = 0;
 
         virtual void resizeEvent(const sf::Vector2i& size_diff) {}
+        virtual void activateEvent() {}
+        virtual void deactivateEvent() {}
 
     public:
         Gui_component(sf::RenderWindow* rw);
@@ -47,9 +51,12 @@ namespace gui
         Gui_component& operator=(Gui_component&& other) noexcept;
         virtual ~Gui_component() = default;
 
-        void draw(bool update = true);
-        virtual void update() {}
+        void draw();
         virtual bool isRedrawRequired() const;
+        virtual void update() {}
+        void activate();
+        void deactivate();
+        bool isActive() const;
 
         bool isHovered() const;
 

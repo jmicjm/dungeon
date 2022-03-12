@@ -40,10 +40,8 @@ namespace gui
         rtex.draw(vertices, vertexCount, type, states);
     }
 
-    void Gui_component::draw(Gui_component& component, bool u)
+    void Gui_component::draw(Gui_component& component)
     {
-        if (u) component.update();
-
         component.updateTex();
         sf::Sprite elem_sprite(component.rtex.getTexture());
         elem_sprite.setPosition(component.getPosition());
@@ -53,6 +51,23 @@ namespace gui
     bool Gui_component::isRedrawRequired() const
     {
         return true;
+    }
+
+    void Gui_component::activate()
+    {
+        is_active = true;
+        activateEvent();
+    }
+
+    void Gui_component::deactivate()
+    {
+        is_active = false;
+        deactivateEvent();
+    }
+
+    bool Gui_component::isActive() const
+    {
+        return is_active;
     }
 
     Gui_component::Gui_component(sf::RenderWindow* rw)
@@ -104,10 +119,8 @@ namespace gui
         return *this;
     }
 
-    void Gui_component::draw(bool u)
+    void Gui_component::draw() 
     {
-        if (u) update();
-
         const sf::View old_view = window->getView();
         const sf::View view{ sf::FloatRect{ 0,0, window->getSize().x * 1.f, window->getSize().y * 1.f } };
         window->setView(view);

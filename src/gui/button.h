@@ -42,6 +42,8 @@ namespace gui
         void redraw() override;
         bool redraw_required = true;
 
+        void deactivateEvent() override;
+
     public:
         using Gui_component::Gui_component;
 
