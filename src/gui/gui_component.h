@@ -33,7 +33,7 @@ namespace gui
 
         bool is_active = false;
 
-    protected:       
+    protected:  
         void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
         void draw(Gui_component& component);
@@ -59,6 +59,7 @@ namespace gui
         bool isActive() const;
 
         bool isHovered() const;
+        sf::FloatRect visibleArea() const;
 
         void setPositionInfo(Position_info p_info);
         Position_info getPositionInfo() const;

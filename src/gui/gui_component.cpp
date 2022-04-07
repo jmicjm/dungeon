@@ -136,19 +136,25 @@ namespace gui
 
     bool Gui_component::isHovered() const
     {
-        const sf::Vector2i mp = sf::Mouse::getPosition(*window);
-        const sf::Vector2f tl =
+        return visibleArea().contains(sf::Vector2f{ sf::Mouse::getPosition(*window) });
+    }
+
+    sf::FloatRect Gui_component::visibleArea() const
+    {
+        auto clipRect = [](const sf::FloatRect& inner, const sf::FloatRect& outer) -> sf::FloatRect
         {
-            std::max(getGlobalPosition().x, getParentGlobalPosition().x),
-            std::max(getGlobalPosition().y, getParentGlobalPosition().y)
+            if (!inner.intersects(outer)) return { 0,0,0,0 };
+
+            const sf::Vector2f tl = { std::max(inner.left, outer.left),
+                                      std::max(inner.top, outer.top) };
+            const sf::Vector2f br = { std::min(inner.left + inner.width, outer.left + outer.width),
+                                      std::min(inner.top + inner.height, outer.top + outer.height) };
+            return { tl, br - tl };
         };
-        const sf::Vector2f br = 
-        {
-            std::min(getGlobalPosition().x + getSize().x, getParentGlobalPosition().x + getParentSize().x),
-            std::min(getGlobalPosition().y + getSize().y, getParentGlobalPosition().y + getParentSize().y)
-        };
-        return mp.x >= tl.x && mp.x < br.x 
-            && mp.y >= tl.y && mp.y < br.y;
+
+        const auto bounds = sf::FloatRect{ getGlobalPosition(), sf::Vector2f{ getSize() } };
+        const auto parent_bounds = parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
+        return clipRect(bounds, parent_bounds);
     }
 
     sf::Vector2f Gui_component::getPosition() const

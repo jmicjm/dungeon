@@ -102,9 +102,7 @@ namespace gui
                 is_holding_handle = false;
             }
 
-            if (!is_holding_handle 
-                && hold_vec->source_pos.x >= handle.getGlobalPosition().x && hold_vec->source_pos.x <= handle.getGlobalPosition().x + handle.getSize().x
-                && hold_vec->source_pos.y >= handle.getGlobalPosition().y && hold_vec->source_pos.y <= handle.getGlobalPosition().y + handle.getSize().y)
+            if (!is_holding_handle && handle.visibleArea().contains(sf::Vector2f{ hold_vec->source_pos }))
             {
                 is_holding_handle = true;
                 hold_source_pos = hold_vec->source_pos;
