@@ -10,7 +10,7 @@ namespace gui
     {
         const float percentage = (current_value-min_value)/std::abs(min_value - max_value);
 
-        bar_surface.setSize(sf::Vector2f{ getSize() });
+        bar_surface.setSize(sf::Vector2f{ size() });
         draw(bar_surface);
 
         sf::RectangleShape rect;
@@ -20,20 +20,20 @@ namespace gui
         {
         case L_TO_R:
         case R_TO_L:
-            rect.setSize(sf::Vector2f( getSize().x * (1 - percentage), getSize().y ));      
+            rect.setSize(sf::Vector2f( size().x * (1 - percentage), size().y ));      
             break;
         case T_TO_B:
         case B_TO_T:
-            rect.setSize(sf::Vector2f( getSize().x, getSize().y * (1 - percentage) ));
+            rect.setSize(sf::Vector2f( size().x, size().y * (1 - percentage) ));
         }
 
         switch (direction)
         {
         case L_TO_R:
-            rect.setPosition({ getSize().x - rect.getSize().x, 0 });
+            rect.setPosition({ size().x - rect.getSize().x, 0 });
             break;
         case T_TO_B:
-            rect.setPosition({ 0, getSize().y - rect.getSize().y });
+            rect.setPosition({ 0, size().y - rect.getSize().y });
             break;
         case R_TO_L:
         case B_TO_T:

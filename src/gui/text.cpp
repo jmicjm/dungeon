@@ -19,7 +19,7 @@ namespace gui
 
         const sf::Texture& tex = font.getTexture(character_size);    
 
-        const unsigned int width = getSize().x - with_scroll*scroll.getSize().x;
+        const unsigned int width = size().x - with_scroll*scroll.size().x;
         unsigned int height = 0;
 
         unsigned int line = 0;
@@ -75,7 +75,7 @@ namespace gui
 
             height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
 
-            if (!with_scroll && height >= getSize().y) return false;
+            if (!with_scroll && height >= size().y) return false;
 
             prepared_text.push_back(p_spr);
         }
@@ -111,12 +111,12 @@ namespace gui
         str_sprite.setTextureRect(
             { 
               sf::Vector2i(0, scroll.getTopPosition()),
-              sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(getSize().y), rendered_str.getSize().y)) 
+              sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(size().y), rendered_str.getSize().y)) 
             }
         );
 
         draw(str_sprite);
-        if(rendered_str.getSize().y >= getSize().y) draw(scroll);  
+        if(rendered_str.getSize().y >= size().y) draw(scroll);  
     }
 
     void Text::resizeEvent(const sf::Vector2i& size_diff)

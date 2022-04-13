@@ -7,20 +7,28 @@
 
 namespace gui
 {
-    sf::Vector2f Gui_component::getParentGlobalPosition() const
+    sf::Vector2f Gui_component::parentGlobalPosition() const
     {
-        return parent ? parent->getGlobalPosition() : sf::Vector2f{0,0};
+        return parent ? parent->globalPosition() : sf::Vector2f{0,0};
     }
-    sf::Vector2i Gui_component::getParentSize() const
+    sf::Vector2i Gui_component::parentSize() const
     {
-        return parent ? parent->getSize() : sf::Vector2i{ window->getSize() };
+        return parent ? parent->size() : sf::Vector2i{ window->getSize() };
+    }
+    sf::FloatRect Gui_component::parentArea() const
+    {
+        return parent ? parent->area() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
+    }
+    sf::FloatRect Gui_component::visibleParentArea() const
+    {
+        return parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
     }
     void Gui_component::updateTex()
     {
-        const sf::Vector2i size_diff = sf::Vector2i{ getSize() } - sf::Vector2i{ rtex.getSize() };
+        const sf::Vector2i size_diff = sf::Vector2i{ size() } - sf::Vector2i{ rtex.getSize() };
         if (size_diff != sf::Vector2i{ 0,0 })
         {
-            rtex.create(getSize().x, getSize().y);
+            rtex.create(size().x, size().y);
             resizeEvent(size_diff);
         }
         if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
@@ -44,7 +52,7 @@ namespace gui
     {
         component.updateTex();
         sf::Sprite elem_sprite(component.rtex.getTexture());
-        elem_sprite.setPosition(component.getPosition());
+        elem_sprite.setPosition(component.position());
         rtex.draw(elem_sprite);
     }
 
@@ -128,7 +136,7 @@ namespace gui
         updateTex();
 
         sf::Sprite elem_sprite(rtex.getTexture());
-        elem_sprite.setPosition(getGlobalPosition());
+        elem_sprite.setPosition(globalPosition());
         window->draw(elem_sprite);
 
         window->setView(old_view);
@@ -137,6 +145,11 @@ namespace gui
     bool Gui_component::isHovered() const
     {
         return visibleArea().contains(sf::Vector2f{ sf::Mouse::getPosition(*window) });
+    }
+
+    sf::FloatRect Gui_component::area() const
+    {
+        return { globalPosition(), sf::Vector2f{ size() } };
     }
 
     sf::FloatRect Gui_component::visibleArea() const
@@ -152,68 +165,66 @@ namespace gui
             return { tl, br - tl };
         };
 
-        const auto bounds = sf::FloatRect{ getGlobalPosition(), sf::Vector2f{ getSize() } };
-        const auto parent_bounds = parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
-        return clipRect(bounds, parent_bounds);
+        return clipRect(area(), visibleParentArea());
     }
 
-    sf::Vector2f Gui_component::getPosition() const
+    sf::Vector2f Gui_component::position() const
     {
         if (pos_function)
         {
-            return pos_function();
+            return pos_function(parentSize());
         }
         else if (anchor)
         {
             const auto& [side, offset, relative_to] = anchor_pos_info;
 
-            sf::Vector2f pos = anchor->getPosition() + offset;
+            sf::Vector2f pos = anchor->position() + offset;
 
             switch (side)
             {
             case Anchor_position_info::TOP:
             case Anchor_position_info::BOTTOM:
-                pos.x += anchor->getSize().x * relative_to - getSize().x * relative_to;
+                pos.x += anchor->size().x * relative_to - size().x * relative_to;
                 break;
             case Anchor_position_info::LEFT:
             case Anchor_position_info::RIGHT:
-                pos.y += anchor->getSize().y * relative_to - getSize().y * relative_to;
+                pos.y += anchor->size().y * relative_to - size().y * relative_to;
             }
 
             switch (side)
             {
             case Anchor_position_info::TOP:
-                pos.y -= getSize().y;
+                pos.y -= size().y;
                 break;
             case Anchor_position_info::BOTTOM:
-                pos.y += anchor->getSize().y;
+                pos.y += anchor->size().y;
                 break;
             case Anchor_position_info::LEFT:
-                pos.x -= getSize().x;
+                pos.x -= size().x;
                 break;
             case Anchor_position_info::RIGHT:
-                pos.x += anchor->getSize().x;
+                pos.x += anchor->size().x;
             }
 
             return pos;
         }
         else
         {
-            const sf::Vector2i ps = getParentSize();
+            const sf::Vector2i ps = parentSize();
             const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
-                off.x + poff.x * ps.x + ps.x * rel.x - getSize().x * rel.x,
-                off.y + poff.y * ps.y + ps.y * rel.y - getSize().y * rel.y
+                off.x + poff.x * ps.x + ps.x * rel.x - size().x * rel.x,
+                off.y + poff.y * ps.y + ps.y * rel.y - size().y * rel.y
             };
 
             return pos;
         }
     }
 
-    sf::Vector2f Gui_component::getGlobalPosition() const
+    sf::Vector2f Gui_component::globalPosition() const
     {
-        return getParentGlobalPosition() + getPosition();
+        return parentGlobalPosition() + position();
     }
 
     void Gui_component::setPositionInfo(Position_info p_info)
@@ -236,18 +247,18 @@ namespace gui
         return size_info;
     }
 
-    sf::Vector2i Gui_component::getSize() const
+    sf::Vector2i Gui_component::size() const
     {
         const sf::Vector2i size = [&]() -> sf::Vector2i
         {
             if (size_function)
             {
-                return size_function();
+                return size_function(parentSize());
             }
             else
             {
                 const auto& p = size_info.percentage;
-                const auto  s = getParentSize();
+                const auto  s = parentSize();
                 return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x)),
                          static_cast<int>(std::round(size_info.fixed.y + s.y * p.y)) };
             }
@@ -284,19 +295,19 @@ namespace gui
     {
         return parent;
     }
-    void Gui_component::setPositionFunction(std::function<sf::Vector2f()> func)
+    void Gui_component::setPositionFunction(std::function<sf::Vector2f(sf::Vector2i)> func)
     {
         pos_function = func;
     }
-    std::function<sf::Vector2f()> Gui_component::getPositionFunction() const
+    std::function<sf::Vector2f(sf::Vector2i)> Gui_component::getPositionFunction() const
     {
         return pos_function;
     }
-    void Gui_component::setSizeFunction(std::function<sf::Vector2i()> func)
+    void Gui_component::setSizeFunction(std::function<sf::Vector2i(sf::Vector2i)> func)
     {
         size_function = func;
     }
-    std::function<sf::Vector2i()> Gui_component::getSizeFunction() const
+    std::function<sf::Vector2i(sf::Vector2i)> Gui_component::getSizeFunction() const
     {
         return size_function;
     }

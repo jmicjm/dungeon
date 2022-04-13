@@ -6,20 +6,20 @@ namespace gui
 {
     void Scroll_impl::updateHandle()
     {
-        const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
+        const int area_len = size().y - top_arrow.size().y - bottom_arrow.size().y;
 
         const float visible_perc = getContentLength() > 0 ? static_cast<float>(visibleContentLength()) / getContentLength() : 1;
         const int handle_len = std::clamp(static_cast<int>(area_len * visible_perc), 1, std::max(1, area_len));
         handle.setSizeInfo({ sf::Vector2f(0, handle_len), { 1,0 } });
 
         const float pos_perc = static_cast<float>(getTopPosition()) / (getContentLength() - visibleContentLength());
-        const int handle_pos = top_arrow.getSize().y + (area_len - handle_len) * pos_perc;
+        const int handle_pos = top_arrow.size().y + (area_len - handle_len) * pos_perc;
         handle.setPositionInfo({ { 0,handle_pos } });
     }
 
     int Scroll_impl::visibleContentLength() const
     {
-        return visible_content_length < 0 ? getSize().y : visible_content_length;
+        return visible_content_length < 0 ? size().y : visible_content_length;
     }
 
     void Scroll_impl::redraw()
@@ -111,7 +111,7 @@ namespace gui
                  
             if (is_holding_handle)
             {      
-                const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y - handle.getSize().y;
+                const int area_len = size().y - top_arrow.size().y - bottom_arrow.size().y - handle.size().y;
                 const int shift = hold_vec->current_pos.y - hold_vec->source_pos.y;
                 const float perc_shift = static_cast<float>(shift) / area_len;
 

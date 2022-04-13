@@ -64,13 +64,13 @@ namespace gui
         {
             const sf::FloatRect tbounds = text.getLocalBounds();
             text.setOrigin(tbounds.left + tbounds.width / 2, tbounds.top + tbounds.height / 2);
-            text.setPosition(sf::Vector2f{ getSize() } / 2.f);
+            text.setPosition(sf::Vector2f{ size() } / 2.f);
             draw(text);
         };
 
         auto draw = [&](Surface& surf)
         {
-            surf.setSize(sf::Vector2f{ getSize() });
+            surf.setSize(sf::Vector2f{ size() });
             surf.setPosition({ 0,0 });
             Gui_component::draw(surf);
         };

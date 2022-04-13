@@ -23,11 +23,13 @@ namespace gui
         Anchor_position_info anchor_pos_info;
 
         const Gui_component* parent = nullptr;
-        sf::Vector2f getParentGlobalPosition() const;
-        sf::Vector2i getParentSize() const;
+        sf::Vector2f parentGlobalPosition() const;
+        sf::Vector2i parentSize() const;
+        sf::FloatRect parentArea() const;
+        sf::FloatRect visibleParentArea() const;
 
-        std::function<sf::Vector2f()> pos_function;
-        std::function<sf::Vector2i()> size_function;
+        std::function<sf::Vector2f(sf::Vector2i)> pos_function;
+        std::function<sf::Vector2i(sf::Vector2i)> size_function;
 
         void updateTex();
 
@@ -54,21 +56,24 @@ namespace gui
         void draw();
         virtual bool isRedrawRequired() const;
         virtual void update() {}
+
         void activate();
         void deactivate();
         bool isActive() const;
 
         bool isHovered() const;
+        sf::FloatRect area() const;
         sf::FloatRect visibleArea() const;
+
+        sf::Vector2f position() const;
+        sf::Vector2f globalPosition() const;
 
         void setPositionInfo(Position_info p_info);
         Position_info getPositionInfo() const;
-        sf::Vector2f getPosition() const;
-        sf::Vector2f getGlobalPosition() const;
 
         void setSizeInfo(Size_info s_info);
         Size_info getSizeInfo() const;
-        sf::Vector2i getSize() const;
+        sf::Vector2i size() const;
 
         void setAnchor(const Gui_component* anchor);
         const Gui_component* getAnchor() const;
@@ -78,9 +83,9 @@ namespace gui
         void setParent(const Gui_component* parent);
         const Gui_component* getParent() const;
 
-        void setPositionFunction(std::function<sf::Vector2f()> func);
-        std::function<sf::Vector2f()> getPositionFunction() const;
-        void setSizeFunction(std::function<sf::Vector2i()> func);
-        std::function<sf::Vector2i()> getSizeFunction() const;
+        void setPositionFunction(std::function<sf::Vector2f(sf::Vector2i)> func);
+        std::function<sf::Vector2f(sf::Vector2i)> getPositionFunction() const;
+        void setSizeFunction(std::function<sf::Vector2i(sf::Vector2i)> func);
+        std::function<sf::Vector2i(sf::Vector2i)> getSizeFunction() const;
     };
 }
