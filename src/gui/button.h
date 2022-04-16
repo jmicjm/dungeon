@@ -40,7 +40,6 @@ namespace gui
         TYPE type = PUSH;
 
         void redraw() override;
-        bool redraw_required = true;
 
         void deactivateEvent() override;
 
@@ -50,7 +49,6 @@ namespace gui
         bool isPressed() const;
 
         void update() override;
-        bool isRedrawRequired() const override;
 
         void setType(TYPE t);
 

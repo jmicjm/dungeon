@@ -1,30 +1,34 @@
 #include "gauge_bar.h"
 
+#include "SFML/Graphics/Sprite.hpp"
+
 #include <algorithm>
 #include <cmath>
 
 
 namespace gui
 {
-    void Gauge_bar::redraw()
+    void Gauge_bar::renderBar()
     {
-        const float percentage = (current_value-min_value)/std::abs(min_value - max_value);
+        rtex.create(size().x, size().y);
+        rtex.clear({ 0,0,0,0 });
 
         bar_surface.setSize(sf::Vector2f{ size() });
-        draw(bar_surface);
+        rtex.draw(bar_surface);
 
         sf::RectangleShape rect;
         rect.setFillColor({ 0,0,0,0 });
 
+        const float percentage = (current_value - min_value) / std::abs(min_value - max_value);
         switch (direction)
         {
         case L_TO_R:
         case R_TO_L:
-            rect.setSize(sf::Vector2f( size().x * (1 - percentage), size().y ));      
+            rect.setSize(sf::Vector2f(size().x * (1 - percentage), size().y));
             break;
         case T_TO_B:
         case B_TO_T:
-            rect.setSize(sf::Vector2f( size().x, size().y * (1 - percentage) ));
+            rect.setSize(sf::Vector2f(size().x, size().y * (1 - percentage)));
         }
 
         switch (direction)
@@ -40,27 +44,31 @@ namespace gui
             rect.setPosition({ 0, 0 });
         }
 
-        draw(rect, sf::BlendMultiply);
-
-        redraw_required = false;
+        rtex.draw(rect, sf::BlendMultiply);
+        rtex.display();
+    }
+    void Gauge_bar::redraw()
+    {
+        if (std::exchange(render_required, false)) renderBar();
+        draw(sf::Sprite{ rtex.getTexture() });
     }
 
-    bool Gauge_bar::isRedrawRequired() const
+    void Gauge_bar::resizeEvent(sf::Vector2f size_diff)
     {
-        return redraw_required || bar_surface.hasChanged();
+        render_required = true;
     }
 
     void Gauge_bar::setDirection(DIRECTION dir)
     {
         direction = dir;
-        redraw_required = true;
+        render_required = true;
     }
 
     void Gauge_bar::setMinValue(float val)
     {
         min_value = val;
         max_value = std::max(max_value, min_value);
-        redraw_required = true;
+        render_required = true;
     }
 
     float Gauge_bar::getMinValue() const
@@ -72,7 +80,7 @@ namespace gui
     {
         max_value = val;
         min_value = std::min(min_value, max_value);
-        redraw_required = true;
+        render_required = true;
     }
 
     float Gauge_bar::getMaxValue() const
@@ -83,7 +91,7 @@ namespace gui
     void Gauge_bar::setValue(float val)
     {
         current_value = std::clamp(val, min_value, max_value);
-        redraw_required = true;
+        render_required = true;
     }
 
     float Gauge_bar::getValue() const
@@ -95,7 +103,7 @@ namespace gui
     {
         bar_surface = a.bar;
         bar_surface.setPosition({ 0,0 });
-        redraw_required = true;
+        render_required = true;
     }
 
     Gauge_bar_appearance Gauge_bar::getAppearance() const

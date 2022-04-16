@@ -15,6 +15,10 @@ namespace gui
 
         Surface bar_surface;
 
+        sf::RenderTexture rtex;
+        bool render_required = true;
+        void renderBar();
+
     public:
         enum DIRECTION
         {
@@ -27,12 +31,10 @@ namespace gui
         DIRECTION direction = L_TO_R;
 
         void redraw() override;
-        bool redraw_required = true;
+        void resizeEvent(sf::Vector2f size_diff) override;
 
     public:
         using Gui_component::Gui_component;
-
-        bool isRedrawRequired() const override;
 
         void setDirection(DIRECTION dir);
 

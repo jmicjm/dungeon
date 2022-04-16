@@ -102,26 +102,19 @@ namespace gui
 
     void Text::redraw()
     {
-        if (std::exchange(redraw_required, false))
-        {
-            renderText();
-        }
+        if (std::exchange(render_required, false)) renderText();
 
         sf::Sprite str_sprite(rendered_str.getTexture());
-        str_sprite.setTextureRect(
-            { 
-              sf::Vector2i(0, scroll.getTopPosition()),
-              sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(size().y), rendered_str.getSize().y)) 
-            }
-        );
+        str_sprite.setTextureRect({ sf::Vector2i(0, scroll.getTopPosition()),
+                                    sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(size().y), rendered_str.getSize().y)) });
 
         draw(str_sprite);
-        if(rendered_str.getSize().y >= size().y) draw(scroll);  
+        if (rendered_str.getSize().y >= size().y) scroll.draw();
     }
 
-    void Text::resizeEvent(const sf::Vector2i& size_diff)
+    void Text::resizeEvent(sf::Vector2f size_diff)
     {
-        redraw_required = true;
+        render_required = true;
     }
 
     void Text::activateEvent()
@@ -175,6 +168,8 @@ namespace gui
 
         linkChilds();
 
+        render_required = true;
+
         return *this;
     }
 
@@ -191,6 +186,8 @@ namespace gui
 
         linkChilds();
 
+        render_required = true;
+
         return *this;
     }
 
@@ -199,16 +196,11 @@ namespace gui
         scroll.update();
     }
 
-    bool Text::isRedrawRequired() const
-    {
-        return redraw_required || scroll.isRedrawRequired();
-    }
-
     void Text::setString(std::string str)
     {
         this->str = str;
 
-        redraw_required = true;
+        render_required = true;
     }
 
     const std::string& Text::getString() const
@@ -220,14 +212,14 @@ namespace gui
     {
         font.loadFromFile(filename);
 
-        redraw_required = true;
+        render_required = true;
     }
 
     void Text::setCharacterSize(unsigned int size)
     {
         character_size = size;
 
-        redraw_required = true;
+        render_required = true;
     }
 
     unsigned int Text::getCharacterSize() const
@@ -239,7 +231,7 @@ namespace gui
     {
         letter_spacing = spacing;
 
-        redraw_required = true;
+        render_required = true;
     }
 
     float Text::getLetterSpacing() const
@@ -251,7 +243,7 @@ namespace gui
     {
         line_spacing = spacing;
 
-        redraw_required = true;
+        render_required = true;
     }
 
     float Text::getLineSpacing() const
@@ -264,7 +256,7 @@ namespace gui
         scroll.setAppearance(a.scroll);
         scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
 
-        redraw_required = true;
+        render_required = true;
     }
 
     Text_appearance Text::getAppearance() const

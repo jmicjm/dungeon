@@ -23,6 +23,5 @@ namespace gui
 
         void setSize(const sf::Vector2f& size);
         void setPosition(const sf::Vector2f& position);
-        bool hasChanged() const;
     };
 }

@@ -10,14 +10,10 @@ namespace gui
     {
         Surface background;
 
-        bool redraw_required = true;
-
         void redraw() override;
 
     public:
         using Gui_component::Gui_component;
-
-        bool isRedrawRequired() const override;
 
         void setAppearance(const Frame_appearance& a);
         Frame_appearance getAppearance() const;

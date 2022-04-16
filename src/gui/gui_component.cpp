@@ -1,6 +1,7 @@
 #include "gui_component.h"
 #include "SFML/Window/Mouse.hpp"
 #include "SFML/Graphics/Sprite.hpp"
+#include "../utils/sf_vector2_utils.h"
 
 #include <cmath>
 #include <algorithm>
@@ -11,9 +12,9 @@ namespace gui
     {
         return parent ? parent->globalPosition() : sf::Vector2f{0,0};
     }
-    sf::Vector2i Gui_component::parentSize() const
+    sf::Vector2f Gui_component::parentSize() const
     {
-        return parent ? parent->size() : sf::Vector2i{ window->getSize() };
+        return parent ? parent->size() : sf::Vector2f{ window->getSize() };
     }
     sf::FloatRect Gui_component::parentArea() const
     {
@@ -22,43 +23,6 @@ namespace gui
     sf::FloatRect Gui_component::visibleParentArea() const
     {
         return parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
-    }
-    void Gui_component::updateTex()
-    {
-        const sf::Vector2i size_diff = sf::Vector2i{ size() } - sf::Vector2i{ rtex.getSize() };
-        if (size_diff != sf::Vector2i{ 0,0 })
-        {
-            rtex.create(size().x, size().y);
-            resizeEvent(size_diff);
-        }
-        if (isRedrawRequired() || size_diff != sf::Vector2i{ 0,0 })
-        {
-            rtex.clear({ 0,0,0,0 });
-            redraw();
-            rtex.display();
-        }
-    }
-    void Gui_component::draw(sf::Drawable& drawable, const sf::RenderStates& states)
-    {
-        rtex.draw(drawable, states);
-    }
-
-    void Gui_component::draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states)
-    {
-        rtex.draw(vertices, vertexCount, type, states);
-    }
-
-    void Gui_component::draw(Gui_component& component)
-    {
-        component.updateTex();
-        sf::Sprite elem_sprite(component.rtex.getTexture());
-        elem_sprite.setPosition(component.position());
-        rtex.draw(elem_sprite);
-    }
-
-    bool Gui_component::isRedrawRequired() const
-    {
-        return true;
     }
 
     void Gui_component::activate()
@@ -81,63 +45,26 @@ namespace gui
     Gui_component::Gui_component(sf::RenderWindow* rw)
         : window(rw) {}
 
-    Gui_component::Gui_component(const Gui_component& other)
-        : window(other.window),
-        pos_info(other.pos_info),
-        size_info(other.size_info),
-        anchor(other.anchor),
-        anchor_pos_info(other.anchor_pos_info),
-        parent(other.parent) {}
-
-    Gui_component::Gui_component(Gui_component&& other) noexcept
-        : window(std::move(other.window)),
-        pos_info(std::move(other.pos_info)),
-        size_info(std::move(other.size_info)),
-        anchor(std::move(other.anchor)),
-        anchor_pos_info(std::move(other.anchor_pos_info)),
-        parent(std::move(other.parent)) {}
-
-    Gui_component& Gui_component::operator=(const Gui_component& other)
-    {
-        window = other.window;
-        pos_info = other.pos_info;
-        size_info = other.size_info;
-        anchor = other.anchor;
-        anchor_pos_info = other.anchor_pos_info;
-        parent = other.parent;
-
-        rtex.~RenderTexture();
-        new(&rtex) sf::RenderTexture;
-
-        return *this;
-    }
-
-    Gui_component& Gui_component::operator=(Gui_component&& other) noexcept
-    {
-        window = std::move(other.window);
-        pos_info = std::move(other.pos_info);
-        size_info = std::move(other.size_info);
-        anchor = std::move(other.anchor);
-        anchor_pos_info = std::move(other.anchor_pos_info);
-        parent = std::move(other.parent);
-
-        rtex.~RenderTexture();
-        new(&rtex) sf::RenderTexture;
-
-        return *this;
-    }
-
     void Gui_component::draw() 
     {
+        const sf::Vector2f new_size = size();
+        if (old_size != new_size) resizeEvent(new_size - old_size);
+        old_size = new_size;
+
         const sf::View old_view = window->getView();
-        const sf::View view{ sf::FloatRect{ 0,0, window->getSize().x * 1.f, window->getSize().y * 1.f } };
+
+        const sf::View view = [&]
+        {
+            const auto varea = visibleArea();
+            const auto tl = sf::Vector2f{ varea.left, varea.top };
+            const auto size = sf::Vector2f{ varea.width, varea.height };
+            sf::View view{ sf::FloatRect{ tl - globalPosition(), size} };
+            view.setViewport(sf::FloatRect{ vecDiv(tl, window->getSize()), vecDiv(size, window->getSize()) });
+            return view;
+        }(); 
         window->setView(view);
 
-        updateTex();
-
-        sf::Sprite elem_sprite(rtex.getTexture());
-        elem_sprite.setPosition(globalPosition());
-        window->draw(elem_sprite);
+        redraw();
 
         window->setView(old_view);
     }
@@ -154,6 +81,8 @@ namespace gui
 
     sf::FloatRect Gui_component::visibleArea() const
     {
+        if (!limit_to_parent) return area();
+
         auto clipRect = [](const sf::FloatRect& inner, const sf::FloatRect& outer) -> sf::FloatRect
         {
             if (!inner.intersects(outer)) return { 0,0,0,0 };
@@ -210,7 +139,7 @@ namespace gui
         }
         else
         {
-            const sf::Vector2i ps = parentSize();
+            const sf::Vector2f ps = parentSize();
             const auto& [off, poff, rel] = pos_info;
             const sf::Vector2f pos =
             {
@@ -247,9 +176,9 @@ namespace gui
         return size_info;
     }
 
-    sf::Vector2i Gui_component::size() const
+    sf::Vector2f Gui_component::size() const
     {
-        const sf::Vector2i size = [&]() -> sf::Vector2i
+        const sf::Vector2f size = [&]() -> sf::Vector2f
         {
             if (size_function)
             {
@@ -259,13 +188,13 @@ namespace gui
             {
                 const auto& p = size_info.percentage;
                 const auto  s = parentSize();
-                return { static_cast<int>(std::round(size_info.fixed.x + s.x * p.x)),
-                         static_cast<int>(std::round(size_info.fixed.y + s.y * p.y)) };
+                return { std::round(size_info.fixed.x + s.x * p.x),
+                         std::round(size_info.fixed.y + s.y * p.y) };
             }
         }();
 
-        return { std::max(0, size.x),
-                 std::max(0, size.y) };
+        return { std::max(0.f, size.x),
+                 std::max(0.f, size.y) };
     }
 
     void Gui_component::setAnchor(const Gui_component* anchor)
@@ -295,19 +224,27 @@ namespace gui
     {
         return parent;
     }
-    void Gui_component::setPositionFunction(std::function<sf::Vector2f(sf::Vector2i)> func)
+    void Gui_component::limitToParent(bool limit)
+    {
+        limit_to_parent = limit;
+    }
+    bool Gui_component::isLimitedToParent() const
+    {
+        return limit_to_parent;
+    }
+    void Gui_component::setPositionFunction(std::function<sf::Vector2f(sf::Vector2f)> func)
     {
         pos_function = func;
     }
-    std::function<sf::Vector2f(sf::Vector2i)> Gui_component::getPositionFunction() const
+    std::function<sf::Vector2f(sf::Vector2f)> Gui_component::getPositionFunction() const
     {
         return pos_function;
     }
-    void Gui_component::setSizeFunction(std::function<sf::Vector2i(sf::Vector2i)> func)
+    void Gui_component::setSizeFunction(std::function<sf::Vector2f(sf::Vector2f)> func)
     {
         size_function = func;
     }
-    std::function<sf::Vector2i(sf::Vector2i)> Gui_component::getSizeFunction() const
+    std::function<sf::Vector2f(sf::Vector2f)> Gui_component::getSizeFunction() const
     {
         return size_function;
     }

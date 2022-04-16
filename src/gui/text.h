@@ -5,6 +5,7 @@
 #include "../gfx/primitive_sprite.h"
 
 #include "SFML/Graphics/Font.hpp"
+#include "SFML/Graphics/RenderTexture.hpp"
 
 #include <string>
 
@@ -25,10 +26,10 @@ namespace gui
         bool renderText(const std::u32string& str, bool with_scroll);
         void renderText();
 
-        bool redraw_required = true;
+        bool render_required = true;
         void redraw() override;
 
-        void resizeEvent(const sf::Vector2i& size_diff) override;
+        void resizeEvent(sf::Vector2f size_diff) override;
         void activateEvent() override;
         void deactivateEvent() override;
 
@@ -40,7 +41,6 @@ namespace gui
         Text& operator=(Text && other) noexcept;      
 
         void update() override;
-        bool isRedrawRequired() const override;
 
         void setString(std::string str);
         const std::string& getString() const;

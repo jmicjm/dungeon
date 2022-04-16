@@ -35,7 +35,6 @@ namespace gui
                 if (release_function) release_function();
             }
         }
-        if (is_pressed != was_pressed || is_hovered != was_hovered) redraw_required = true;
     }
 
     void Button::setType(TYPE t)
@@ -96,29 +95,17 @@ namespace gui
                 draw(appearance.released_hovered_overlay);
             }
         }
-        redraw_required = false;
     }
 
     void Button::deactivateEvent()
     {
         is_hovered = false;
         if (type == PUSH && std::exchange(is_pressed, false) && release_function) release_function();
-
-        redraw_required = true;
-    }
-
-    bool Button::isRedrawRequired() const
-    {
-        const bool surf_req = (isPressed() ? appearance.pressed : appearance.released).hasChanged();
-        const bool hover_req = isHovered() ? (isPressed() ? appearance.pressed_hovered_overlay : appearance.released_hovered_overlay).hasChanged() : false;
-
-        return redraw_required || surf_req || hover_req;
     }
 
     void Button::setAppearance(const Button_appearance& a)
     {
         appearance = a;
-        redraw_required = true;
     }
 
     Button_appearance Button::getAppearance() const
@@ -129,13 +116,11 @@ namespace gui
     void Button::setPressedText(const sf::Text& text)
     {
         pressed_text = text;
-        redraw_required = true;
     }
 
     void Button::setReleasedText(const sf::Text& text)
     {
         released_text = text;
-        redraw_required = true;
     }
 
     void Button::setPressFunction(const std::function<void()>& function)

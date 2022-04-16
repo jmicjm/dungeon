@@ -4,7 +4,6 @@
 #include "anchor_position_info.h"
 
 #include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/Graphics/RenderTexture.hpp"
 
 #include <functional>
 
@@ -14,7 +13,8 @@ namespace gui
     class Gui_component
     {
         sf::RenderWindow* window;
-        sf::RenderTexture rtex;
+
+        sf::Vector2f old_size = { 0,0 };
 
         Position_info pos_info;
         Size_info size_info;   
@@ -24,37 +24,31 @@ namespace gui
 
         const Gui_component* parent = nullptr;
         sf::Vector2f parentGlobalPosition() const;
-        sf::Vector2i parentSize() const;
+        sf::Vector2f parentSize() const;
         sf::FloatRect parentArea() const;
         sf::FloatRect visibleParentArea() const;
 
-        std::function<sf::Vector2f(sf::Vector2i)> pos_function;
-        std::function<sf::Vector2i(sf::Vector2i)> size_function;
-
-        void updateTex();
+        std::function<sf::Vector2f(sf::Vector2f)> pos_function;
+        std::function<sf::Vector2f(sf::Vector2f)> size_function;
 
         bool is_active = false;
+        bool limit_to_parent = true;       
 
     protected:  
-        void draw(sf::Drawable& drawable, const sf::RenderStates& states = sf::RenderStates::Default);
-        void draw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type, const sf::RenderStates& states = sf::RenderStates::Default);
-        void draw(Gui_component& component);
+        template<typename ...T>
+        void draw(T&&... args);
+
         virtual void redraw() = 0;
 
-        virtual void resizeEvent(const sf::Vector2i& size_diff) {}
+        virtual void resizeEvent(sf::Vector2f size_diff) {}
         virtual void activateEvent() {}
         virtual void deactivateEvent() {}
 
     public:
         Gui_component(sf::RenderWindow* rw);
-        Gui_component(const Gui_component& other);
-        Gui_component(Gui_component&& other) noexcept;
-        Gui_component& operator=(const Gui_component& other);
-        Gui_component& operator=(Gui_component&& other) noexcept;
         virtual ~Gui_component() = default;
 
         void draw();
-        virtual bool isRedrawRequired() const;
         virtual void update() {}
 
         void activate();
@@ -65,6 +59,8 @@ namespace gui
         sf::FloatRect area() const;
         sf::FloatRect visibleArea() const;
 
+        sf::Vector2f size() const;
+
         sf::Vector2f position() const;
         sf::Vector2f globalPosition() const;
 
@@ -73,7 +69,6 @@ namespace gui
 
         void setSizeInfo(Size_info s_info);
         Size_info getSizeInfo() const;
-        sf::Vector2i size() const;
 
         void setAnchor(const Gui_component* anchor);
         const Gui_component* getAnchor() const;
@@ -82,10 +77,18 @@ namespace gui
 
         void setParent(const Gui_component* parent);
         const Gui_component* getParent() const;
+        void limitToParent(bool limit);
+        bool isLimitedToParent() const;
 
-        void setPositionFunction(std::function<sf::Vector2f(sf::Vector2i)> func);
-        std::function<sf::Vector2f(sf::Vector2i)> getPositionFunction() const;
-        void setSizeFunction(std::function<sf::Vector2i(sf::Vector2i)> func);
-        std::function<sf::Vector2i(sf::Vector2i)> getSizeFunction() const;
+        void setPositionFunction(std::function<sf::Vector2f(sf::Vector2f)> func);
+        std::function<sf::Vector2f(sf::Vector2f)> getPositionFunction() const;
+        void setSizeFunction(std::function<sf::Vector2f(sf::Vector2f)> func);
+        std::function<sf::Vector2f(sf::Vector2f)> getSizeFunction() const;
     };
+
+    template<typename ...T>
+    void Gui_component::draw(T&&... args)
+    {
+        window->draw(std::forward<T>(args)...);
+    }
 }

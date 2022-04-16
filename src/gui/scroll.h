@@ -25,10 +25,9 @@ namespace gui
 
         int visibleContentLength() const;
 
-        bool redraw_required = true;
         void redraw() override;
 
-        void resizeEvent(const sf::Vector2i& size_diff) override;
+        void resizeEvent(sf::Vector2f size_diff) override;
         void activateEvent() override;
         void deactivateEvent() override;
 
@@ -43,7 +42,6 @@ namespace gui
 
     public:
         void update() override;
-        bool isRedrawRequired() const override;
 
         void setContentLength(int length);
         int  getContentLength() const;
