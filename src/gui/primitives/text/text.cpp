@@ -1,5 +1,5 @@
 #include "text.h"
-#include "../utils/utf8ToUtf32.h"
+#include "../../../utils/utf8ToUtf32.h"
 
 #include <vector>
 #include <utility>

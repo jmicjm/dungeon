@@ -40,11 +40,11 @@ add_executable(dungeon
     src/entities/player.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
-    src/gui/button.cpp   
-    src/gui/gauge_bar.cpp
-    src/gui/frame.cpp  
-    src/gui/scroll.cpp
-    src/gui/text.cpp
+    src/gui/primitives/button/button.cpp   
+    src/gui/primitives/gauge_bar/gauge_bar.cpp
+    src/gui/primitives/frame/frame.cpp  
+    src/gui/primitives/scroll/scroll.cpp
+    src/gui/primitives/text/text.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp)

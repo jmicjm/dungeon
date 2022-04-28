@@ -1,9 +1,9 @@
 #pragma once
-#include "gui_component.h"
+#include "../../gui_component.h"
 #include "text_appearance.h"
-#include "scroll.h"
-#include "../gfx/primitive_sprite.h"
-#include "../gfx/copyable_rendertexture.h"
+#include "../scroll/scroll.h"
+#include "../../../gfx/primitive_sprite.h"
+#include "../../../gfx/copyable_rendertexture.h"
 
 #include "SFML/Graphics/Font.hpp"
 

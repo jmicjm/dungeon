@@ -1,5 +1,5 @@
 #include "scroll.h"
-#include "../input/input.h"
+#include "../../../input/input.h"
 
 
 namespace gui

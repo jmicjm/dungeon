@@ -1,5 +1,5 @@
 #pragma once
-#include "scroll_appearance.h"
+#include "../scroll/scroll_appearance.h"
 
 namespace gui
 {

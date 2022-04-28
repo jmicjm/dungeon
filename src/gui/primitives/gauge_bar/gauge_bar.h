@@ -1,8 +1,8 @@
 #pragma once
-#include "gui_component.h"
+#include "../../gui_component.h"
+#include "../../surface.h"
 #include "gauge_bar_appearance.h"
-#include "surface.h"
-#include "../gfx/copyable_rendertexture.h"
+#include "../../../gfx/copyable_rendertexture.h"
 
 namespace gui
 {

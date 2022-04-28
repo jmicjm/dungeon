@@ -1,7 +1,7 @@
 #pragma once
-#include "gui_component.h"
+#include "../../gui_component.h"
+#include "../../surface.h"
 #include "button_appearance.h"
-#include "surface.h"
 
 #include "SFML/Graphics/Text.hpp"
 

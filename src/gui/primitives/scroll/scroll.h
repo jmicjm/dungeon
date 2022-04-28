@@ -1,8 +1,8 @@
 #pragma once
-#include "gui_component.h"
+#include "../../gui_component.h"
 #include "scroll_appearance.h"
-#include "button.h"
-#include "frame.h"
+#include "../button/button.h"
+#include "../frame/frame.h"
 
 namespace gui
 {
