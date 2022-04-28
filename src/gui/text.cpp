@@ -8,12 +8,12 @@
 
 namespace gui
 {
-    void Text::linkChilds()
+    void Text_impl::linkChilds()
     {
         scroll.setParent(this);
     }
 
-    bool Text::renderText(const std::u32string& str, bool with_scroll)
+    bool Text_impl::renderText(const std::u32string& str, bool with_scroll)
     {
         std::vector<Primitive_sprite> prepared_text;
 
@@ -93,14 +93,14 @@ namespace gui
         return true;
     }
 
-    void Text::renderText()
+    void Text_impl::renderText()
     {
         const std::u32string str = utf8ToUtf32(this->str);
 
         if (!renderText(str, false)) renderText(str, true);
     }
 
-    void Text::redraw()
+    void Text_impl::redraw()
     {
         if (std::exchange(render_required, false)) renderText();
 
@@ -112,22 +112,22 @@ namespace gui
         if (rendered_str.getSize().y >= size().y) scroll.draw();
     }
 
-    void Text::resizeEvent(sf::Vector2f size_diff)
+    void Text_impl::resizeEvent(sf::Vector2f size_diff)
     {
         render_required = true;
     }
 
-    void Text::activateEvent()
+    void Text_impl::activateEvent()
     {
         scroll.activate();
     }
 
-    void Text::deactivateEvent()
+    void Text_impl::deactivateEvent()
     {
         scroll.deactivate();
     }
 
-    Text::Text(sf::RenderWindow* rw)
+    Text_impl::Text_impl(sf::RenderWindow* rw)
         : Gui_component(rw), scroll(rw)
     {
         scroll.setSizeInfo({ {0,0}, {0,1} });
@@ -135,123 +135,67 @@ namespace gui
         linkChilds();
     }
 
-    Text::Text(const Text& other)
-        : Gui_component(other),
-        str(other.str),
-        font(other.font),
-        character_size(other.character_size),
-        scroll(other.scroll)
-    {
-        linkChilds();
-    }
-
-    Text::Text(Text&& other) noexcept
-        : Gui_component(std::move(other)),
-        str(std::move(other.str)),
-        font(std::move(other.font)),
-        character_size(std::move(other.character_size)),
-        scroll(std::move(other.scroll))
-    {
-        linkChilds();
-    }
-
-    Text& Text::operator=(const Text& other)
-    {
-        Gui_component::operator=(other);
-        str = other.str;
-        font = other.font;
-        character_size = other.character_size;
-        scroll = other.scroll;
-
-        rendered_str.~RenderTexture();
-        new(&rendered_str) sf::RenderTexture;
-
-        linkChilds();
-
-        render_required = true;
-
-        return *this;
-    }
-
-    Text& Text::operator=(Text&& other) noexcept
-    {
-        Gui_component::operator=(std::move(other));
-        str = std::move(other.str);
-        font = std::move(other.font);
-        character_size = std::move(other.character_size);
-        scroll = std::move(other.scroll);
-
-        rendered_str.~RenderTexture();
-        new(&rendered_str) sf::RenderTexture;
-
-        linkChilds();
-
-        render_required = true;
-
-        return *this;
-    }
-
-    void Text::update()
+    void Text_impl::update()
     {
         scroll.update();
     }
 
-    void Text::setString(std::string str)
+    void Text_impl::setString(std::string str)
     {
         this->str = str;
 
         render_required = true;
     }
 
-    const std::string& Text::getString() const
+    const std::string& Text_impl::getString() const
     {
         return str;
     }
 
-    void Text::setFont(const std::string& filename)
+    void Text_impl::setFont(const std::string& filename)
     {
         font.loadFromFile(filename);
 
         render_required = true;
     }
 
-    void Text::setCharacterSize(unsigned int size)
+    void Text_impl::setCharacterSize(unsigned int size)
     {
         character_size = size;
 
         render_required = true;
     }
 
-    unsigned int Text::getCharacterSize() const
+    unsigned int Text_impl::getCharacterSize() const
     {
         return character_size;
     }
 
-    void Text::setLetterSpacing(float spacing)
+    void Text_impl::setLetterSpacing(float spacing)
     {
         letter_spacing = spacing;
 
         render_required = true;
     }
 
-    float Text::getLetterSpacing() const
+    float Text_impl::getLetterSpacing() const
     {
         return letter_spacing;
     }
 
-    void Text::setLineSpacing(float spacing)
+    void Text_impl::setLineSpacing(float spacing)
     {
         line_spacing = spacing;
 
         render_required = true;
     }
 
-    float Text::getLineSpacing() const
+    float Text_impl::getLineSpacing() const
     {
         return line_spacing;
     }
 
-    void Text::setAppearance(const Text_appearance& a)
+    void Text_impl::setAppearance(const Text_appearance& a)
     {
         scroll.setAppearance(a.scroll);
         scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
@@ -259,8 +203,36 @@ namespace gui
         render_required = true;
     }
 
-    Text_appearance Text::getAppearance() const
+    Text_appearance Text_impl::getAppearance() const
     {
         return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
     }
+
+    Text::Text(sf::RenderWindow* rw)
+        : Text_impl(rw) {}
+
+    Text::Text(const Text& other)
+        : Text_impl(other)
+    {
+        linkChilds();
+    }
+
+    Text::Text(Text&& other) noexcept
+        : Text_impl(other)
+    {
+        linkChilds();
+    }
+
+    Text& Text::operator=(const Text& other)
+    {
+        linkChilds();
+        return *this;
+    }
+
+    Text& Text::operator=(Text&& other) noexcept
+    {
+        linkChilds();
+        return *this;
+    }
+
 }

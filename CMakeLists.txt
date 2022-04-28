@@ -22,6 +22,7 @@ add_executable(dungeon
     src/gfx/combined_texture.cpp
     src/gfx/view_follower.cpp
     src/gfx/view_range_overlay.cpp
+    src/gfx/copyable_rendertexture.cpp
     src/gfx/utils/setQuad.cpp
     src/gfx/utils/mergeTexture.cpp
     src/gfx/utils/visibleAreaBounds.cpp
@@ -46,7 +47,6 @@ add_executable(dungeon
     src/gui/text.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
-    src/world/world.cpp
-)
+    src/world/world.cpp)
 
 target_link_libraries(dungeon sfml-graphics)

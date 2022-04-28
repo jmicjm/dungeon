@@ -2,8 +2,7 @@
 #include "gui_component.h"
 #include "gauge_bar_appearance.h"
 #include "surface.h"
-
-#include "SFML/Graphics/RenderTexture.hpp"
+#include "../gfx/copyable_rendertexture.h"
 
 namespace gui
 {
@@ -15,7 +14,7 @@ namespace gui
 
         Surface bar_surface;
 
-        sf::RenderTexture rtex;
+        Copyable_rendertexture rtex;
         bool render_required = true;
         void renderBar();
 
