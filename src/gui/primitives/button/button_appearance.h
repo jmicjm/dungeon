@@ -7,7 +7,7 @@ namespace gui
     {
         Surface pressed;
         Surface released;
-        Surface pressed_hovered_overlay;
-        Surface released_hovered_overlay;
+        Surface pressed_hovered;
+        Surface released_hovered;
     };
 }

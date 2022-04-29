@@ -76,24 +76,13 @@ namespace gui
 
         if (isPressed())
         {
-            draw(appearance.pressed);
-            drawText(pressed_text);
+            draw(isHovered() ? appearance.pressed_hovered : appearance.pressed);
+            drawText(isHovered() ? pressed_hovered_text : pressed_text);
         }
         else
         {
-            draw(appearance.released);
-            drawText(released_text);
-        }
-        if (isHovered())
-        {
-            if (isPressed())
-            {
-                draw(appearance.pressed_hovered_overlay);
-            }
-            else
-            {
-                draw(appearance.released_hovered_overlay);
-            }
+            draw(isHovered() ? appearance.released_hovered : appearance.released);
+            drawText(isHovered() ? released_hovered_text : released_text);
         }
     }
 
@@ -116,6 +105,16 @@ namespace gui
     void Button::setPressedText(const sf::Text& text)
     {
         pressed_text = text;
+    }
+
+    void Button::setPressedHoveredText(const sf::Text& text)
+    {
+        pressed_hovered_text = text;
+    }
+
+    void Button::setReleasedHoveredText(const sf::Text& text)
+    {
+        released_hovered_text = text;
     }
 
     void Button::setReleasedText(const sf::Text& text)

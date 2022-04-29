@@ -16,7 +16,9 @@ namespace gui
         Button_appearance appearance;
 
         sf::Text pressed_text;
+        sf::Text pressed_hovered_text;
         sf::Text released_text;
+        sf::Text released_hovered_text;
 
         std::function<void()> press_function;
         std::function<void()> release_function;
@@ -58,6 +60,8 @@ namespace gui
         Button_appearance getAppearance() const;
 
         void setPressedText(const sf::Text& text);
+        void setPressedHoveredText(const sf::Text& text);
+        void setReleasedHoveredText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);
 
         void setPressFunction(const std::function<void()>& function);
