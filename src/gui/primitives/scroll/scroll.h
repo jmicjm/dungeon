@@ -1,12 +1,12 @@
 #pragma once
-#include "gui_element.h"
+#include "../../gui_component.h"
 #include "scroll_appearance.h"
-#include "button.h"
-#include "frame.h"
+#include "../button/button.h"
+#include "../frame/frame.h"
 
 namespace gui
 {
-    class Scroll_impl : public Gui_element
+    class Scroll_impl : public Gui_component
     {
         Button top_arrow;
         Button bottom_arrow;
@@ -25,9 +25,11 @@ namespace gui
 
         int visibleContentLength() const;
 
-        bool redraw_required = true;
         void redraw() override;
-        void resizeEvent(const sf::Vector2i& size_diff) override;
+
+        void resizeEvent(sf::Vector2f size_diff) override;
+        void activateEvent() override;
+        void deactivateEvent() override;
 
     protected:
         Scroll_impl(sf::RenderWindow* rw);
@@ -40,7 +42,6 @@ namespace gui
 
     public:
         void update() override;
-        bool isRedrawRequired() const override;
 
         void setContentLength(int length);
         int  getContentLength() const;

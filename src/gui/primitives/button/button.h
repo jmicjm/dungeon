@@ -1,7 +1,7 @@
 #pragma once
-#include "gui_element.h"
+#include "../../gui_component.h"
+#include "../../surface.h"
 #include "button_appearance.h"
-#include "surface.h"
 
 #include "SFML/Graphics/Text.hpp"
 
@@ -11,12 +11,14 @@
 
 namespace gui
 {
-    class Button : public Gui_element
+    class Button : public Gui_component
     {
         Button_appearance appearance;
 
         sf::Text pressed_text;
+        sf::Text pressed_hovered_text;
         sf::Text released_text;
+        sf::Text released_hovered_text;
 
         std::function<void()> press_function;
         std::function<void()> release_function;
@@ -40,15 +42,15 @@ namespace gui
         TYPE type = PUSH;
 
         void redraw() override;
-        bool redraw_required = true;
+
+        void deactivateEvent() override;
 
     public:
-        using Gui_element::Gui_element;
+        using Gui_component::Gui_component;
 
         bool isPressed() const;
 
         void update() override;
-        bool isRedrawRequired() const override;
 
         void setType(TYPE t);
 
@@ -58,6 +60,8 @@ namespace gui
         Button_appearance getAppearance() const;
 
         void setPressedText(const sf::Text& text);
+        void setPressedHoveredText(const sf::Text& text);
+        void setReleasedHoveredText(const sf::Text& text);
         void setReleasedText(const sf::Text& text);
 
         void setPressFunction(const std::function<void()>& function);

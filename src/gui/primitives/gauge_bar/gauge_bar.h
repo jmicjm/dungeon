@@ -1,19 +1,22 @@
 #pragma once
-#include "gui_element.h"
+#include "../../gui_component.h"
+#include "../../surface.h"
 #include "gauge_bar_appearance.h"
-#include "surface.h"
-
-#include "SFML/Graphics/RenderTexture.hpp"
+#include "../../../gfx/copyable_rendertexture.h"
 
 namespace gui
 {
-    class Gauge_bar : public Gui_element
+    class Gauge_bar : public Gui_component
     {
         float min_value = 0;
         float max_value = 0;
         float current_value = 0;
 
         Surface bar_surface;
+
+        Copyable_rendertexture rtex;
+        bool render_required = true;
+        void renderBar();
 
     public:
         enum DIRECTION
@@ -27,12 +30,10 @@ namespace gui
         DIRECTION direction = L_TO_R;
 
         void redraw() override;
-        bool redraw_required = true;
+        void resizeEvent(sf::Vector2f size_diff) override;
 
     public:
-        using Gui_element::Gui_element;
-
-        bool isRedrawRequired() const override;
+        using Gui_component::Gui_component;
 
         void setDirection(DIRECTION dir);
 

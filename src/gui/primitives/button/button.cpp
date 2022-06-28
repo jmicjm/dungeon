@@ -11,6 +11,8 @@ namespace gui
 
     void Button::update()
     {
+        if (!isActive()) return;
+
         const bool was_pressed = is_pressed;
         const bool was_hovered = is_hovered;
 
@@ -18,7 +20,7 @@ namespace gui
         {
             is_pressed = false;
         }
-        is_hovered = Gui_element::isHovered();
+        is_hovered = Gui_component::isHovered();
         if (!isLocked() && isHovered() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
         {
             is_pressed = !is_pressed;
@@ -33,7 +35,6 @@ namespace gui
                 if (release_function) release_function();
             }
         }
-        if (is_pressed != was_pressed || is_hovered != was_hovered) redraw_required = true;
     }
 
     void Button::setType(TYPE t)
@@ -62,53 +63,38 @@ namespace gui
         {
             const sf::FloatRect tbounds = text.getLocalBounds();
             text.setOrigin(tbounds.left + tbounds.width / 2, tbounds.top + tbounds.height / 2);
-            text.setPosition(sf::Vector2f{ getSize() } / 2.f);
+            text.setPosition(sf::Vector2f{ size() } / 2.f);
             draw(text);
         };
 
         auto draw = [&](Surface& surf)
         {
-            surf.setSize(sf::Vector2f{ getSize() });
+            surf.setSize(sf::Vector2f{ size() });
             surf.setPosition({ 0,0 });
-            Gui_element::draw(surf);
+            Gui_component::draw(surf);
         };
 
         if (isPressed())
         {
-            draw(appearance.pressed);
-            drawText(pressed_text);
+            draw(isHovered() ? appearance.pressed_hovered : appearance.pressed);
+            drawText(isHovered() ? pressed_hovered_text : pressed_text);
         }
         else
         {
-            draw(appearance.released);
-            drawText(released_text);
+            draw(isHovered() ? appearance.released_hovered : appearance.released);
+            drawText(isHovered() ? released_hovered_text : released_text);
         }
-        if (isHovered())
-        {
-            if (isPressed())
-            {
-                draw(appearance.pressed_hovered_overlay);
-            }
-            else
-            {
-                draw(appearance.released_hovered_overlay);
-            }
-        }
-        redraw_required = false;
     }
 
-    bool Button::isRedrawRequired() const
+    void Button::deactivateEvent()
     {
-        const bool surf_req = (isPressed() ? appearance.pressed : appearance.released).hasChanged();
-        const bool hover_req = isHovered() ? (isPressed() ? appearance.pressed_hovered_overlay : appearance.released_hovered_overlay).hasChanged() : false;
-
-        return redraw_required || surf_req || hover_req;
+        is_hovered = false;
+        if (type == PUSH && std::exchange(is_pressed, false) && release_function) release_function();
     }
 
     void Button::setAppearance(const Button_appearance& a)
     {
         appearance = a;
-        redraw_required = true;
     }
 
     Button_appearance Button::getAppearance() const
@@ -119,13 +105,21 @@ namespace gui
     void Button::setPressedText(const sf::Text& text)
     {
         pressed_text = text;
-        redraw_required = true;
+    }
+
+    void Button::setPressedHoveredText(const sf::Text& text)
+    {
+        pressed_hovered_text = text;
+    }
+
+    void Button::setReleasedHoveredText(const sf::Text& text)
+    {
+        released_hovered_text = text;
     }
 
     void Button::setReleasedText(const sf::Text& text)
     {
         released_text = text;
-        redraw_required = true;
     }
 
     void Button::setPressFunction(const std::function<void()>& function)

@@ -1,5 +1,5 @@
 #include "text.h"
-#include "../utils/utf8ToUtf32.h"
+#include "../../../utils/utf8ToUtf32.h"
 
 #include <vector>
 #include <utility>
@@ -8,18 +8,18 @@
 
 namespace gui
 {
-    void Text::linkChilds()
+    void Text_impl::linkChilds()
     {
         scroll.setParent(this);
     }
 
-    bool Text::renderText(const std::u32string& str, bool with_scroll)
+    bool Text_impl::renderText(const std::u32string& str, bool with_scroll)
     {
         std::vector<Primitive_sprite> prepared_text;
 
         const sf::Texture& tex = font.getTexture(character_size);    
 
-        const unsigned int width = getSize().x - with_scroll*scroll.getSize().x;
+        const unsigned int width = size().x - with_scroll*scroll.size().x;
         unsigned int height = 0;
 
         unsigned int line = 0;
@@ -75,7 +75,7 @@ namespace gui
 
             height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
 
-            if (!with_scroll && height >= getSize().y) return false;
+            if (!with_scroll && height >= size().y) return false;
 
             prepared_text.push_back(p_spr);
         }
@@ -93,172 +93,146 @@ namespace gui
         return true;
     }
 
-    void Text::renderText()
+    void Text_impl::renderText()
     {
         const std::u32string str = utf8ToUtf32(this->str);
 
         if (!renderText(str, false)) renderText(str, true);
     }
 
-    void Text::redraw()
+    void Text_impl::redraw()
     {
-        if (std::exchange(redraw_required, false))
-        {
-            renderText();
-        }
+        if (std::exchange(render_required, false)) renderText();
 
         sf::Sprite str_sprite(rendered_str.getTexture());
-        str_sprite.setTextureRect(
-            { 
-              sf::Vector2i(0, scroll.getTopPosition()),
-              sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(getSize().y), rendered_str.getSize().y)) 
-            }
-        );
+        str_sprite.setTextureRect({ sf::Vector2i(0, scroll.getTopPosition()),
+                                    sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(size().y), rendered_str.getSize().y)) });
 
         draw(str_sprite);
-        if(rendered_str.getSize().y >= getSize().y) draw(scroll, false);  
+        if (rendered_str.getSize().y >= size().y) scroll.draw();
     }
 
-    void Text::resizeEvent(const sf::Vector2i& size_diff)
+    void Text_impl::resizeEvent(sf::Vector2f size_diff)
     {
-        redraw_required = true;
+        render_required = true;
     }
 
-    Text::Text(sf::RenderWindow* rw)
-        : Gui_element(rw), scroll(rw)
+    void Text_impl::activateEvent()
+    {
+        scroll.activate();
+    }
+
+    void Text_impl::deactivateEvent()
+    {
+        scroll.deactivate();
+    }
+
+    Text_impl::Text_impl(sf::RenderWindow* rw)
+        : Gui_component(rw), scroll(rw)
     {
         scroll.setSizeInfo({ {0,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
         linkChilds();
     }
 
+    void Text_impl::update()
+    {
+        scroll.update();
+    }
+
+    void Text_impl::setString(std::string str)
+    {
+        this->str = str;
+
+        render_required = true;
+    }
+
+    const std::string& Text_impl::getString() const
+    {
+        return str;
+    }
+
+    void Text_impl::setFont(const std::string& filename)
+    {
+        font.loadFromFile(filename);
+
+        render_required = true;
+    }
+
+    void Text_impl::setCharacterSize(unsigned int size)
+    {
+        character_size = size;
+
+        render_required = true;
+    }
+
+    unsigned int Text_impl::getCharacterSize() const
+    {
+        return character_size;
+    }
+
+    void Text_impl::setLetterSpacing(float spacing)
+    {
+        letter_spacing = spacing;
+
+        render_required = true;
+    }
+
+    float Text_impl::getLetterSpacing() const
+    {
+        return letter_spacing;
+    }
+
+    void Text_impl::setLineSpacing(float spacing)
+    {
+        line_spacing = spacing;
+
+        render_required = true;
+    }
+
+    float Text_impl::getLineSpacing() const
+    {
+        return line_spacing;
+    }
+
+    void Text_impl::setAppearance(const Text_appearance& a)
+    {
+        scroll.setAppearance(a.scroll);
+        scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
+
+        render_required = true;
+    }
+
+    Text_appearance Text_impl::getAppearance() const
+    {
+        return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
+    }
+
+    Text::Text(sf::RenderWindow* rw)
+        : Text_impl(rw) {}
+
     Text::Text(const Text& other)
-        : Gui_element(other),
-        str(other.str),
-        font(other.font),
-        character_size(other.character_size),
-        scroll(other.scroll)
+        : Text_impl(other)
     {
         linkChilds();
     }
 
     Text::Text(Text&& other) noexcept
-        : Gui_element(std::move(other)),
-        str(std::move(other.str)),
-        font(std::move(other.font)),
-        character_size(std::move(other.character_size)),
-        scroll(std::move(other.scroll))
+        : Text_impl(other)
     {
         linkChilds();
     }
 
     Text& Text::operator=(const Text& other)
     {
-        Gui_element::operator=(other);
-        str = other.str;
-        font = other.font;
-        character_size = other.character_size;
-        scroll = other.scroll;
-
-        rendered_str.~RenderTexture();
-        new(&rendered_str) sf::RenderTexture;
-
         linkChilds();
-
         return *this;
     }
 
     Text& Text::operator=(Text&& other) noexcept
     {
-        Gui_element::operator=(std::move(other));
-        str = std::move(other.str);
-        font = std::move(other.font);
-        character_size = std::move(other.character_size);
-        scroll = std::move(other.scroll);
-
-        rendered_str.~RenderTexture();
-        new(&rendered_str) sf::RenderTexture;
-
         linkChilds();
-
         return *this;
     }
 
-    void Text::update()
-    {
-        scroll.update();
-    }
-
-    bool Text::isRedrawRequired() const
-    {
-        return redraw_required || scroll.isRedrawRequired();
-    }
-
-    void Text::setString(std::string str)
-    {
-        this->str = str;
-
-        redraw_required = true;
-    }
-
-    const std::string& Text::getString() const
-    {
-        return str;
-    }
-
-    void Text::setFont(const std::string& filename)
-    {
-        font.loadFromFile(filename);
-
-        redraw_required = true;
-    }
-
-    void Text::setCharacterSize(unsigned int size)
-    {
-        character_size = size;
-
-        redraw_required = true;
-    }
-
-    unsigned int Text::getCharacterSize() const
-    {
-        return character_size;
-    }
-
-    void Text::setLetterSpacing(float spacing)
-    {
-        letter_spacing = spacing;
-
-        redraw_required = true;
-    }
-
-    float Text::getLetterSpacing() const
-    {
-        return letter_spacing;
-    }
-
-    void Text::setLineSpacing(float spacing)
-    {
-        line_spacing = spacing;
-
-        redraw_required = true;
-    }
-
-    float Text::getLineSpacing() const
-    {
-        return line_spacing;
-    }
-
-    void Text::setAppearance(const Text_appearance& a)
-    {
-        scroll.setAppearance(a.scroll);
-        scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
-
-        redraw_required = true;
-    }
-
-    Text_appearance Text::getAppearance() const
-    {
-        return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
-    }
 }

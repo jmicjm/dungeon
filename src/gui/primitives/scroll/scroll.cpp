@@ -1,54 +1,56 @@
 #include "scroll.h"
-#include "../input/input.h"
+#include "../../../input/input.h"
 
 
 namespace gui
 {
     void Scroll_impl::updateHandle()
     {
-        const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y;
+        const int area_len = size().y - top_arrow.size().y - bottom_arrow.size().y;
 
         const float visible_perc = getContentLength() > 0 ? static_cast<float>(visibleContentLength()) / getContentLength() : 1;
         const int handle_len = std::clamp(static_cast<int>(area_len * visible_perc), 1, std::max(1, area_len));
         handle.setSizeInfo({ sf::Vector2f(0, handle_len), { 1,0 } });
 
         const float pos_perc = static_cast<float>(getTopPosition()) / (getContentLength() - visibleContentLength());
-        const int handle_pos = top_arrow.getSize().y + (area_len - handle_len) * pos_perc;
+        const float handle_pos = top_arrow.size().y + (area_len - handle_len) * pos_perc;
         handle.setPositionInfo({ { 0,handle_pos } });
     }
 
     int Scroll_impl::visibleContentLength() const
     {
-        return visible_content_length < 0 ? getSize().y : visible_content_length;
+        return visible_content_length < 0 ? size().y : visible_content_length;
     }
 
     void Scroll_impl::redraw()
     {
-        draw(line);
-        draw(top_arrow, false);
-        draw(bottom_arrow, false);
+        line.draw();
+        top_arrow.draw();
+        bottom_arrow.draw();
         updateHandle();
-        draw(handle);
-
-        redraw_required = false;
+        handle.draw();
     }
 
-    bool Scroll_impl::isRedrawRequired() const
-    {
-        return redraw_required 
-            || top_arrow.isRedrawRequired() 
-            || bottom_arrow.isRedrawRequired() 
-            || handle.isRedrawRequired() 
-            || line.isRedrawRequired();
-    }
-
-    void Scroll_impl::resizeEvent(const sf::Vector2i& size_diff)
+    void Scroll_impl::resizeEvent(sf::Vector2f size_diff)
     {
         setTopPosition(getTopPosition());
     }
 
+    void Scroll_impl::activateEvent()
+    {
+        top_arrow.activate();
+        bottom_arrow.activate();
+    }
+
+    void Scroll_impl::deactivateEvent()
+    {
+        top_arrow.deactivate();
+        bottom_arrow.deactivate();
+        is_holding_handle = false;
+    }
+
     Scroll_impl::Scroll_impl(sf::RenderWindow* rw)
-        : Gui_element(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
+        : Gui_component(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
     {        
         top_arrow.setPressDelay(std::chrono::milliseconds(0));
         bottom_arrow.setPressDelay(std::chrono::milliseconds(0));
@@ -73,6 +75,8 @@ namespace gui
 
     void Scroll_impl::update()
     {
+        if (!isActive()) return;
+
         if (!is_holding_handle)
         {
             top_arrow.update();
@@ -87,9 +91,7 @@ namespace gui
                 is_holding_handle = false;
             }
 
-            if (!is_holding_handle 
-                && hold_vec->source_pos.x >= handle.getGlobalPosition().x && hold_vec->source_pos.x <= handle.getGlobalPosition().x + handle.getSize().x
-                && hold_vec->source_pos.y >= handle.getGlobalPosition().y && hold_vec->source_pos.y <= handle.getGlobalPosition().y + handle.getSize().y)
+            if (!is_holding_handle && handle.visibleArea().contains(sf::Vector2f{ hold_vec->source_pos }))
             {
                 is_holding_handle = true;
                 hold_source_pos = hold_vec->source_pos;
@@ -98,7 +100,7 @@ namespace gui
                  
             if (is_holding_handle)
             {      
-                const int area_len = getSize().y - top_arrow.getSize().y - bottom_arrow.getSize().y - handle.getSize().y;
+                const int area_len = size().y - top_arrow.size().y - bottom_arrow.size().y - handle.size().y;
                 const int shift = hold_vec->current_pos.y - hold_vec->source_pos.y;
                 const float perc_shift = static_cast<float>(shift) / area_len;
 
@@ -126,7 +128,6 @@ namespace gui
     void Scroll_impl::setVisibleContentLength(int length)
     {
         visible_content_length = length;
-        redraw_required = true;
     }
 
     int Scroll_impl::getVisibleContentLength() const
@@ -137,7 +138,6 @@ namespace gui
     void Scroll_impl::setTopPosition(int position)
     {
         top_position = std::clamp(position, 0, std::max(0,content_length - visibleContentLength()));
-        redraw_required = true;
     }
 
     int Scroll_impl::getTopPosition() const
@@ -167,8 +167,6 @@ namespace gui
 
         top_arrow.setSizeInfo({ {0,f}, {1,p} });
         bottom_arrow.setSizeInfo({ {0,f}, {1,p} });
-
-        redraw_required = true;
     }
 
     Scroll_appearance Scroll_impl::getAppearance() const

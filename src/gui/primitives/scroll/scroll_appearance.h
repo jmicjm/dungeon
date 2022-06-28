@@ -1,7 +1,7 @@
 #pragma once
-#include "surface.h"
-#include "button_appearance.h"
-#include "frame_appearance.h"
+#include "../../surface.h"
+#include "../button/button_appearance.h"
+#include "../frame/frame_appearance.h"
 
 namespace gui
 {
