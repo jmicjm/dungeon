@@ -48,6 +48,7 @@ add_executable(dungeon
     src/gui/hud/player_frame.cpp 
     src/gui/hud/stat_bar.cpp
     src/gui/hud/quick_select.cpp 
+    src/gui/hud/controls.cpp 
     src/gui/hud/hud.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp

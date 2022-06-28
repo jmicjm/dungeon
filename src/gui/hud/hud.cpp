@@ -20,6 +20,8 @@ void gui::Hud::rescale()
 
     inventory_button.setSizeInfo({ sf::Vector2f{16,16} * scale });
     inventory_button.setPositionInfo({ sf::Vector2f{2,-2} * scale, {0,0}, {0,1} });
+
+    controls.setPositionInfo({ sf::Vector2f{-1,1} * scale, {0,0}, {1,0}});
 }
 
 void gui::Hud::redraw()
@@ -29,6 +31,7 @@ void gui::Hud::redraw()
     mana_bar.draw();
     quick_select.draw();
     inventory_button.draw();
+    controls.draw();
 }
 
 void gui::Hud::activateEvent()
@@ -38,6 +41,7 @@ void gui::Hud::activateEvent()
     mana_bar.activate();
     quick_select.activate();
     inventory_button.activate();
+    controls.activate();
 }
 
 void gui::Hud::deactivateEvent()
@@ -47,10 +51,17 @@ void gui::Hud::deactivateEvent()
     mana_bar.deactivate();
     quick_select.deactivate();
     inventory_button.deactivate();
+    controls.deactivate();
 }
 
 gui::Hud::Hud(sf::RenderWindow* rw)
-    : Gui_component(rw), player_frame(rw), hp_bar(rw), mana_bar(rw), quick_select(rw), inventory_button(rw)
+  : Gui_component(rw),
+    player_frame(rw),
+    hp_bar(rw),
+    mana_bar(rw),
+    quick_select(rw), 
+    inventory_button(rw),
+    controls(rw)
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -101,17 +112,20 @@ void gui::Hud::update()
     mana_bar.update();
     quick_select.update();
     inventory_button.update();
+    controls.update();
 }
 
-void gui::Hud::setPlayer(std::shared_ptr<Player> player)
+void gui::Hud::setPlayer(std::shared_ptr<Player> player, sf::View& view)
 {
     this->player = player;
     player_frame.setPlayer(player);
+    controls.setPlayer(*player, view);
 }
 
 void gui::Hud::setScale(float scale)
 {
     this->scale = scale;
+    controls.setScale(scale * 2 / 3);
     rescale();
 }
 
