@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 project ("dungeon")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(WIN32)
@@ -45,6 +45,11 @@ add_executable(dungeon
     src/gui/primitives/frame/frame.cpp  
     src/gui/primitives/scroll/scroll.cpp
     src/gui/primitives/text/text.cpp
+    src/gui/hud/player_frame.cpp 
+    src/gui/hud/stat_bar.cpp
+    src/gui/hud/quick_select.cpp 
+    src/gui/hud/controls.cpp 
+    src/gui/hud/hud.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp)
