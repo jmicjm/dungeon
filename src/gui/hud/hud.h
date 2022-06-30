@@ -32,11 +32,11 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Hud(sf::RenderWindow* rw);
+        Hud();
 
         void update() override;
 
-        void setPlayer(std::shared_ptr<Player> player, sf::View& view);
+        void setPlayer(std::shared_ptr<Player> player);
         void setScale(float scale);
         float getScale() const;
     };

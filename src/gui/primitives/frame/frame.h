@@ -13,8 +13,6 @@ namespace gui
         void redraw() override;
 
     public:
-        using Gui_component::Gui_component;
-
         void setAppearance(const Frame_appearance& a);
         Frame_appearance getAppearance() const;
     };

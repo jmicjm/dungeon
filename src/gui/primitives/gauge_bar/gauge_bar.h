@@ -33,8 +33,6 @@ namespace gui
         void resizeEvent(sf::Vector2f size_diff) override;
 
     public:
-        using Gui_component::Gui_component;
-
         void setDirection(DIRECTION dir);
 
         void  setMinValue(float val);

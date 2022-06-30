@@ -46,8 +46,6 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        using Gui_component::Gui_component;
-
         bool isPressed() const;
 
         void update() override;

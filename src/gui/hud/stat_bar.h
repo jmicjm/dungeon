@@ -13,7 +13,7 @@ namespace gui
         void redraw() override;
 
     public:
-        Stat_bar(sf::RenderWindow* rw);
+        Stat_bar();
 
         void setMinValue(float val);
         void setMaxValue(float val);

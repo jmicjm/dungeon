@@ -127,8 +127,7 @@ namespace gui
         scroll.deactivate();
     }
 
-    Text_impl::Text_impl(sf::RenderWindow* rw)
-        : Gui_component(rw), scroll(rw)
+    Text_impl::Text_impl()
     {
         scroll.setSizeInfo({ {0,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
@@ -208,8 +207,6 @@ namespace gui
         return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
     }
 
-    Text::Text(sf::RenderWindow* rw)
-        : Text_impl(rw) {}
 
     Text::Text(const Text& other)
         : Text_impl(other)

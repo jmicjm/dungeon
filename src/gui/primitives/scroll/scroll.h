@@ -32,7 +32,7 @@ namespace gui
         void deactivateEvent() override;
 
     protected:
-        Scroll_impl(sf::RenderWindow* rw);
+        Scroll_impl();
         Scroll_impl(const Scroll_impl& other) = default;
         Scroll_impl(Scroll_impl&& other) = default;
         Scroll_impl& operator=(const Scroll_impl& other) = default;
@@ -60,7 +60,7 @@ namespace gui
     class Scroll : public Scroll_impl
     {
     public:
-        Scroll(sf::RenderWindow* rw);
+        Scroll() = default;
         Scroll(const Scroll& other);
         Scroll(Scroll && other) noexcept;
         Scroll& operator=(const Scroll & other);

@@ -7,8 +7,7 @@ void gui::Stat_bar::redraw()
     bar.draw();
 }
 
-gui::Stat_bar::Stat_bar(sf::RenderWindow* rw)
-    : Gui_component(rw), frame(rw), bar(rw)
+gui::Stat_bar::Stat_bar()
 {
     frame.setSizeInfo({ {0,0}, {1,1} });
 

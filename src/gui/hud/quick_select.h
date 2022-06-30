@@ -12,7 +12,7 @@ namespace gui
         void redraw() override;
 
     public:
-        Quick_select(sf::RenderWindow* rw);
+        Quick_select();
 
         void setAppearance(const Frame_appearance& appearance);
     };

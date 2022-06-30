@@ -54,14 +54,7 @@ void gui::Hud::deactivateEvent()
     controls.deactivate();
 }
 
-gui::Hud::Hud(sf::RenderWindow* rw)
-  : Gui_component(rw),
-    player_frame(rw),
-    hp_bar(rw),
-    mana_bar(rw),
-    quick_select(rw), 
-    inventory_button(rw),
-    controls(rw)
+gui::Hud::Hud()
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -115,11 +108,11 @@ void gui::Hud::update()
     controls.update();
 }
 
-void gui::Hud::setPlayer(std::shared_ptr<Player> player, sf::View& view)
+void gui::Hud::setPlayer(std::shared_ptr<Player> player)
 {
     this->player = player;
     player_frame.setPlayer(player);
-    controls.setPlayer(*player, view);
+    controls.setPlayer(*player);
 }
 
 void gui::Hud::setScale(float scale)

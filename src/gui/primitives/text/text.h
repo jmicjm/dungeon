@@ -33,7 +33,7 @@ namespace gui
         void deactivateEvent() override;
 
     protected:
-        Text_impl(sf::RenderWindow* rw);
+        Text_impl();
         void linkChilds();
 
     public:
@@ -60,7 +60,7 @@ namespace gui
     class Text : public Text_impl
     {
     public:
-        Text(sf::RenderWindow* rw);
+        Text() = default;
         Text(const Text& other);
         Text(Text&& other) noexcept;
         Text& operator=(const Text& other);

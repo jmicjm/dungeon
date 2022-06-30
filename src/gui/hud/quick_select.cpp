@@ -5,8 +5,7 @@ void gui::Quick_select::redraw()
     frame.draw();
 }
 
-gui::Quick_select::Quick_select(sf::RenderWindow* rw)
-    : Gui_component(rw), frame(rw)
+gui::Quick_select::Quick_select()
 {
     frame.setSizeInfo({ {0,0}, {1,1} });
     frame.setParent(this);

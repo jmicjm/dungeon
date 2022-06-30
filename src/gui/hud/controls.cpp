@@ -2,6 +2,7 @@
 #include "../../asset_storage/texture_bank.h"
 #include "../../asset_storage/tile_sprite_storage.h"
 #include "../../utils/sf_vector2_utils.h"
+#include "../../global/window.h"
 
 void gui::Controls::rescale()
 {
@@ -33,11 +34,7 @@ void gui::Controls::deactivateEvent()
     center_button.deactivate();
 }
 
-gui::Controls::Controls(sf::RenderWindow* rw)
-  : Gui_component(rw),
-    options_button(rw),
-    skip_button(rw),
-    center_button(rw)
+gui::Controls::Controls()
 {
     options_button.setParent(this);
     skip_button.setParent(this);
@@ -80,12 +77,14 @@ void gui::Controls::update()
     center_button.update();
 }
 
-void gui::Controls::setPlayer(const Player& player, sf::View& view)
+void gui::Controls::setPlayer(const Player& player)
 {
     center_button.setPressFunction([&] {
+        auto view = window.getView();
         view.setCenter(
             sf::Vector2f{ vecMul(player.getPosition(), Tile_sprite_storage::tile_size) + sf::Vector2i{32, 0} }
         ); 
+        window.setView(view);
     });
 }
 

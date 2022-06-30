@@ -3,25 +3,25 @@
 #include <algorithm>
 #include <cmath>
 
-sf::Vector2f View_follower::centerDst()
+sf::Vector2f View_follower::centerDst(const sf::View& view)
 {
-    return (target_position && view) ? target_position() - view->getCenter() : sf::Vector2f{0,0};
+    return (target_position) ? target_position() - view.getCenter() : sf::Vector2f{0,0};
 }
 
-sf::Vector2f View_follower::edgeDst()
+sf::Vector2f View_follower::edgeDst(const sf::View& view)
 {
-    if (target_position && view)
+    if (target_position)
     {
         const sf::Vector2f border = sf::Vector2f{ edge_dst, edge_dst };
 
-        const sf::Vector2f tl = target_position() - view->getSize() / 2.f + border;
-        const sf::Vector2f br = target_position() + view->getSize() / 2.f - border;
+        const sf::Vector2f tl = target_position() - view.getSize() / 2.f + border;
+        const sf::Vector2f br = target_position() + view.getSize() / 2.f - border;
 
-        const sf::Vector2f center = view->getCenter();
+        const sf::Vector2f center = view.getCenter();
 
         const float x_dst = [&]()
         {
-            if (2 * border.x >= view->getSize().x) return centerDst().x;
+            if (2 * border.x >= view.getSize().x) return centerDst(view).x;
             if (center.x >= tl.x && center.x <= br.x) return 0.f;
             const float x_dst_top = tl.x - center.x;
             const float x_dst_bottom = br.x - center.x;
@@ -30,7 +30,7 @@ sf::Vector2f View_follower::edgeDst()
 
         const float y_dst = [&]()
         {
-            if (2 * border.y >= view->getSize().y) return centerDst().y;
+            if (2 * border.y >= view.getSize().y) return centerDst(view).y;
             if (center.y >= tl.y && center.y <= br.y) return 0.f;
             const float y_dst_top = tl.y - center.y;
             const float y_dst_bottom = br.y - center.y;
@@ -42,9 +42,9 @@ sf::Vector2f View_follower::edgeDst()
     return sf::Vector2f{ 0,0 };
 }
 
-void View_follower::followVec(const sf::Vector2f& vec)
+sf::View View_follower::followVec(const sf::Vector2f& vec, sf::View view)
 {
-    if (target_position && view)
+    if (target_position)
     {
         std::chrono::steady_clock::time_point current_time = std::chrono::steady_clock::now();
         std::chrono::milliseconds t_diff = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_time);
@@ -64,14 +64,15 @@ void View_follower::followVec(const sf::Vector2f& vec)
                     std::clamp(vec_norm.y * dst,-std::abs(vec.y), std::abs(vec.y))
                 };
 
-                view->move(offset);
+                view.move(offset);
             }
             else
             {
-                view->move(vec);
+                view.move(vec);
             }
         }
     }
+    return view;
 }
 
 View_follower::View_follower()
@@ -79,14 +80,14 @@ View_follower::View_follower()
     resetTime();
 }
 
-void View_follower::followCenter()
+sf::View View_follower::followCenter(sf::View view)
 {
-    followVec(centerDst());
+    return followVec(centerDst(view), view);
 }
 
-void View_follower::follow()
+sf::View View_follower::follow(sf::View view)
 {
-    followVec(edgeDst());
+   return followVec(edgeDst(view), view);
 }
 
 void View_follower::resetTime()

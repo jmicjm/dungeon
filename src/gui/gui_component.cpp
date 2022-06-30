@@ -14,15 +14,15 @@ namespace gui
     }
     sf::Vector2f Gui_component::parentSize() const
     {
-        return parent ? parent->size() : sf::Vector2f{ window->getSize() };
+        return parent ? parent->size() : sf::Vector2f{ window.getSize() };
     }
     sf::FloatRect Gui_component::parentArea() const
     {
-        return parent ? parent->area() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
+        return parent ? parent->area() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window.getSize() } };
     }
     sf::FloatRect Gui_component::visibleParentArea() const
     {
-        return parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window->getSize() } };
+        return parent ? parent->visibleArea() : sf::FloatRect{ { 0,0 }, sf::Vector2f{ window.getSize() } };
     }
 
     void Gui_component::activate()
@@ -42,16 +42,13 @@ namespace gui
         return is_active;
     }
 
-    Gui_component::Gui_component(sf::RenderWindow* rw)
-        : window(rw) {}
-
     void Gui_component::draw() 
     {
         const sf::Vector2f new_size = size();
         if (old_size != new_size) resizeEvent(new_size - old_size);
         old_size = new_size;
 
-        const sf::View old_view = window->getView();
+        const sf::View old_view = window.getView();
 
         const sf::View view = [&]
         {
@@ -59,19 +56,19 @@ namespace gui
             const auto tl = sf::Vector2f{ varea.left, varea.top };
             const auto size = sf::Vector2f{ varea.width, varea.height };
             sf::View view{ sf::FloatRect{ tl - globalPosition(), size} };
-            view.setViewport(sf::FloatRect{ vecDiv(tl, window->getSize()), vecDiv(size, window->getSize()) });
+            view.setViewport(sf::FloatRect{ vecDiv(tl, window.getSize()), vecDiv(size, window.getSize()) });
             return view;
         }(); 
-        window->setView(view);
+        window.setView(view);
 
         redraw();
 
-        window->setView(old_view);
+        window.setView(old_view);
     }
 
     bool Gui_component::isHovered() const
     {
-        return visibleArea().contains(sf::Vector2f{ sf::Mouse::getPosition(*window) });
+        return visibleArea().contains(sf::Vector2f{ sf::Mouse::getPosition(window) });
     }
 
     sf::FloatRect Gui_component::area() const

@@ -1,3 +1,4 @@
+#include "global/window.h"
 #include "world/world.h"
 #include "level/level.h"
 #include "entities/player.h"
@@ -7,17 +8,11 @@
 #include "input/input.h"
 #include "gui/hud/hud.h"
 
-#include <SFML/Graphics.hpp>
-
-#include <algorithm>
 
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "");
     window.setFramerateLimit(60);
-    sf::View view = window.getView();
-
     
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
@@ -63,20 +58,21 @@ int main()
     View_follower vf;
     vf.target_position = [&]() { return sf::Vector2f(player->getPosition()) * 64.f + sf::Vector2f(32,0); };
     vf.velocity = 300;
-    vf.view = &view;
     vf.edge_dst = 64*3+32;
 
     View_follower vf_instant = vf;
     vf_instant.velocity = -1;
     vf_instant.edge_dst = 32;
-    vf_instant.followCenter();
+    window.setView(vf_instant.followCenter(window.getView()));
 
-    gui::Hud hud(&window);
-    hud.setPlayer(player, view);
+    gui::Hud hud;
+    hud.setPlayer(player);
     hud.activate();
 
     while (window.isOpen())
     {
+        auto view = window.getView();
+
         Input::update();
         sf::Event event;
         while (window.pollEvent(event))
@@ -98,8 +94,8 @@ int main()
         
 
 
-        vf.follow();
-        vf_instant.follow();
+        view = vf.follow(view);
+        view = vf_instant.follow(view);
 
         sf::View rounded_view = view;
         sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
@@ -111,6 +107,7 @@ int main()
 
         hud.update();
         hud.draw();
+
 
         window.display();
     }   

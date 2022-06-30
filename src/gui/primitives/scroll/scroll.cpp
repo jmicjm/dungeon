@@ -49,8 +49,7 @@ namespace gui
         is_holding_handle = false;
     }
 
-    Scroll_impl::Scroll_impl(sf::RenderWindow* rw)
-        : Gui_component(rw), top_arrow(rw), bottom_arrow(rw), handle(rw), line(rw)
+    Scroll_impl::Scroll_impl()
     {        
         top_arrow.setPressDelay(std::chrono::milliseconds(0));
         bottom_arrow.setPressDelay(std::chrono::milliseconds(0));
@@ -181,9 +180,6 @@ namespace gui
 
         return a;
     }
-
-    Scroll::Scroll(sf::RenderWindow* rw) 
-        : Scroll_impl(rw) {}
 
     Scroll::Scroll(const Scroll& other) 
         : Scroll_impl(other)

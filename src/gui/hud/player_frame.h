@@ -16,7 +16,7 @@ namespace gui
         void redraw() override;
 
     public:
-        Player_frame(sf::RenderWindow* rw);
+        Player_frame();
 
         void setPlayer(std::shared_ptr<Player> player);
         void setAppearance(const Frame_appearance& appearance);

@@ -28,8 +28,7 @@ void gui::Player_frame::redraw()
     }
 }
 
-gui::Player_frame::Player_frame(sf::RenderWindow* rw)
-    : Gui_component(rw), frame(rw)
+gui::Player_frame::Player_frame()
 {
     frame.setSizeInfo({ {0,0}, {1,1} });
     frame.setParent(this);

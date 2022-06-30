@@ -1,4 +1,5 @@
 #pragma once
+#include "../global/window.h"
 #include "position_info.h"
 #include "size_info.h"
 #include "anchor_position_info.h"
@@ -12,8 +13,6 @@ namespace gui
 {
     class Gui_component
     {
-        sf::RenderWindow* window;
-
         sf::Vector2f old_size = { 0,0 };
 
         Position_info pos_info;
@@ -45,7 +44,6 @@ namespace gui
         virtual void deactivateEvent() {}
 
     public:
-        Gui_component(sf::RenderWindow* rw);
         virtual ~Gui_component() = default;
 
         void draw();
@@ -89,6 +87,6 @@ namespace gui
     template<typename ...T>
     void Gui_component::draw(T&&... args)
     {
-        window->draw(std::forward<T>(args)...);
+        window.draw(std::forward<T>(args)...);
     }
 }

@@ -19,11 +19,11 @@ namespace gui
         void activateEvent() override;
         void deactivateEvent() override;
     public:
-        Controls(sf::RenderWindow* rw);
+        Controls();
 
         void update() override;
 
-        void setPlayer(const Player& player, sf::View& view);
+        void setPlayer(const Player& player);
         void setScale(float scale);
         float getScale() const;
     };
