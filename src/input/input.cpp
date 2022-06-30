@@ -9,7 +9,9 @@ void Input::update()
             it = mouse_hold_info.erase(it);
         }
         else it++;
-    }    
+    }
+    mouse_pressed_buttons.clear();
+    mouse_released_buttons.clear();
 }
 
 void Input::update(const sf::Event& event)
@@ -25,10 +27,12 @@ void Input::update(const sf::Event& event)
     {
         const sf::Vector2i mouse_pos = { event.mouseButton.x, event.mouseButton.y };
         mouse_hold_info[event.mouseButton.button] = Mouse_hold_info_impl{ {mouse_pos, mouse_pos}, false };
+        mouse_pressed_buttons.insert(event.mouseButton.button);
     }
     else if (event.type == sf::Event::MouseButtonReleased)
     {
         mouse_hold_info[event.mouseButton.button].released = true;
+        mouse_released_buttons.insert(event.mouseButton.button);
     }
 }
 
@@ -38,4 +42,14 @@ std::optional<Input::Mouse_hold_info> Input::getMouseHoldVec(sf::Mouse::Button b
     if (it != mouse_hold_info.end()) return { it->second.hold_info };
 
     return {};
+}
+
+bool Input::isPressed(sf::Mouse::Button button)
+{
+    return mouse_pressed_buttons.find(button) != mouse_pressed_buttons.end();
+}
+
+bool Input::isReleased(sf::Mouse::Button button)
+{
+    return mouse_released_buttons.find(button) != mouse_released_buttons.end();
 }

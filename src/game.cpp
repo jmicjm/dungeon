@@ -1,4 +1,5 @@
 #include "global/window.h"
+#include "global/gui_component_stack.h"
 #include "world/world.h"
 #include "level/level.h"
 #include "entities/player.h"
@@ -107,6 +108,9 @@ int main()
 
         hud.update();
         hud.draw();
+
+        gui_component_stack.update();
+        gui_component_stack.draw();
 
 
         window.display();

@@ -1,4 +1,5 @@
 #include "button.h"
+#include "../../../input/input.h"
 #include "SFML/Window/Mouse.hpp"
 
 
@@ -13,15 +14,12 @@ namespace gui
     {
         if (!isActive()) return;
 
-        const bool was_pressed = is_pressed;
-        const bool was_hovered = is_hovered;
-
         if (is_pressed && type == PUSH)
         {
             is_pressed = false;
         }
         is_hovered = Gui_component::isHovered();
-        if (!isLocked() && isHovered() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+        if (!isLocked() && isHovered() && Input::getMouseHoldVec(sf::Mouse::Button::Left))
         {
             is_pressed = !is_pressed;
             press_tp = std::chrono::steady_clock::now();
