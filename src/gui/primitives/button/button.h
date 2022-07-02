@@ -19,6 +19,7 @@ namespace gui
         sf::Text pressed_hovered_text;
         sf::Text released_text;
         sf::Text released_hovered_text;
+        sf::Font font;
 
         std::function<void()> press_function;
         std::function<void()> release_function;
@@ -32,6 +33,8 @@ namespace gui
         bool is_hovered = false;
 
         bool isHovered() const;
+
+        void setText(sf::Text& text, const std::string& str);
 
     public:
         enum TYPE
@@ -57,10 +60,13 @@ namespace gui
         void setAppearance(const Button_appearance& a);
         Button_appearance getAppearance() const;
 
-        void setPressedText(const sf::Text& text);
-        void setPressedHoveredText(const sf::Text& text);
-        void setReleasedHoveredText(const sf::Text& text);
-        void setReleasedText(const sf::Text& text);
+        void setPressedText(const std::string& text);
+        void setPressedHoveredText(const std::string& text);
+        void setReleasedHoveredText(const std::string& text);
+        void setReleasedText(const std::string& text);
+
+        void setFont(const std::string& font);
+        void setFontSize(float size);
 
         void setPressFunction(const std::function<void()>& function);
         void setReleaseFunction(const std::function<void()>& function);

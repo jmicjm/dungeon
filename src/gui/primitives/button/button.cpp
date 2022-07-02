@@ -1,4 +1,5 @@
 #include "button.h"
+#include "../../../input/input.h"
 #include "SFML/Window/Mouse.hpp"
 
 
@@ -13,15 +14,12 @@ namespace gui
     {
         if (!isActive()) return;
 
-        const bool was_pressed = is_pressed;
-        const bool was_hovered = is_hovered;
-
         if (is_pressed && type == PUSH)
         {
             is_pressed = false;
         }
         is_hovered = Gui_component::isHovered();
-        if (!isLocked() && isHovered() && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+        if (!isLocked() && isHovered() && Input::getMouseHoldVec(sf::Mouse::Button::Left))
         {
             is_pressed = !is_pressed;
             press_tp = std::chrono::steady_clock::now();
@@ -55,6 +53,11 @@ namespace gui
     bool Button::isHovered() const
     {
         return is_hovered;
+    }
+
+    void Button::setText(sf::Text& text, const std::string& str)
+    {
+        text.setString(str);
     }
 
     void Button::redraw()
@@ -102,24 +105,41 @@ namespace gui
         return appearance;
     }
 
-    void Button::setPressedText(const sf::Text& text)
+    void Button::setPressedText(const std::string& text)
     {
-        pressed_text = text;
+        setText(pressed_text, text);
     }
 
-    void Button::setPressedHoveredText(const sf::Text& text)
+    void Button::setPressedHoveredText(const std::string& text)
     {
-        pressed_hovered_text = text;
+        setText(pressed_hovered_text, text);
     }
 
-    void Button::setReleasedHoveredText(const sf::Text& text)
+    void Button::setReleasedHoveredText(const std::string& text)
     {
-        released_hovered_text = text;
+        setText(released_hovered_text, text);
     }
 
-    void Button::setReleasedText(const sf::Text& text)
+    void Button::setReleasedText(const std::string& text)
     {
-        released_text = text;
+        setText(released_text, text);
+    }
+
+    void Button::setFont(const std::string& font)
+    {
+        this->font.loadFromFile(font);
+        pressed_text.setFont(this->font);
+        pressed_hovered_text.setFont(this->font);
+        released_text.setFont(this->font);
+        released_hovered_text.setFont(this->font);
+    }
+
+    void Button::setFontSize(float size)
+    {
+        pressed_text.setCharacterSize(size);
+        pressed_hovered_text.setCharacterSize(size);
+        released_text.setCharacterSize(size);
+        released_hovered_text.setCharacterSize(size);
     }
 
     void Button::setPressFunction(const std::function<void()>& function)

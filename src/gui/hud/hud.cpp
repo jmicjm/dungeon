@@ -1,5 +1,7 @@
 #include "hud.h"
 #include "../../asset_storage/texture_bank.h"
+#include "../../global/gui_component_stack.h"
+#include "../inventory/inventory.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -88,12 +90,29 @@ gui::Hud::Hud()
                                           .released_hovered = sf::Sprite{ *inv_btn_tex, { {16,0}, {16,16} } } };
     inventory_button.setAppearance(inv_btn_a);
     inventory_button.setParent(this);
-    inventory_button.setType(Button::SWITCH);
 
     const auto qselect_tex = Texture_bank::getTexture("assets/gui/quick_select.png");
     quick_select.setAppearance({ sf::Sprite{ *qselect_tex } });
     quick_select.setParent(this);
     quick_select.setAnchor(&inventory_button);
+
+
+    auto inventory_button_f = [&, inv_btn_a]
+    {
+        auto inv = std::make_unique<gui::Inventory>();
+        inv->setSizeInfo({ {0,0}, {0.5,0.5} });
+        inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
+        Component_stack::Component_config cfg;
+        cfg.on_close = [&, inv_btn_a] 
+        {
+            activate();
+            inventory_button.setAppearance(inv_btn_a);
+        };
+        gui_component_stack.insert(std::move(inv), cfg);
+        inventory_button.setAppearance({ .released = inv_btn_a.pressed });
+        deactivate();
+    };
+    inventory_button.setPressFunction(inventory_button_f);
 
     rescale();
 }
