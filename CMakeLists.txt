@@ -50,11 +50,12 @@ add_executable(dungeon
     src/gui/hud/quick_select.cpp 
     src/gui/hud/controls.cpp 
     src/gui/hud/hud.cpp
-    src/gui/component_stack/component_stack.cpp 
+    src/gui/component_stack/component_stack.cpp
+    src/gui/component_stack/component_stack_helper.cpp
     src/gui/inventory/inventory.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 
-)
+  )
 
 target_link_libraries(dungeon sfml-graphics)

@@ -1,8 +1,16 @@
 #include "component_stack.h"
+#include "component_stack_helper.h"
 #include "../../input/input.h"
 
 #include "SFML/Window/Mouse.hpp"
 
+#include <algorithm>
+
+
+auto gui::Component_stack::componentIt(const Gui_component* component) const -> decltype(components)::const_iterator
+{
+    return std::ranges::find_if(components, [=](const auto& c) { return c.first.get() == component; });
+}
 
 void gui::Component_stack::remove(decltype(components)::const_iterator it)
 {
@@ -39,9 +47,9 @@ void gui::Component_stack::update()
             {
             case Component_config::OUTSIDE_CLICK_ACTION::CLOSE:
                 if (auto& on_close = components.back().second.on_close) on_close();
-                components.pop_back();
+                remove(--components.end());
                 break;
-            case Component_config::OUTSIDE_CLICK_ACTION::ACTIVATION:
+            case Component_config::OUTSIDE_CLICK_ACTION::DEACTIVATE:
                 if (top_component.isActive()) top_component.deactivate();
                 else top_component.activate();
             }
@@ -55,6 +63,7 @@ void gui::Component_stack::insert(std::unique_ptr<Gui_component> component, cons
     if (component)
     {
         component->setParent(this);
+        if (auto helper = dynamic_cast<Component_stack_helper*>(component.get())) helper->cs = this;
         if (isActive())
         {
             if (components.size()) components.back().first->deactivate();
@@ -88,4 +97,3 @@ bool gui::Component_stack::hasComponent(const Gui_component* component) const
 {
     return componentIt(component) != components.end();
 }
-

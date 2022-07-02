@@ -4,7 +4,6 @@
 #include <vector>
 #include <utility>
 #include <memory>
-#include <algorithm>
 #include <functional>
 
 
@@ -17,7 +16,7 @@ namespace gui
         {
             enum class OUTSIDE_CLICK_ACTION
             {
-                ACTIVATION, CLOSE, NOTHING
+                DEACTIVATE, CLOSE, NOTHING
             } outside_click_action = OUTSIDE_CLICK_ACTION::CLOSE;
 
             std::function<void()> on_close = nullptr;
@@ -28,10 +27,7 @@ namespace gui
         std::vector<std::pair<std::unique_ptr<Gui_component>, Component_config>> components;
         bool press_blocked = false;
 
-        auto componentIt(const Gui_component* component) const
-        {
-            return std::ranges::find_if(components, [=](const auto& c) { return c.first.get() == component; });
-        }
+        auto componentIt(const Gui_component* component) const -> decltype(components)::const_iterator;
         void remove(decltype(components)::const_iterator it);
 
         void redraw() override;
@@ -41,7 +37,7 @@ namespace gui
     public:
         void update() override;
 
-        void insert(std::unique_ptr<Gui_component> component, const Component_config& config = Component_config{});
+        void insert(std::unique_ptr<Gui_component> component, const Component_config& config = {});
         void remove(const Gui_component* component);
         void clear();
         auto size() -> decltype(components)::size_type;
