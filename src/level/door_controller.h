@@ -6,6 +6,9 @@
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
+#include <entt/entt.hpp>
+
+
 class Door_controller : public sf::Drawable
 {
     Quadtree<Door> doors;
@@ -18,5 +21,5 @@ public:
 
     const Quadtree<Door>& getDoors() const;
     bool openDoor(const sf::Vector2i& pos);
-    bool closeDoor(const sf::Vector2i& pos);
+    bool closeDoor(const sf::Vector2i& pos, Quadtree<entt::entity>& entities);
 };

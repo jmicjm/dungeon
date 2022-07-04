@@ -9,6 +9,7 @@ if(WIN32)
 endif()
 
 find_package(SFML 2 COMPONENTS graphics REQUIRED)
+find_package(EnTT CONFIG REQUIRED)
 
 add_executable(dungeon
     src/game.cpp 
@@ -33,10 +34,12 @@ add_executable(dungeon
     src/level/door.cpp
     src/level/door_controller.cpp
     src/level/entrance.cpp
+    src/level/visibleTiles.cpp 
+    src/level/moveEntity.cpp 
+    src/level/usePortal.cpp
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
-    src/entities/entity.cpp
     src/entities/player.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
@@ -56,6 +59,7 @@ add_executable(dungeon
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 
-  )
+    src/components/position.cpp   
+)
 
-target_link_libraries(dungeon sfml-graphics)
+target_link_libraries(dungeon sfml-graphics EnTT::EnTT)

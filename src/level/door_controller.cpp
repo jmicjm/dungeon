@@ -77,10 +77,10 @@ bool Door_controller::openDoor(const sf::Vector2i& pos)
     return false;
 }
 
-bool Door_controller::closeDoor(const sf::Vector2i& pos)
+bool Door_controller::closeDoor(const sf::Vector2i& pos, Quadtree<entt::entity>& entities)
 {
     auto doors = this->doors.find(pos);
-    if (doors.size() > 0 && level->entities.find(pos).size() == 0)
+    if (doors.size() > 0 && entities.find(pos).size() == 0)
     {
         doors[0]->second.state = Door::CLOSED;
         return true;

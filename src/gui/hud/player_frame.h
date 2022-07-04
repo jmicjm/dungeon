@@ -3,14 +3,15 @@
 #include "../primitives/frame/frame.h"
 #include "../../entities/player.h"
 
-#include <memory>
+#include <entt/entt.hpp>
 
 
 namespace gui
 {
     class Player_frame : public Gui_component
     {
-        std::shared_ptr<Player> player;
+        entt::entity player;
+        const entt::registry* registry = nullptr;
         Frame frame;
 
         void redraw() override;
@@ -18,7 +19,7 @@ namespace gui
     public:
         Player_frame();
 
-        void setPlayer(std::shared_ptr<Player> player);
+        void setPlayer(const entt::registry& registry, entt::entity player);
         void setAppearance(const Frame_appearance& appearance);
     };
 }

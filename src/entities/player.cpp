@@ -1,52 +1,72 @@
-#include "player.h"
+#include "../components/player.h"
+#include "../components/character.h"
+#include "../asset_storage/texture_bank.h"
+#include "../gfx/animated_sprite/animated_sprite.h"
+#include "../components/position.h"
+#include "../level/moveEntity.h"
+#include "../level/usePortal.h"
 #include "../world/world.h"
-#include "../level/level.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
+#include <memory>
 
-void Player::draw(sf::RenderTarget& rt, sf::RenderStates st) const
+
+entt::entity createPlayer(entt::registry& registry)
 {
-    rt.draw(animation, st);
-}
+    auto player = registry.create();
+    registry.emplace<Player>(player);
+    registry.emplace<Character>(player);
 
-Player::Player(Level* level, sf::Vector2i position, Animated_sprite anim)
-    : Entity(level, position), animation(anim) {}
-
-void Player::update()
-{
-    animation.updateFrameIdx();
-}
-
-bool Player::performAction()
-{
-    std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
-    if ((t - last_action_t) < std::chrono::milliseconds(200)) return false;
-    last_action_t = t;
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
-        auto entrances = level->entrances.find(getPosition());
-        if (entrances.size() > 0)
+        const sf::Texture* tex = Texture_bank::getTexture("assets/characters/wild_mage_frames.png");
+        std::vector<sf::IntRect> rects;
+        for (int i = 0; i < 16; i++)
         {
-            if (auto destination = entrances[0]->second.getPortal().destination.lock(); destination)
+            rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
+        }
+        return std::make_shared<Animated_sprite_frames>(tex, rects);
+    }();
+    Animated_sprite player_animation(player_frames, 16);
+    registry.emplace<Animated_sprite>(player, player_animation);
+
+    return player;
+}
+
+bool updatePlayer(entt::registry& registry, Quadtree<entt::entity>& entities, World& world, Player& player)
+{
+        std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
+        if ((t - player.last_action_t) < std::chrono::milliseconds(200)) return false;
+        player.last_action_t = t;
+
+        auto entity = entt::to_entity(registry, player);
+        Position& position = registry.get<Position>(entity);
+    
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            auto entrances = position.getLevel()->entrances.find(position.getCoords());
+            if (entrances.size() > 0)
             {
-                usePortal(entrances[0]->second.getPortal());
-                world->changeLevel(destination);
-                return true;
+                if (auto destination = entrances[0]->second.getPortal().destination.lock())
+                {
+                    usePortal(entrances[0]->second.getPortal(), position);
+                    world.changeLevel(destination);
+                    return true;
+                }
             }
         }
-    }
-
-    sf::Vector2i offset = { 0,0 };
-
-    offset.x += sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-    offset.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-    offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-    offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-
-    const sf::Vector2i old_pos = getPosition();
-    move(offset);
-
-    return old_pos != getPosition();
+    
+        sf::Vector2i offset = { 0,0 };
+    
+        offset.x += sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+        offset.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+        offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+        offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+    
+        
+        const sf::Vector2i old_pos = position.getCoords();
+        moveEntity(entities, position, offset);
+    
+        return old_pos != position.getCoords();
 }

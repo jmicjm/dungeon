@@ -7,14 +7,15 @@
 #include "controls.h"
 #include "../../entities/player.h"
 
-#include <memory>
+#include <entt/entt.hpp>
 
 
 namespace gui
 {
     class Hud : public Gui_component
     {
-        std::shared_ptr<Player> player;
+        entt::entity player;
+        const entt::registry* registry = nullptr;
 
         Player_frame player_frame;
         Stat_bar hp_bar;
@@ -36,7 +37,7 @@ namespace gui
 
         void update() override;
 
-        void setPlayer(std::shared_ptr<Player> player);
+        void setPlayer(const entt::registry& registry, entt::entity player);
         void setScale(float scale);
         float getScale() const;
     };

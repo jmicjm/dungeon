@@ -4,6 +4,9 @@
 #include "../primitives/button/button.h"
 #include "../../entities/player.h"
 
+#include <entt/entt.hpp>
+
+
 namespace gui 
 {
     class Controls : public Gui_component
@@ -23,7 +26,7 @@ namespace gui
 
         void update() override;
 
-        void setPlayer(const Player& player);
+        void setPlayer(const entt::registry& registry, entt::entity player);
         void setScale(float scale);
         float getScale() const;
     };

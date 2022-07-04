@@ -1,5 +1,6 @@
 #include "player_frame.h"
 #include "../../utils/sf_vector2_utils.h"
+#include "../../gfx/animated_sprite/animated_sprite.h"
 
 #include <algorithm>
 
@@ -7,9 +8,10 @@
 void gui::Player_frame::redraw()
 {
     frame.draw();
-    if (player)
-    {
 
+    auto animation = registry->try_get<Animated_sprite>(player);
+    if (animation)
+    {
         sf::RenderStates st = [&]
         {
             sf::RenderStates st;
@@ -24,7 +26,7 @@ void gui::Player_frame::redraw()
             return st;
         }();
         
-        draw(*player, st);
+        draw(*animation, st);
     }
 }
 
@@ -34,9 +36,10 @@ gui::Player_frame::Player_frame()
     frame.setParent(this);
 }
 
-void gui::Player_frame::setPlayer(std::shared_ptr<Player> player)
+void gui::Player_frame::setPlayer(const entt::registry& registry, entt::entity player)
 {
-    this->player = std::move(player);
+    this->registry = &registry;
+    this->player = player;
 }
 
 void gui::Player_frame::setAppearance(const Frame_appearance& appearance)

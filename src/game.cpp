@@ -2,32 +2,13 @@
 #include "global/gui_component_stack.h"
 #include "world/world.h"
 #include "level/level.h"
-#include "entities/player.h"
-#include "gfx/view_follower.h"
-#include "gfx/animated_sprite/animated_sprite.h"
-#include "asset_storage/texture_bank.h"
 #include "input/input.h"
 #include "gui/hud/hud.h"
-
 
 
 int main()
 {
     window.setFramerateLimit(60);
-    
-    std::shared_ptr<Animated_sprite_frames> player_frames = []()
-    {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/characters/wild_mage_frames.png");
-        std::vector<sf::IntRect> rects;
-        for (int i = 0; i < 16; i++)
-        {
-            rects.push_back(sf::IntRect(i * 64, 0, 64, 64));
-        }
-        return std::make_shared<Animated_sprite_frames>(tex, rects);
-    }();
-    Animated_sprite player_animation(player_frames, 16);
-
-    std::shared_ptr<Player> player = std::make_shared<Player>(nullptr, sf::Vector2i{0,0}, player_animation);
 
 
     Level_structure_params structure_params;
@@ -53,21 +34,11 @@ int main()
         },
     };
 
-    World world(world_params, player);
+    World world(world_params);
 
-
-    View_follower vf;
-    vf.target_position = [&]() { return sf::Vector2f(player->getPosition()) * 64.f + sf::Vector2f(32,0); };
-    vf.velocity = 300;
-    vf.edge_dst = 64*3+32;
-
-    View_follower vf_instant = vf;
-    vf_instant.velocity = -1;
-    vf_instant.edge_dst = 32;
-    window.setView(vf_instant.followCenter(window.getView()));
 
     gui::Hud hud;
-    hud.setPlayer(player);
+    hud.setPlayer(world.getRegistry(), world.getPlayer());
     hud.activate();
 
     while (window.isOpen())
@@ -92,16 +63,8 @@ int main()
             }
         }
         window.clear();
-        
+        window.setView(view);
 
-
-        view = vf.follow(view);
-        view = vf_instant.follow(view);
-
-        sf::View rounded_view = view;
-        sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
-        rounded_view.setCenter(tl + view.getSize() / 2.f);
-        window.setView(rounded_view);//use rounded view to avoid rendering at non integer positions
 
         world.update(window);
         window.draw(world);
