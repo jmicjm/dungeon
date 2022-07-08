@@ -108,16 +108,10 @@ void View_range_overlay::drawTileOverlay(const Level& l,
                                          const sf::Vector2i& position,
                                          const Tile_visibility_info tvi)
 {
-    const tile_sprite_id_t id = [&]() 
+    const tile_sprite_id_t id = [&]
     {
         const auto& [tl, tr, bl, br] = tvi;
-        const bool is_closed_door = [&]()
-        {
-            auto doors = l.door_controller.getDoors().find(position);
-            return doors.size() > 0 && doors[0]->second.state == Door::CLOSED;
-        }();
-
-        if (l.getStructure().at(position).type == TILE_TYPE::WALL || is_closed_door)
+        if (!l.isPassable(position))
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }

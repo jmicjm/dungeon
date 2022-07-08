@@ -1,11 +1,15 @@
 #include "../components/player.h"
 #include "../components/character.h"
+#include "../components/nonpassable.h"
+#include "../components/render_component.h"
+#include "../gfx/zlevels.h"
 #include "../asset_storage/texture_bank.h"
 #include "../gfx/animated_sprite/animated_sprite.h"
 #include "../components/position.h"
 #include "../level/moveEntity.h"
 #include "../level/usePortal.h"
 #include "../world/world.h"
+#include "../asset_storage/tile_sprite_storage.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
@@ -17,6 +21,7 @@ entt::entity createPlayer(entt::registry& registry)
     auto player = registry.create();
     registry.emplace<Player>(player);
     registry.emplace<Character>(player);
+    registry.emplace<Nonpassable>(player);
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
@@ -29,7 +34,8 @@ entt::entity createPlayer(entt::registry& registry)
         return std::make_shared<Animated_sprite_frames>(tex, rects);
     }();
     Animated_sprite player_animation(player_frames, 16);
-    registry.emplace<Animated_sprite>(player, player_animation);
+    player_animation.setPosition(-sf::Vector2f(0, Tile_sprite_storage::tile_size.y / 2));
+    registry.emplace<Render_component>(player, Render_component{ { {zlevel::character, { player_animation } } } });
 
     return player;
 }
@@ -66,7 +72,7 @@ bool updatePlayer(entt::registry& registry, Quadtree<entt::entity>& entities, Wo
     
         
         const sf::Vector2i old_pos = position.getCoords();
-        moveEntity(entities, position, offset);
+        moveEntity(registry, entities, position, offset);
     
         return old_pos != position.getCoords();
 }

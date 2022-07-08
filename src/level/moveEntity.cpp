@@ -1,40 +1,44 @@
 #include "moveEntity.h"
+#include "../entities/gate.h"
 
 
-void moveEntity(Quadtree<entt::entity>& entities, Position& position, sf::Vector2i& offset)
+void moveEntity(entt::registry& registry, Quadtree<entt::entity>& entities, Position& position, sf::Vector2i offset)
 {
-    auto& coords = position.getCoords();
-    auto& level = *position.getLevel();
+    const auto old_coords = position.getCoords();
+    const auto& level = *position.getLevel();
 
     offset.x = std::clamp(offset.x, -1, 1);
     offset.y = std::clamp(offset.y, -1, 1);
 
-    const sf::Vector2i new_coords = coords + offset;
-    const sf::Vector2i old_coords = coords;
+    const sf::Vector2i new_coords = old_coords + offset;
+    if (!entities.getArea().contains(new_coords)) return;
 
     if (new_coords == old_coords) return;
 
-    const bool move_allowed_structure = [&]
+    auto moveToNewCoords = [&]
     {
-        const sf::Vector2i new_pos_x = coords + sf::Vector2i{ offset.x, 0 };
-        const sf::Vector2i new_pos_y = coords + sf::Vector2i{ 0, offset.y };
+        position.setCoords(new_coords);
 
-        return !(level.getStructure().at(new_pos_x).type == TILE_TYPE::WALL && level.getStructure().at(new_pos_y).type == TILE_TYPE::WALL)
-            && level.getStructure().at(new_coords).type != TILE_TYPE::WALL;
-    }();
-
-    if (move_allowed_structure)
-    {
-        const bool move_allowed_door = [&]
+        auto tile_entities = entities.find(old_coords);
+        for (auto e : tile_entities)
         {
-            if (level.getStructure().at(new_coords).type == TILE_TYPE::DOORWAY) return level.door_controller.openDoor(new_coords);
-            return true;
+            if (auto gate = registry.try_get<Gate>(e->second)) closeGate(registry, entities, e->second);
+        }
+    };
+
+    if (!level.isPassable(new_coords))
+    {
+        const bool gate_open_success = [&]
+        {
+            auto tile_entities = entities.find(new_coords);
+            for (auto e : tile_entities)
+            {
+                if (auto gate = registry.try_get<Gate>(e->second)) return openGate(registry, entities, e->second);
+            }        
+            return false;
         }();
 
-        if (move_allowed_door)
-        {
-            position.setCoords(new_coords);
-            if (level.getStructure().at(old_coords).type == TILE_TYPE::DOORWAY) level.door_controller.closeDoor(old_coords, entities);
-        }
+        if (gate_open_success) moveToNewCoords();
     }
+    else moveToNewCoords();
 }

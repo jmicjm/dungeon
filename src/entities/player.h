@@ -1,7 +1,6 @@
 #pragma once
 #include "../components/player.h"
 #include "../world/world.fwd.h"
-#include "../gfx/animated_sprite/animated_sprite.h"
 #include "../utils/quadtree.h"
 
 #include <entt/entt.hpp>

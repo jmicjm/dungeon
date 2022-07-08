@@ -17,7 +17,6 @@ void World::createPlayer()
 
 void World::addLevel(std::shared_ptr<Level> level)
 {
-    entity_level_map.insert({ level.get(), Quadtree<entt::entity>{ { { 0,0 }, level->getStructure().getSize()} } });
     levels.insert(std::move(level));
 }
 
@@ -27,11 +26,6 @@ void World::removeLevel(const std::shared_ptr<Level>& level)
     {
         levels.erase(it);
     }
-    if (auto it = entity_level_map.find(level.get()); it != entity_level_map.end())
-    {
-        entity_level_map.erase(it);
-    }
-    //todo: do something with entities associated with level
 }
 
 void World::initViewFollowers()
@@ -48,7 +42,7 @@ void World::initViewFollowers()
 
 void World::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    current_level->draw(registry, entity_level_map.find(current_level.get())->second, rt, st);
+    rt.draw(*current_level, st);
 }
 
 World::World(const World_params& params)
@@ -57,7 +51,7 @@ World::World(const World_params& params)
 
     for (const auto& lp : params.level_params)
     {
-        auto level = std::make_shared<Level>(lp);
+        auto level = std::make_shared<Level>(lp, registry, entity_level_map);
         levels.push_back(level);
         addLevel(std::move(level));
     }
@@ -87,7 +81,7 @@ World::World(const World_params& params)
 
 void World::update(sf::RenderTarget& rt)
 {
-    current_level->update(registry, entity_level_map[current_level.get()], *this, rt);
+    current_level->update(registry, *this, rt);
 
     auto view = rt.getView();
     view = vf.follow(view);
@@ -98,7 +92,7 @@ void World::update(sf::RenderTarget& rt)
     rt.setView(rounded_view);//use rounded view to avoid rendering at non integer positions
 
     auto& pos = registry.get<Position>(player);
-    auto vis_tiles = visibleTiles(pos.getCoords(), *current_level.get(), entity_level_map[current_level.get()]);
+    auto vis_tiles = visibleTiles(pos.getCoords(), *current_level);
     current_level->updateVisibleTiles(std::move(vis_tiles), rt);
 }
 

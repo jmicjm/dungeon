@@ -7,6 +7,11 @@ Position::Position(const sf::Vector2i& coords, Level* level, std::unordered_map<
     qt_ptr(elvl_map[level].insert({ coords, entity })),
     elvl_map(&elvl_map) {}
 
+Position::~Position()
+{
+    (*elvl_map)[this->level].erase(qt_ptr);
+}
+
 void Position::setPosition(const sf::Vector2i& coords, Level* level)
 {
     auto entity = qt_ptr->second;

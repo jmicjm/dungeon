@@ -31,8 +31,6 @@ add_executable(dungeon
     src/level/level_structure.cpp
     src/level/tile_reveal_mask.cpp
     src/level/tile_visibility_info.cpp
-    src/level/door.cpp
-    src/level/door_controller.cpp
     src/level/entrance.cpp
     src/level/visibleTiles.cpp 
     src/level/moveEntity.cpp 
@@ -41,6 +39,8 @@ add_executable(dungeon
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
     src/entities/player.cpp
+    src/entities/door.cpp
+    src/entities/gate.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
     src/gui/primitives/button/button.cpp   

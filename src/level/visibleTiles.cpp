@@ -1,25 +1,19 @@
 #include "visibleTiles.h"
 #include "../asset_storage/tile_sprite_storage.h"
 #include "../utils/sf_vector2_utils.h"
+#include "../components/nonpassable.h"
 
 #include <queue>
 
 
-std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Vector2i& position, const Level& level, const Quadtree<entt::entity>& entities)
+std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Vector2i& position, const Level& level)
 {
     const sf::Vector2i ts = Tile_sprite_storage::tile_size;
     auto vision_radius = 6;
 
     auto isOpaque = [&](const sf::Vector2i& pos)
     {
-        auto isClosedDoor = [&]()
-        {
-            auto doors = level.door_controller.getDoors().find(pos);
-            return doors.size() > 0 && (*doors.begin())->second.state == Door::CLOSED;
-        };
-        return !level.getStructure().isPositionValid(pos)
-            || level.getStructure().at(pos).type == TILE_TYPE::WALL
-            || (level.getStructure().at(pos).type == TILE_TYPE::DOORWAY && isClosedDoor());
+        return !level.isPassable(pos);
     };
 
     auto isVisible = [&](const sf::Vector2i& dest_point)
@@ -39,7 +33,7 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Ve
         int y_dst_sum = 0;
         while (y_dst_sum != vec.y)
         {
-            if (isOpaque(tile)) return false;
+            if (isOpaque(tile) && tile != position) return false;
 
             const int y_dst = (tile.y * ts.y + (tile_move.y > 0) * ts.y) - (src.y + y_dst_sum);
             const int x = src.x + vec.x * (y_dst_sum + y_dst) / vec.y;

@@ -13,7 +13,7 @@ class Position
     sf::Vector2i coords = {0,0};
     Level* level = nullptr;
     const Quadtree<entt::entity>::value_type* qt_ptr = nullptr;
-    std::unordered_map<const Level*, Quadtree<entt::entity>>* elvl_map;
+    std::unordered_map<const Level*, Quadtree<entt::entity>>* elvl_map = nullptr;
 
     Position(const Position& other) = delete;
     Position& operator=(const Position& other) = delete;
@@ -22,6 +22,7 @@ public:
     Position(const sf::Vector2i& coords, Level* level, std::unordered_map<const Level*, Quadtree<entt::entity>>& elvl_map, entt::entity entity);
     Position(Position&& other) = default;
     Position& operator=(Position&& other) = default;
+    ~Position();
 
     void setPosition(const sf::Vector2i& coords, Level* level);
     void setCoords(const sf::Vector2i& coords);
