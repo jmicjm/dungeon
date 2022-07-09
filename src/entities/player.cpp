@@ -2,12 +2,13 @@
 #include "../components/character.h"
 #include "../components/nonpassable.h"
 #include "../components/render_component.h"
+#include "../components/portal.h"
+#include "portal.h"
 #include "../gfx/zlevels.h"
 #include "../asset_storage/texture_bank.h"
 #include "../gfx/animated_sprite/animated_sprite.h"
 #include "../components/position.h"
 #include "../level/moveEntity.h"
-#include "../level/usePortal.h"
 #include "../world/world.h"
 #include "../asset_storage/tile_sprite_storage.h"
 
@@ -51,14 +52,17 @@ bool updatePlayer(entt::registry& registry, Quadtree<entt::entity>& entities, Wo
     
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
-            auto entrances = position.getLevel()->entrances.find(position.getCoords());
-            if (entrances.size() > 0)
+            auto tile_entities = entities.find(position.getCoords());
+            for (auto entity : tile_entities)
             {
-                if (auto destination = entrances[0]->second.getPortal().destination.lock())
+                if (auto portal = registry.try_get<Portal>(entity->second))
                 {
-                    usePortal(entrances[0]->second.getPortal(), position);
-                    world.changeLevel(destination);
-                    return true;
+                    if (auto destination = portal->destination_level.lock())
+                    {
+                        usePortal(*portal, position);
+                        world.changeLevel(destination);
+                        return true;
+                    }
                 }
             }
         }

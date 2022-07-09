@@ -5,7 +5,6 @@
 #include "../gfx/view_range_overlay.h"
 #include "level_params.h"
 #include "../utils/quadtree.h"
-#include "entrance.h"
 #include "../world/world.fwd.h"
 
 #include "SFML/Graphics/Drawable.hpp"
@@ -30,8 +29,6 @@ class Level : public sf::Drawable
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
 public:
-    Quadtree<Entrance> entrances;
-
     Level(const Level_params& params, entt::registry& registry, std::unordered_map<const Level*, Quadtree<entt::entity>>& entity_level_map);
     ~Level();
 

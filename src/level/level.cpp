@@ -18,23 +18,6 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
     if(tile_map) rt.draw(*tile_map, st);
     const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
 
-    auto pixelPosition = [](const sf::Vector2i& tile_position)
-    {
-        return vecMul(sf::Vector2f{ tile_position }, Tile_sprite_storage::tile_size);
-    };
-
-    auto area_entrances = entrances.find({ tl, br });
-    for (auto entrance : area_entrances)
-    {
-        Primitive_sprite sprite = entrance->second.getSprite();
-
-        sf::RenderStates st2 = st;
-        st2.transform.translate(pixelPosition(entrance->first));
-        st2.texture = sprite.texture;
-
-        rt.draw(sprite.vertices, 4, sprite.primitive_type, st2);
-    }
-
     std::map<int, std::vector<std::pair<sf::Vector2i, const Animated_sprite*>>> zlevel_map;
 
     auto visible_entities = (*entity_level_map)[this].find({ tl, br });
@@ -53,6 +36,11 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
             }
         }
     }
+
+    auto pixelPosition = [](const sf::Vector2i& tile_position)
+    {
+        return vecMul(sf::Vector2f{ tile_position }, Tile_sprite_storage::tile_size);
+    };
 
     for (auto& [zlevel, animations] : zlevel_map)
     {
@@ -93,7 +81,6 @@ void Level::placeDoors()
 
 Level::Level(const Level_params& params, entt::registry& registry, std::unordered_map<const Level*, Quadtree<entt::entity>>& entity_level_map)
   : structure(createLevelStructure(params.structure_params)),
-    entrances({ { 0,0 }, structure.getSize() }),
     reveal_mask(params.structure_params.level_size),
     entity_level_map(&entity_level_map),
     registry(&registry)

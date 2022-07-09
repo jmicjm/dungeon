@@ -11,12 +11,11 @@
 
 #include <memory>
 #include <unordered_map>
-#include <unordered_set>
 
 
 class World : public sf::Drawable
 {
-    std::unordered_set<std::shared_ptr<Level>> levels;
+    std::vector<std::shared_ptr<Level>> levels;
     std::shared_ptr<Level> current_level;
     View_follower vf;
     View_follower vf_instant;
@@ -24,9 +23,6 @@ class World : public sf::Drawable
     entt::registry registry;
     std::unordered_map<const Level*, Quadtree<entt::entity>> entity_level_map;
     entt::entity player;
-
-    void addLevel(std::shared_ptr<Level> level);
-    void removeLevel(const std::shared_ptr<Level>& level);
 
     void createPlayer();
     void initViewFollowers();
