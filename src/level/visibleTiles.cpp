@@ -11,11 +11,6 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Ve
     const sf::Vector2i ts = Tile_sprite_storage::tile_size;
     auto vision_radius = 6;
 
-    auto isOpaque = [&](const sf::Vector2i& pos)
-    {
-        return !level.isPassable(pos);
-    };
-
     auto isVisible = [&](const sf::Vector2i& dest_point)
     {
         sf::Vector2i tile = position;
@@ -33,7 +28,7 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Ve
         int y_dst_sum = 0;
         while (y_dst_sum != vec.y)
         {
-            if (isOpaque(tile) && tile != position) return false;
+            if (level.isOpaque(tile) && tile != position) return false;
 
             const int y_dst = (tile.y * ts.y + (tile_move.y > 0) * ts.y) - (src.y + y_dst_sum);
             const int x = src.x + vec.x * (y_dst_sum + y_dst) / vec.y;

@@ -37,6 +37,7 @@ public:
     void updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt);
 
     bool isPassable(const sf::Vector2i& position) const;
+    bool isOpaque(const sf::Vector2i& position) const;
 
     void loadVisuals();
     void unloadVisuals();

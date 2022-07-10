@@ -8,6 +8,7 @@
 #include "visibleTiles.h"
 #include "../entities/door.h"
 #include "../components/nonpassable.h"
+#include "../components/opaque.h"
 #include "../components/render_component.h"
 
 #include <algorithm>
@@ -116,6 +117,18 @@ bool Level::isPassable(const sf::Vector2i& position) const
         if (registry->all_of<Nonpassable>(entity->second)) return false;
     }
     return true;
+}
+
+bool Level::isOpaque(const sf::Vector2i& position) const
+{
+    if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return true;
+
+    auto tile_entities = (*entity_level_map)[this].find(position);
+    for (auto entity : tile_entities)
+    {
+        if (registry->all_of<Opaque>(entity->second)) return true;
+    }
+    return false;
 }
 
 const Level_structure& Level::getStructure() const

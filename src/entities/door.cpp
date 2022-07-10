@@ -2,6 +2,7 @@
 #include "../components/door.h"
 #include "../components/gate.h"
 #include "../components/nonpassable.h"
+#include "../components/opaque.h"
 #include "../components/render_component.h"
 #include "../asset_storage/texture_bank.h"
 #include "../gfx/zlevels.h"
@@ -60,9 +61,10 @@ entt::entity createDoor(entt::registry& registry, Animated_sprite open_rc, Anima
 
     auto entity = registry.create();
     registry.emplace<Door>(entity);
-    registry.emplace<Gate>(entity, open, closed, Gate::OPEN, false);
+    registry.emplace<Gate>(entity, open, closed, Gate::OPEN, Gate::CLOSED, false);
     registry.emplace<Render_component>(entity, closed);
     registry.emplace<Nonpassable>(entity);
+    registry.emplace<Opaque>(entity);
 
     return entity;
 }

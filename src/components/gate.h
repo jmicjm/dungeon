@@ -1,5 +1,4 @@
 #pragma once
-#include "../gfx/animated_sprite/animated_sprite.h"
 #include "render_component.h"
 
 
@@ -12,7 +11,9 @@ struct Gate
     {
         OPEN = 1,
         CLOSED = 1 << 1
-    } passability;
+    };
+    STATE passable_states;
+    STATE opaque_states;
 
     bool is_open;
 };
