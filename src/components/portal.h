@@ -8,6 +8,6 @@
 
 struct Portal
 {
-    std::weak_ptr<Level> destination;
-    sf::Vector2i destination_pos;
+    std::weak_ptr<Level> destination_level;
+    sf::Vector2i destination_coords;
 };

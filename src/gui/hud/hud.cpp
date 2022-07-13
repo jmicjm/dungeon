@@ -127,11 +127,12 @@ void gui::Hud::update()
     controls.update();
 }
 
-void gui::Hud::setPlayer(std::shared_ptr<Player> player)
+void gui::Hud::setPlayer(const entt::registry& registry, entt::entity player)
 {
     this->player = player;
-    player_frame.setPlayer(player);
-    controls.setPlayer(*player);
+    this->registry = &registry;
+    player_frame.setPlayer(registry, player);
+    controls.setPlayer(registry, player);
 }
 
 void gui::Hud::setScale(float scale)

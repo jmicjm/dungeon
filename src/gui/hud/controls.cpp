@@ -3,6 +3,7 @@
 #include "../../asset_storage/tile_sprite_storage.h"
 #include "../../utils/sf_vector2_utils.h"
 #include "../../global/window.h"
+#include "../../components/position.h"
 
 void gui::Controls::rescale()
 {
@@ -54,7 +55,7 @@ gui::Controls::Controls()
         .released = sf::Sprite{ *texture, sf::IntRect{0,21,22,20} },
         .pressed_hovered = sf::Sprite{ *texture, sf::IntRect{22,21,22,20} },
         .released_hovered = sf::Sprite{ *texture, sf::IntRect{22,21,22,20} }
-        });
+    });
     skip_button.setAnchor(&options_button);
     skip_button.setAnchorPositionInfo({ Anchor_position_info::BOTTOM });
 
@@ -63,7 +64,7 @@ gui::Controls::Controls()
         .released = sf::Sprite{ *texture, sf::IntRect{0,41,22,21} },
         .pressed_hovered = sf::Sprite{ *texture, sf::IntRect{22,41,22,21} },
         .released_hovered = sf::Sprite{ *texture, sf::IntRect{22,41,22,21} }
-        });
+    });
     center_button.setAnchor(&skip_button);
     center_button.setAnchorPositionInfo({ Anchor_position_info::BOTTOM });
     
@@ -77,12 +78,12 @@ void gui::Controls::update()
     center_button.update();
 }
 
-void gui::Controls::setPlayer(const Player& player)
+void gui::Controls::setPlayer(const entt::registry& registry, entt::entity player)
 {
     center_button.setPressFunction([&] {
         auto view = window.getView();
         view.setCenter(
-            sf::Vector2f{ vecMul(player.getPosition(), Tile_sprite_storage::tile_size) + sf::Vector2i{32, 0} }
+            sf::Vector2f{ vecMul(registry.get<Position>(player).getCoords(), Tile_sprite_storage::tile_size) + sf::Vector2i{32, 0}}
         ); 
         window.setView(view);
     });
