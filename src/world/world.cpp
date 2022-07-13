@@ -4,6 +4,8 @@
 #include "../asset_storage/texture_bank.h"
 #include "../components/position.h"
 #include "../components/portal.h"
+#include "../components/character.h"
+#include "../components/character_update_tags.h"
 #include "../components/render_component.h"
 #include "../gfx/zlevels.h"
 #include "../level/visibleTiles.h"
@@ -16,6 +18,38 @@ void World::createPlayer()
 {
     player = ::createPlayer(registry);
     registry.emplace<Position>(player, current_level->getStructure().getRoomRect(0).tl, current_level.get(), entity_level_map, player);
+    registry.emplace<Active_character>(player);
+}
+
+void World::progressTurn()
+{
+    auto updateCharacter = [&] (const auto entity)
+    {
+        const auto update_f = registry.get<Character>(entity).update;
+        if (!update_f) return true;
+        return update_f(registry, *this, entity);
+    };
+
+    for (const auto entity : registry.view<Character_updating>())
+    {
+        if (!updateCharacter(entity)) return;
+        else registry.erase<Character_updating>(entity);
+    }
+
+    for (const auto entity : registry.view<Character_awaiting_update>())
+    {
+        registry.erase<Character_awaiting_update>(entity);
+        if (!updateCharacter(entity))
+        {
+            registry.emplace<Character_updating>(entity);           
+            return;
+        }
+    }
+
+    for (const auto entity : registry.view<Active_character>())
+    {
+        registry.emplace<Character_awaiting_update>(entity);
+    }
 }
 
 void World::initViewFollowers()
@@ -66,15 +100,16 @@ World::World(const World_params& params)
         createPortal(Texture_bank::getTexture("assets/tiles/entrance_portal.png"), { 0,0,64,64 }, Portal{ l, l->getStructure().getRoomRect(0).tl + sf::Vector2i{ 0,1 } }, l.get(), l->getStructure().getRoomRect(1).tl + sf::Vector2i{ 0,1 });
     }
 
-    current_level = *levels.begin();
-    current_level->loadVisuals();
+    changeLevel(*levels.begin());
     createPlayer();
     initViewFollowers();
 }
 
 void World::update(sf::RenderTarget& rt)
 {
-    current_level->update(registry, *this, rt);
+    progressTurn();
+
+    current_level->update(rt);
 
     auto view = rt.getView();
     view = vf.follow(view);
@@ -91,6 +126,17 @@ void World::update(sf::RenderTarget& rt)
 
 std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)
 {
+    if (new_level && new_level != current_level)
+    {
+        auto activec_view = registry.view<Active_character>();
+        registry.erase<Active_character>(activec_view.begin(), activec_view.end());
+
+        for (const auto entity : new_level->getEntities().find(new_level->getEntities().getArea()))
+        {
+            if(registry.all_of<Character>(entity->second)) registry.emplace<Active_character>(entity->second);
+        }
+    }
+
     if (current_level) current_level->unloadVisuals();
     if (new_level) new_level->loadVisuals();
     window.setView(vf_instant.followCenter(window.getView()));
@@ -101,6 +147,11 @@ std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)
 entt::entity World::getPlayer() const
 {
     return player;
+}
+
+auto World::getEntities() const -> const decltype(entity_level_map)&
+{
+    return entity_level_map;
 }
 
 const entt::registry& World::getRegistry() const

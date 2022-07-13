@@ -21,11 +21,11 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
     std::map<int, std::vector<std::pair<sf::Vector2i, const Animated_sprite*>>> zlevel_map;
 
-    auto visible_entities = (*entity_level_map)[this].find({ tl, br });
+    auto visible_entities = getEntities().find({tl, br});
     for (const auto entity : visible_entities)
     {
-        const auto rc = registry->try_get<Render_component>(entity->second);
-        const auto pos = registry->try_get<Position>(entity->second);
+        const auto rc = registry.try_get<Render_component>(entity->second);
+        const auto pos = registry.try_get<Position>(entity->second);
         if (rc && pos)
         {
             for (const auto& [zlevel, animations] : rc->zlevel_animation_map)
@@ -45,7 +45,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
     for (auto& [zlevel, animations] : zlevel_map)
     {
-        std::ranges::sort(animations, [&](const auto& a, const auto& b) { return a.first.y * structure.getSize().x + a.first.x < b.first.y * structure.getSize().x + b.first.x; });
+        std::ranges::stable_sort(animations, [&](const auto& a, const auto& b) { return a.first.y * structure.getSize().x + a.first.x < b.first.y * structure.getSize().x + b.first.x; });
         for (const auto& [pos, animation] : animations)
         {
             sf::RenderStates st2 = st;
@@ -67,13 +67,13 @@ void Level::placeDoors()
             {
                 if (structure.at({ x - 1,y }).type == TILE_TYPE::WALL && structure.at({ x + 1,y }).type == TILE_TYPE::WALL)
                 {
-                    auto door = createDoorFront(*registry);
-                    registry->emplace<Position>(door, sf::Vector2i{ x,y }, this, *entity_level_map, door);
+                    auto door = createDoorFront(registry);
+                    registry.emplace<Position>(door, sf::Vector2i{ x,y }, this, entity_level_map, door);
                 }
                 else if (structure.at({ x,y - 1 }).type == TILE_TYPE::WALL && structure.at({ x,y + 1 }).type == TILE_TYPE::WALL)
                 {
-                    auto door = createDoorSide(*registry);
-                    registry->emplace<Position>(door, sf::Vector2i{ x,y }, this, *entity_level_map, door);
+                    auto door = createDoorSide(registry);
+                    registry.emplace<Position>(door, sf::Vector2i{ x,y }, this, entity_level_map, door);
                 }
             }
         }
@@ -83,8 +83,8 @@ void Level::placeDoors()
 Level::Level(const Level_params& params, entt::registry& registry, std::unordered_map<const Level*, Quadtree<entt::entity>>& entity_level_map)
   : structure(createLevelStructure(params.structure_params)),
     reveal_mask(params.structure_params.level_size),
-    entity_level_map(&entity_level_map),
-    registry(&registry)
+    entity_level_map(entity_level_map),
+    registry(registry)
 {
     entity_level_map[this] = Quadtree<entt::entity>({ {0,0}, {structure.getSize()} });
     placeDoors();
@@ -92,11 +92,10 @@ Level::Level(const Level_params& params, entt::registry& registry, std::unordere
 
 Level::~Level()
 {
-    auto& entities_qt = (*entity_level_map)[this];
-    auto entities = entities_qt.find(entities_qt.getArea());
-    for (auto entity : entities) registry->destroy(entity->second);
+    auto entities = getEntities().find(getEntities().getArea());
+    for (auto entity : entities) registry.destroy(entity->second);
 
-    entity_level_map->erase(entity_level_map->find(this));
+    entity_level_map.erase(entity_level_map.find(this));
 }
 
 void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt)
@@ -111,10 +110,10 @@ bool Level::isPassable(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return false;
 
-    auto tile_entities = (*entity_level_map)[this].find(position);
+    auto tile_entities = getEntities().find(position);
     for (auto entity : tile_entities)
     {
-        if (registry->all_of<Nonpassable>(entity->second)) return false;
+        if (registry.all_of<Nonpassable>(entity->second)) return false;
     }
     return true;
 }
@@ -123,10 +122,10 @@ bool Level::isOpaque(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return true;
 
-    auto tile_entities = (*entity_level_map)[this].find(position);
+    auto tile_entities = getEntities().find(position);
     for (auto entity : tile_entities)
     {
-        if (registry->all_of<Opaque>(entity->second)) return true;
+        if (registry.all_of<Opaque>(entity->second)) return true;
     }
     return false;
 }
@@ -136,12 +135,15 @@ const Level_structure& Level::getStructure() const
     return structure;
 }
 
-void Level::update(entt::registry& registry, World& world, sf::RenderTarget& rt)
+const Quadtree<entt::entity>& Level::getEntities() const
 {
-    auto& entities_qt = (*entity_level_map)[this];
+    return entity_level_map[this];
+}
 
+void Level::update(sf::RenderTarget& rt)
+{
     const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
-    auto visible_entities = entities_qt.find({ tl, br });
+    auto visible_entities = getEntities().find({tl, br});
     for (const auto entity : visible_entities)
     {
         auto rc = registry.try_get<Render_component>(entity->second);
@@ -154,16 +156,6 @@ void Level::update(entt::registry& registry, World& world, sf::RenderTarget& rt)
                     animation.updateFrameIdx();
                 }
             }
-        }
-    }
-
-    auto entities = entities_qt.find(entities_qt.getArea());
-    for (auto entity : entities)
-    {       
-        auto player = registry.try_get<Player>(entity->second);
-        if (player)
-        {
-            updatePlayer(registry, entities_qt, world, *player);
         }
     }
 }

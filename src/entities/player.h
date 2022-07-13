@@ -7,4 +7,4 @@
 
 
 entt::entity createPlayer(entt::registry& registry);
-bool updatePlayer(entt::registry& registry, Quadtree<entt::entity>& entities, World& world, Player& player);
+bool updatePlayer(entt::registry& registry, World& world, const entt::entity entity);

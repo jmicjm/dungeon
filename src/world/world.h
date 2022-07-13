@@ -27,6 +27,8 @@ class World : public sf::Drawable
     void createPlayer();
     void initViewFollowers();
 
+    void progressTurn();
+
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 
 public:
@@ -36,5 +38,6 @@ public:
     std::shared_ptr<Level> changeLevel(std::shared_ptr<Level> level);
 
     entt::entity getPlayer() const;
+    auto getEntities() const -> const decltype(entity_level_map)&;
     const entt::registry& getRegistry() const;
 };

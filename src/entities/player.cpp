@@ -21,7 +21,7 @@ entt::entity createPlayer(entt::registry& registry)
 {
     auto player = registry.create();
     registry.emplace<Player>(player);
-    registry.emplace<Character>(player);
+    registry.emplace<Character>(player, updatePlayer);
     registry.emplace<Nonpassable>(player);
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
@@ -41,42 +41,45 @@ entt::entity createPlayer(entt::registry& registry)
     return player;
 }
 
-bool updatePlayer(entt::registry& registry, Quadtree<entt::entity>& entities, World& world, Player& player)
+bool updatePlayer(entt::registry& registry, World& world, const entt::entity entity)
 {
+    if (auto player = registry.try_get<Player>(entity))
+    {
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
-        if ((t - player.last_action_t) < std::chrono::milliseconds(200)) return false;
-        player.last_action_t = t;
-
-        auto entity = entt::to_entity(registry, player);
-        Position& position = registry.get<Position>(entity);
+        if ((t - player->last_action_t) < std::chrono::milliseconds(200)) return false;
+        player->last_action_t = t;
+    }
     
+    if (auto position = registry.try_get<Position>(entity))
+    {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
-            auto tile_entities = entities.find(position.getCoords());
+            auto tile_entities = position->getLevel()->getEntities().find(position->getCoords());
             for (auto entity : tile_entities)
             {
                 if (auto portal = registry.try_get<Portal>(entity->second))
                 {
                     if (auto destination = portal->destination_level.lock())
                     {
-                        usePortal(*portal, position);
+                        usePortal(*portal, *position);
                         world.changeLevel(destination);
                         return true;
                     }
                 }
             }
         }
-    
+
         sf::Vector2i offset = { 0,0 };
-    
+
         offset.x += sf::Keyboard::isKeyPressed(sf::Keyboard::D);
         offset.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::A);
         offset.y += sf::Keyboard::isKeyPressed(sf::Keyboard::S);
         offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-    
-        
-        const sf::Vector2i old_pos = position.getCoords();
-        moveEntity(registry, entities, position, offset);
-    
-        return old_pos != position.getCoords();
+
+        const sf::Vector2i old_pos = position->getCoords();
+        moveEntity(registry, position->getLevel()->getEntities(), *position, offset);
+
+        return old_pos != position->getCoords();
+    }
+    return true;
 }

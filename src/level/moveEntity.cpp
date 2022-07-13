@@ -2,7 +2,7 @@
 #include "../entities/gate.h"
 
 
-void moveEntity(entt::registry& registry, Quadtree<entt::entity>& entities, Position& position, sf::Vector2i offset)
+void moveEntity(entt::registry& registry, const Quadtree<entt::entity>& entities, Position& position, sf::Vector2i offset)
 {
     const auto old_coords = position.getCoords();
     const auto& level = *position.getLevel();
