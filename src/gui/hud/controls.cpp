@@ -80,7 +80,7 @@ void gui::Controls::update()
 
 void gui::Controls::setPlayer(const entt::registry& registry, entt::entity player)
 {
-    center_button.setPressFunction([&] {
+    center_button.setPressFunction([&, player] {
         auto view = window.getView();
         view.setCenter(
             sf::Vector2f{ vecMul(registry.get<Position>(player).getCoords(), Tile_sprite_storage::tile_size) + sf::Vector2i{32, 0}}
