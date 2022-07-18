@@ -60,11 +60,11 @@ gui::Hud::Hud()
 {
     setSizeInfo({ {0,0}, {1,1} });
 
-    const auto frame_tex = Texture_bank::getTexture("assets/gui/player_frame.png");
+    const auto frame_tex = Texture_bank::getTexture("assets/textures/gui/player_frame.png");
     player_frame.setAppearance({ sf::Sprite{ *frame_tex } });
     player_frame.setParent(this);
 
-    const auto bar_tex = Texture_bank::getTexture("assets/gui/status_bars.png");
+    const auto bar_tex = Texture_bank::getTexture("assets/textures/gui/status_bars.png");
     const sf::Sprite hp_bar_frame_s{ *bar_tex, { {0,0}, {60,10} } };
     const sf::Sprite hp_bar_s{ *bar_tex, { {0,10}, {50,6} } };
     const sf::Sprite mana_bar_frame_s{ *bar_tex, { {0,20}, {60,10} } };
@@ -83,7 +83,7 @@ gui::Hud::Hud()
     mana_bar.setMaxValue(100);
     mana_bar.setValue(100);
 
-    const auto inv_btn_tex = Texture_bank::getTexture("assets/gui/inventory_button.png");
+    const auto inv_btn_tex = Texture_bank::getTexture("assets/textures/gui/inventory_button.png");
     const Button_appearance inv_btn_a = { .pressed = sf::Sprite{ *inv_btn_tex, { {32,0}, {16,16} } },
                                           .released = sf::Sprite{ *inv_btn_tex, { {0,0}, {16,16} } },
                                           .pressed_hovered = sf::Sprite{ *inv_btn_tex, { {32,0}, {16,16} } },
@@ -91,7 +91,7 @@ gui::Hud::Hud()
     inventory_button.setAppearance(inv_btn_a);
     inventory_button.setParent(this);
 
-    const auto qselect_tex = Texture_bank::getTexture("assets/gui/quick_select.png");
+    const auto qselect_tex = Texture_bank::getTexture("assets/textures/gui/quick_select.png");
     quick_select.setAppearance({ sf::Sprite{ *qselect_tex } });
     quick_select.setParent(this);
     quick_select.setAnchor(&inventory_button);

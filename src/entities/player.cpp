@@ -26,7 +26,7 @@ entt::entity createPlayer(entt::registry& registry)
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/characters/wild_mage_frames.png");
+        const sf::Texture* tex = Texture_bank::getTexture("assets/textures/characters/wild_mage_frames.png");
         std::vector<sf::IntRect> rects;
         for (int i = 0; i < 16; i++)
         {
