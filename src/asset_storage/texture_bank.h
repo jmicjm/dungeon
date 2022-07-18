@@ -8,7 +8,11 @@
 //uses file path as key
 class Texture_bank
 {
-    inline static std::unordered_map<std::string, sf::Texture> texture_map;
+    static std::unordered_map<std::string, sf::Texture> initialize_texture_map();
+
+    inline static sf::Texture fallback_texture = sf::Texture();
+
+    inline static std::unordered_map<std::string, sf::Texture> texture_map = initialize_texture_map();
 
 public:
     /**
