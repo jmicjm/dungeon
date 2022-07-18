@@ -39,7 +39,7 @@ def generate_header(path: str, dirname: str) -> None:
                     "name_size": asset_name_size,
                 })
 
-                entries.append((asset_path, asset_name, asset_size))
+                entries.append((asset_path.replace("\\", "/"), asset_name, asset_size))
                 output_file.write(out_entry)
 
         paths, names, sizes = tuple(zip(*entries))  # type: list[str], list[str], list[int]
