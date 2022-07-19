@@ -15,9 +15,10 @@ find_package(SFML 2 COMPONENTS graphics REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 
 add_executable(dungeon
-    src/game.cpp 
+    src/game.cpp
     src/asset_storage/texture_bank.cpp
-    src/asset_storage/tile_sprite_storage.cpp 
+    src/asset_storage/font_bank.cpp
+    src/asset_storage/tile_sprite_storage.cpp
     src/gfx/primitive_sprite.cpp
     src/gfx/animated_sprite/animated_sprite.cpp
     src/gfx/animated_sprite/animated_sprite_frames.cpp
