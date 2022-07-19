@@ -1,6 +1,5 @@
 #include "inventory.h"
 
-
 void gui::Inventory::redraw()
 {
     bg.draw();
@@ -59,13 +58,13 @@ gui::Inventory::Inventory()
     };
 
     text.setAppearance(ta);
-    text.setFont("arial.ttf");
+    text.setFont("FreeMono.ttf");
     text.setString("this text serves the purpose of distracting you from the fact that this screen is not yet implemented");
 
     bg.setAppearance({ rect({41, 32, 22, 224}) });
 
     btn.setAppearance(ba);
-    btn.setFont("arial.ttf");
+    btn.setFont("FreeMono.ttf");
     btn.setPressedHoveredText("TEST");
     btn.setReleasedText("test");
     btn.setReleasedHoveredText("TEST");
@@ -106,7 +105,7 @@ gui::Inventory::Inventory()
                 bg.setSizeInfo({ .percentage = {1,1} });
                 bg.setAppearance(fa);
                 text.setParent(this);
-                text.setFont("arial.ttf");
+                text.setFont("FreeMono.ttf");
                 text.setString("same purpose, different text");
                 text.setAppearance(ta);
                 text.setSizeInfo({ {0,-24}, {1,1} });
@@ -114,7 +113,7 @@ gui::Inventory::Inventory()
                 close_btn.setSizeInfo({ { 96, 24 } });
                 close_btn.setPositionInfo({ .relative_to = {1,1} });
                 close_btn.setAppearance(ba);
-                close_btn.setFont("arial.ttf");
+                close_btn.setFont("FreeMono.ttf");
                 close_btn.setReleasedText("close");
                 close_btn.setReleasedHoveredText("close");
                 close_btn.setPressedHoveredText("close");
