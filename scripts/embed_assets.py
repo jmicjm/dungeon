@@ -1,4 +1,5 @@
 import os
+import sys
 
 assets_dir = "assets"
 output_dir = "src/generated_assets"
@@ -9,6 +10,7 @@ static const unsigned char {name}[{name_size}] = {{{data}}};\n
 
 
 def serialize_file(path: str) -> tuple[str, int]:
+    print(f"Serializing file: {os.path.abspath(path)}")
     with open(path, "rb") as file:
         data = [f"0x{b:02x}" for b in file.read()]
 
@@ -19,6 +21,7 @@ def serialize_file(path: str) -> tuple[str, int]:
 
 
 def generate_header(path: str, dirname: str) -> None:
+    print(f"\nCreating new header: {os.path.abspath(os.path.join(output_dir, f'{dirname}.h'))}")
     with open(os.path.join(output_dir, f"{dirname}.h"), "w") as output_file:
         output_file.write("#pragma once\n\n")
         output_file.write("namespace " + dirname.upper() + "_ASSETS\n{\n")
@@ -65,4 +68,7 @@ def main():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        print(f"Changing working directory to: {sys.argv[1]}")
+        os.chdir(sys.argv[1])
     main()

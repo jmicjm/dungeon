@@ -6,6 +6,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(WIN32)
     set (SFML_DIR "C:/SFML-2.5.1/lib/cmake/SFML/")
+    set(PYTHON_EXECUTABLE python)
+else()
+    set(PYTHON_EXECUTABLE python3)
 endif()
 
 find_package(SFML 2 COMPONENTS graphics REQUIRED)
@@ -60,5 +63,14 @@ add_executable(dungeon
     src/world/world.cpp 
     src/components/position.cpp   
 )
+
+add_custom_target(
+        run ALL
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/embed_assets.py ${CMAKE_SOURCE_DIR}
+        BYPRODUCTS src/generated_assets/textures.h
+        COMMENT "Generating assets"
+)
+
+add_dependencies(dungeon run)
 
 target_link_libraries(dungeon sfml-graphics EnTT::EnTT)
