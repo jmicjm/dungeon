@@ -15,14 +15,14 @@
 
 class World : public sf::Drawable
 {
+    std::unordered_map<const Level*, Quadtree<entt::entity>> entity_level_map;
+    entt::registry registry;
+    entt::entity player;
+
     std::vector<std::shared_ptr<Level>> levels;
     std::shared_ptr<Level> current_level;
     View_follower vf;
     View_follower vf_instant;
-
-    entt::registry registry;
-    std::unordered_map<const Level*, Quadtree<entt::entity>> entity_level_map;
-    entt::entity player;
 
     void createPlayer();
     void initViewFollowers();

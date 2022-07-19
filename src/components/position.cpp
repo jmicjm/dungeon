@@ -7,9 +7,25 @@ Position::Position(const sf::Vector2i& coords, Level* level, std::unordered_map<
     qt_ptr(elvl_map[level].insert({ coords, entity })),
     elvl_map(&elvl_map) {}
 
+Position::Position(Position&& other) noexcept
+  : coords(std::exchange(other.coords, {0,0})),
+    level(std::exchange(other.level, nullptr)),
+    qt_ptr(std::exchange(other.qt_ptr, nullptr)),
+    elvl_map(std::exchange(other.elvl_map, nullptr)) {}
+
+Position& Position::operator=(Position&& other) noexcept
+{
+    coords = std::exchange(other.coords, { 0,0 });
+    level = std::exchange(other.level, nullptr);
+    qt_ptr = std::exchange(other.qt_ptr, nullptr);
+    elvl_map = std::exchange(other.elvl_map, nullptr);
+
+    return *this;
+}
+
 Position::~Position()
 {
-    (*elvl_map)[this->level].erase(qt_ptr);
+    if(elvl_map && qt_ptr) (*elvl_map)[this->level].erase(qt_ptr);
 }
 
 void Position::setPosition(const sf::Vector2i& coords, Level* level)
@@ -32,14 +48,6 @@ void Position::setCoords(const sf::Vector2i& coords)
 const sf::Vector2i& Position::getCoords() const
 {
     return coords;
-}
-
-void Position::setLevel(Level* level)
-{
-    auto entity = qt_ptr->second;
-    (*elvl_map)[this->level].erase(qt_ptr);
-    this->level = level;
-    qt_ptr = (*elvl_map)[this->level].insert({coords, entity});
 }
 
 Level* Position::getLevel() const

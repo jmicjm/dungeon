@@ -20,13 +20,12 @@ class Position
 
 public:
     Position(const sf::Vector2i& coords, Level* level, std::unordered_map<const Level*, Quadtree<entt::entity>>& elvl_map, entt::entity entity);
-    Position(Position&& other) = default;
-    Position& operator=(Position&& other) = default;
+    Position(Position&& other) noexcept;
+    Position& operator=(Position&& other) noexcept;
     ~Position();
 
     void setPosition(const sf::Vector2i& coords, Level* level);
     void setCoords(const sf::Vector2i& coords);
     const sf::Vector2i& getCoords() const;
-    void setLevel(Level* level);
     Level* getLevel() const;
 };
