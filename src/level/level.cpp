@@ -16,16 +16,14 @@
 
 void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
-    if(tile_map) rt.draw(*tile_map, st);
-    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    if (tile_map) rt.draw(*tile_map, st);
 
     std::map<int, std::vector<std::pair<sf::Vector2i, const Animated_sprite*>>> zlevel_map;
 
-    auto visible_entities = getEntities().find({tl, br});
-    for (const auto entity : visible_entities)
-    {
-        const auto rc = registry.try_get<Render_component>(entity->second);
-        const auto pos = registry.try_get<Position>(entity->second);
+    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    getEntities().forEach({ tl, br }, [&](auto& entity) {
+        const auto rc = registry.try_get<Render_component>(entity.second);
+        const auto pos = registry.try_get<Position>(entity.second);
         if (rc && pos)
         {
             for (const auto& [zlevel, animations] : rc->zlevel_animation_map)
@@ -36,7 +34,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
                 }
             }
         }
-    }
+    });
 
     auto pixelPosition = [](const sf::Vector2i& tile_position)
     {
@@ -54,7 +52,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         }
     }
     
-    if(view_range_overlay) rt.draw(*view_range_overlay);
+    if (view_range_overlay) rt.draw(*view_range_overlay);
 }
 
 void Level::placeDoors()
@@ -110,24 +108,18 @@ bool Level::isPassable(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return false;
 
-    auto tile_entities = getEntities().find(position);
-    for (auto entity : tile_entities)
-    {
-        if (registry.all_of<Nonpassable>(entity->second)) return false;
-    }
-    return true;
+    return !getEntities().forEachUntil(position, [&](auto& entity) {
+        return registry.all_of<Nonpassable>(entity.second);
+    });
 }
 
 bool Level::isOpaque(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return true;
 
-    auto tile_entities = getEntities().find(position);
-    for (auto entity : tile_entities)
-    {
-        if (registry.all_of<Opaque>(entity->second)) return true;
-    }
-    return false;
+    return getEntities().forEachUntil(position, [&](auto& entity) {
+        return registry.all_of<Opaque>(entity.second);
+    });
 }
 
 const Level_structure& Level::getStructure() const
@@ -143,11 +135,8 @@ const Quadtree<entt::entity>& Level::getEntities() const
 void Level::update(sf::RenderTarget& rt)
 {
     const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
-    auto visible_entities = getEntities().find({tl, br});
-    for (const auto entity : visible_entities)
-    {
-        auto rc = registry.try_get<Render_component>(entity->second);
-        if (rc)
+    getEntities().forEach({ tl, br }, [&](auto& entity) {
+        if (auto rc = registry.try_get<Render_component>(entity.second))
         {
             for (auto& [zlevel, animations] : rc->zlevel_animation_map)
             {
@@ -157,7 +146,7 @@ void Level::update(sf::RenderTarget& rt)
                 }
             }
         }
-    }
+    });
 }
 
 void Level::loadVisuals()

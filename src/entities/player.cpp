@@ -54,10 +54,8 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
-            auto tile_entities = position->getLevel()->getEntities().find(position->getCoords());
-            for (auto entity : tile_entities)
-            {
-                if (auto portal = registry.try_get<Portal>(entity->second))
+            if (position->getLevel()->getEntities().forEachUntil(position->getCoords(), [&](auto& entity) {
+                if (auto portal = registry.try_get<Portal>(entity.second))
                 {
                     if (auto destination = portal->destination_level.lock())
                     {
@@ -66,7 +64,8 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
                         return true;
                     }
                 }
-            }
+                else return false;
+            })) return true;
         }
 
         sf::Vector2i offset = { 0,0 };

@@ -11,7 +11,9 @@ bool openGate(entt::registry& registry, const Quadtree<entt::entity>& entities, 
     if (!gate_c || gate_c->is_open) return false;
 
     auto coords = registry.get<Position>(gate).getCoords();
-    if (entities.find(coords).size() > 1) return false;
+    if (entities.forEachUntil(coords, [&](auto& entity) {
+        return entity.second != gate;
+    })) return false;
 
     registry.replace<Render_component>(gate, gate_c->open_rc);
     if (!(gate_c->passable_states & Gate::OPEN)) registry.emplace_or_replace<Nonpassable>(gate);
@@ -29,7 +31,9 @@ bool closeGate(entt::registry& registry, const Quadtree<entt::entity>& entities,
     if (!gate_c || !gate_c->is_open) return false;
 
     auto coords = registry.get<Position>(gate).getCoords();
-    if (entities.find(coords).size() > 1) return false;
+    if (entities.forEachUntil(coords, [&](auto& entity) {
+        return entity.second != gate;
+    })) return false;
 
     registry.replace<Render_component>(gate, gate_c->closed_rc);
     if (!(gate_c->passable_states & Gate::CLOSED)) registry.emplace_or_replace<Nonpassable>(gate);

@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <utility>
 
 #include "SFML/System/Vector2.hpp"
 
@@ -20,7 +21,7 @@ class Quadtree
         }
         bool contains(const Vec2& point) const
         {
-            return point.x >= tl.x && point.x < br.x && point.y >= tl.y && point.y < br.y;
+            return point.x >= tl.x && point.x < br.x&& point.y >= tl.y && point.y < br.y;
         }
         bool intersects(const Area& other) const
         {
@@ -82,15 +83,28 @@ public:
 
     std::vector<value_type*> find(const Area& area);
     std::vector<const value_type*> find(const Area& area) const;
+
+    template<typename visit_f>
+    void forEach(const Vec2& key, const visit_f& visit);
+    template<typename visit_f>
+    void forEach(const Vec2& key, const visit_f& visit) const;
+    template<typename visit_f>
+    void forEach(const Area& area, const visit_f& visit);
+    template<typename visit_f>
+    void forEach(const Area& area, const visit_f& visit) const;
+
+    template<typename visit_f>
+    bool forEachUntil(const Vec2& key, const visit_f& visit);
+    template<typename visit_f>
+    bool forEachUntil(const Vec2& key, const visit_f& visit) const;
+    template<typename visit_f>
+    bool forEachUntil(const Area& area, const visit_f& visit);
+    template<typename visit_f>
+    bool forEachUntil(const Area& area, const visit_f& visit) const;
 private:
     template<typename append_f>
     value_type* insert(const Vec2& key, append_f append);
     value_type* insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src);
-
-    template<typename value_t>
-    std::vector<value_t> find(const Vec2& key) const;
-    template<typename value_t>
-    std::vector<value_t> find(const Area& area) const;
 };
 
 template<typename T>
@@ -110,7 +124,7 @@ void Quadtree<T>::split()
     while (!elements.empty())
     {
         auto elem = elements.begin();
-        if      (tl->area.contains(elem->first)) tl->insert(elem, elements);
+        if (tl->area.contains(elem->first)) tl->insert(elem, elements);
         else if (tr->area.contains(elem->first)) tr->insert(elem, elements);
         else if (bl->area.contains(elem->first)) bl->insert(elem, elements);
         else if (br->area.contains(elem->first)) br->insert(elem, elements);
@@ -159,34 +173,34 @@ template<typename T>
 auto Quadtree<T>::insert(const value_type& key_elem) -> value_type*
 {
     return insert(
-            key_elem.first,
-            [&](auto& elements)
-            {
-                return &*elements.insert(elements.begin(), key_elem);
-            });
+        key_elem.first,
+        [&](auto& elements)
+        {
+            return &*elements.insert(elements.begin(), key_elem);
+        });
 }
 
 template<typename T>
 auto Quadtree<T>::insert(value_type&& key_elem) -> value_type*
 {
     return insert(
-            key_elem.first,
-            [&](auto& elements)
-            {
-                return &*elements.insert(elements.begin(), std::move(key_elem));
-            });
+        key_elem.first,
+        [&](auto& elements)
+        {
+            return &*elements.insert(elements.begin(), std::move(key_elem));
+        });
 }
 
 template<typename T>
 auto Quadtree<T>::insert(typename std::list<value_type>::const_iterator it, std::list<value_type>& src) -> value_type*
 {
     return insert(
-            it->first, 
-            [&](auto& elements) 
-            {
-                elements.splice(elements.begin(), src, it);
-                return &*elements.begin();
-            });
+        it->first,
+        [&](auto& elements)
+        {
+            elements.splice(elements.begin(), src, it);
+            return &*elements.begin();
+        });
 }
 
 template<typename T>
@@ -205,7 +219,7 @@ auto Quadtree<T>::insert(const Vec2& key, append_f append) -> value_type*
         }
         else split();
     }
-    if      (tl->area.contains(key)) return tl->insert(key, append);
+    if (tl->area.contains(key)) return tl->insert(key, append);
     else if (tr->area.contains(key)) return tr->insert(key, append);
     else if (bl->area.contains(key)) return bl->insert(key, append);
     else if (br->area.contains(key)) return br->insert(key, append);
@@ -228,7 +242,7 @@ void Quadtree<T>::erase(const value_type* key_elem)
     }
     else
     {
-        if      (tl->area.contains(key_elem->first)) tl->erase(key_elem);
+        if (tl->area.contains(key_elem->first)) tl->erase(key_elem);
         else if (tr->area.contains(key_elem->first)) tr->erase(key_elem);
         else if (bl->area.contains(key_elem->first)) bl->erase(key_elem);
         else if (br->area.contains(key_elem->first)) br->erase(key_elem);
@@ -246,73 +260,153 @@ void Quadtree<T>::erase(const value_type* key_elem)
 template<typename T>
 auto Quadtree<T>::find(const Vec2& key) const -> std::vector<const value_type*>
 {
-    return find<const value_type*>(key);
+    std::vector<const value_type*> values;
+    forEach(key, [&](const value_type& value) {
+        values.push_back(&value);
+    });
+    return values;
 }
 
 template<typename T>
 auto Quadtree<T>::find(const Vec2& key) -> std::vector<value_type*>
 {
-    return find<value_type*>(key);
+    std::vector<value_type*> values;
+    forEach(key, [&](value_type& value) {
+        values.push_back(&value);
+    });
+    return values;
 }
 
 template<typename T>
-template<typename value_t>
-std::vector<value_t> Quadtree<T>::find(const Vec2& key) const
+template<typename visit_f>
+void Quadtree<T>::forEach(const Vec2& key, const visit_f& visit)
+{
+    std::as_const(*this).forEach(key, [&](const value_type& value) {
+        visit(const_cast<value_type&>(value));
+    });
+}
+
+template<typename T>
+template<typename visit_f>
+void Quadtree<T>::forEach(const Vec2& key, const visit_f& visit) const
 {
     if (isLeaf())
     {
-        std::vector<value_t> el;
-
         for (auto it = elements.begin(); it != elements.end(); it++)
         {
-            if (it->first == key) el.push_back(const_cast<value_t>(&*it));
+            if (it->first == key) visit(const_cast<const value_type&>(*it));
         }
-        return el;
+        return;
     }
-    if (tl->area.contains(key)) return tl->template find<value_t>(key);
-    if (tr->area.contains(key)) return tr->template find<value_t>(key);
-    if (bl->area.contains(key)) return bl->template find<value_t>(key);
-    if (br->area.contains(key)) return br->template find<value_t>(key);
+    if      (tl->area.contains(key)) std::as_const(*tl).forEach(key, visit);
+    else if (tr->area.contains(key)) std::as_const(*tr).forEach(key, visit);
+    else if (bl->area.contains(key)) std::as_const(*bl).forEach(key, visit);
+    else if (br->area.contains(key)) std::as_const(*br).forEach(key, visit);
+}
 
-    return std::vector<value_t>();
+template<typename T>
+template<typename visit_f>
+bool Quadtree<T>::forEachUntil(const Vec2& key, const visit_f& visit)
+{
+    return std::as_const(*this).forEachUntil(key, [&](const value_type& value) {
+        return visit(const_cast<value_type&>(value));
+    });
+}
+
+template<typename T>
+template<typename visit_f>
+bool Quadtree<T>::forEachUntil(const Vec2& key, const visit_f& visit) const
+{
+    if (isLeaf())
+    {
+        for (auto it = elements.begin(); it != elements.end(); it++)
+        {
+            if (it->first == key && visit(const_cast<const value_type&>(*it))) return true;
+        }
+        return false;
+    }
+    if      (tl->area.contains(key) && std::as_const(*tl).forEachUntil(key, visit)) return true;
+    else if (tr->area.contains(key) && std::as_const(*tr).forEachUntil(key, visit)) return true;
+    else if (bl->area.contains(key) && std::as_const(*bl).forEachUntil(key, visit)) return true;
+    else if (br->area.contains(key) && std::as_const(*br).forEachUntil(key, visit)) return true;
+
+    return false;
 }
 
 template<typename T>
 auto Quadtree<T>::find(const Area& a) const -> std::vector<const value_type*>
 {
-    return find<const value_type*>(a);
+    std::vector<const value_type*> values;
+    forEach(a, [&](const value_type& value) {
+        values.push_back(&value);
+    });
+    return values;
 }
 
 template<typename T>
 auto Quadtree<T>::find(const Area& a) -> std::vector<value_type*>
 {
-    return find<value_type*>(a);
+    std::vector<value_type*> values;
+    forEach(a, [&](value_type& value) {
+        values.push_back(&value);
+    });
+    return values;
 }
 
 template<typename T>
-template<typename value_t>
-std::vector<value_t> Quadtree<T>::find(const Area& a) const
+template<typename visit_f>
+void Quadtree<T>::forEach(const Area& area, const visit_f& visit)
 {
-    std::vector<value_t> el;
+    std::as_const(*this).forEach(area, [&](const value_type& value) {
+        visit(const_cast<value_type&>(value));
+    });
+}
 
+template<typename T>
+template<typename visit_f>
+void Quadtree<T>::forEach(const Area& a, const visit_f& visit) const
+{
     if (isLeaf())
     {
         for (auto it = elements.begin(); it != elements.end(); it++)
         {
-            if (a.contains(it->first)) el.push_back(const_cast<value_t>(&*it));
+            if (a.contains(it->first)) visit(const_cast<const value_type&>(*it));
         }
-        return el;
+        return;
     }
 
-    auto combine = [](auto& a, const auto& b)
+    if (tl->area.intersects(a)) std::as_const(*tl).forEach(a, visit);
+    if (tr->area.intersects(a)) std::as_const(*tr).forEach(a, visit);
+    if (bl->area.intersects(a)) std::as_const(*bl).forEach(a, visit);
+    if (br->area.intersects(a)) std::as_const(*br).forEach(a, visit);
+}
+
+template<typename T>
+template<typename visit_f>
+bool Quadtree<T>::forEachUntil(const Area& area, const visit_f& visit)
+{
+    return std::as_const(*this).forEachUntil(area, [&](const value_type& value) {
+        return visit(const_cast<value_type&>(value));
+    });
+}
+
+template<typename T>
+template<typename visit_f>
+bool Quadtree<T>::forEachUntil(const Area& a, const visit_f& visit) const
+{
+    if (isLeaf())
     {
-        a.insert(a.end(), b.begin(), b.end());
-    };
+        for (auto it = elements.begin(); it != elements.end(); it++)
+        {
+            if (a.contains(it->first) && visit(const_cast<const value_type&>(*it))) return true;
+        }
+        return false;
+    }
 
-    if (tl->area.intersects(a)) combine(el, tl->template find<value_t>(a));
-    if (tr->area.intersects(a)) combine(el, tr->template find<value_t>(a));
-    if (bl->area.intersects(a)) combine(el, bl->template find<value_t>(a));
-    if (br->area.intersects(a)) combine(el, br->template find<value_t>(a));
+    if (tl->area.intersects(a) && std::as_const(*tl).forEachUntil(a, visit)) return true;
+    if (tr->area.intersects(a) && std::as_const(*tr).forEachUntil(a, visit)) return true;
+    if (bl->area.intersects(a) && std::as_const(*bl).forEachUntil(a, visit)) return true;
+    if (br->area.intersects(a) && std::as_const(*br).forEachUntil(a, visit)) return true;
 
-    return el;
+    return false;
 }
