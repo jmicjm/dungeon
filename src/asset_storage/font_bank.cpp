@@ -1,5 +1,6 @@
 #include "font_bank.h"
 #include "../generated_assets/fonts.h"
+#include <iostream>
 
 std::unordered_map<std::string, sf::Font> Font_bank::initialize_font_map()
 {
@@ -21,6 +22,7 @@ const sf::Font* Font_bank::getFont(const std::string& key)
 {
     auto it = font_map.find("assets/fonts/" + key);
     if(it == font_map.end()) {
+        std::cout << "Font: " << key << " not found, using fallback font" << std::endl;
         return &fallback_font;
     }
     return &it->second;
