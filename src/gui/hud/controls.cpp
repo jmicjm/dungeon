@@ -41,7 +41,7 @@ gui::Controls::Controls()
     skip_button.setParent(this);
     center_button.setParent(this);
 
-    const auto texture = Texture_bank::getTexture("assets/textures/gui/top_right_controls.png");
+    const auto texture = Texture_bank::getTexture("gui/top_right_controls.png");
 
     options_button.setAppearance({
         .pressed = sf::Sprite{ *texture, sf::IntRect{22,0,22,21} },

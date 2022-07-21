@@ -25,19 +25,19 @@ View_range_overlay::View_range_overlay()
 {
     const std::pair<TILE_SPRITE_ID::tile_sprite_id_t, std::string> ids[] =
     {
-        {TL|TR|BL|BR, "assets/textures/tiles/view_range_overlay/tile_tl_tr_bl_br.png"},
-        {TL|TR|BL,    "assets/textures/tiles/view_range_overlay/wall_tl_tr_bl.png"   },
-        {TL|TR|BR,    "assets/textures/tiles/view_range_overlay/wall_tl_tr_br.png"   },
-        {TL|BL|BR,    "assets/textures/tiles/view_range_overlay/wall_tl_bl_br.png"   },
-        {TR|BL|BR,    "assets/textures/tiles/view_range_overlay/wall_tr_bl_br.png"   },
-        {TL|TR,       "assets/textures/tiles/view_range_overlay/wall_tl_tr.png"      },
-        {BL|BR,       "assets/textures/tiles/view_range_overlay/wall_bl_br.png"      },
-        {TL|BL,       "assets/textures/tiles/view_range_overlay/wall_tl_bl.png"      },
-        {TR|BR,       "assets/textures/tiles/view_range_overlay/wall_tr_br.png"      },
-        {TL,          "assets/textures/tiles/view_range_overlay/wall_tl.png"         },
-        {TR,          "assets/textures/tiles/view_range_overlay/wall_tr.png"         },
-        {BL,          "assets/textures/tiles/view_range_overlay/wall_bl.png"         },
-        {BR,          "assets/textures/tiles/view_range_overlay/wall_br.png"         }
+        {TL|TR|BL|BR, "tiles/view_range_overlay/tile_tl_tr_bl_br.png"},
+        {TL|TR|BL,    "tiles/view_range_overlay/wall_tl_tr_bl.png"   },
+        {TL|TR|BR,    "tiles/view_range_overlay/wall_tl_tr_br.png"   },
+        {TL|BL|BR,    "tiles/view_range_overlay/wall_tl_bl_br.png"   },
+        {TR|BL|BR,    "tiles/view_range_overlay/wall_tr_bl_br.png"   },
+        {TL|TR,       "tiles/view_range_overlay/wall_tl_tr.png"      },
+        {BL|BR,       "tiles/view_range_overlay/wall_bl_br.png"      },
+        {TL|BL,       "tiles/view_range_overlay/wall_tl_bl.png"      },
+        {TR|BR,       "tiles/view_range_overlay/wall_tr_br.png"      },
+        {TL,          "tiles/view_range_overlay/wall_tl.png"         },
+        {TR,          "tiles/view_range_overlay/wall_tr.png"         },
+        {BL,          "tiles/view_range_overlay/wall_bl.png"         },
+        {BR,          "tiles/view_range_overlay/wall_br.png"         }
     }; 
 
     for (const auto& id : ids)

@@ -12,7 +12,7 @@ entt::entity createDoorFront(entt::registry& registry)
 {
     static auto open_frames = []
     {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/textures/tiles/Door_front_open.png");
+        const sf::Texture* tex = Texture_bank::getTexture("tiles/Door_front_open.png");
         std::vector<sf::IntRect> rects = { { {0,0}, {68,74} } };
         return std::make_shared<Animated_sprite_frames>(tex, rects);
     }();
@@ -21,7 +21,7 @@ entt::entity createDoorFront(entt::registry& registry)
 
     static auto closed_frames = []
     {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/textures/tiles/Door_front_closed.png");
+        const sf::Texture* tex = Texture_bank::getTexture("tiles/Door_front_closed.png");
         std::vector<sf::IntRect> rects = { { {0,0}, {68,64} } };
         return std::make_shared<Animated_sprite_frames>(tex, rects);
     }();
@@ -35,7 +35,7 @@ entt::entity createDoorSide(entt::registry& registry)
 {
     static auto open_frames = []
     {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/textures/tiles/Door_side_open.png");
+        const sf::Texture* tex = Texture_bank::getTexture("tiles/Door_side_open.png");
         std::vector<sf::IntRect> rects = { { {0,0}, {69,100} } };
         return std::make_shared<Animated_sprite_frames>(tex, rects);
     }();
@@ -44,7 +44,7 @@ entt::entity createDoorSide(entt::registry& registry)
 
     static auto closed_frames = []
     {
-        const sf::Texture* tex = Texture_bank::getTexture("assets/textures/tiles/Door_side_closed.png");
+        const sf::Texture* tex = Texture_bank::getTexture("tiles/Door_side_closed.png");
         std::vector<sf::IntRect> rects = { { {0,0}, {64,100} } };
         return std::make_shared<Animated_sprite_frames>(tex, rects);
     }();

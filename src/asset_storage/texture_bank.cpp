@@ -22,7 +22,7 @@ std::unordered_map<std::string, sf::Texture> Texture_bank::initialize_texture_ma
 
 const sf::Texture* Texture_bank::getTexture(const std::string& key)
 {
-    auto it = texture_map.find(key);
+    auto it = texture_map.find("assets/textures/" + key);
     if(it == texture_map.end()) {
         std::cout << "Texture: " << key << " not found, using fallback texture" << std::endl;
         return &fallback_texture;
