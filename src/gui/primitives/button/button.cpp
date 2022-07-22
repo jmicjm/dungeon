@@ -1,5 +1,6 @@
 #include "button.h"
 #include "../../../input/input.h"
+#include "../../../asset_storage/font_bank.h"
 #include "SFML/Window/Mouse.hpp"
 
 
@@ -127,7 +128,7 @@ namespace gui
 
     void Button::setFont(const std::string& font)
     {
-        this->font.loadFromFile(font);
+        this->font = *Font_bank::getFont(font);
         pressed_text.setFont(this->font);
         pressed_hovered_text.setFont(this->font);
         released_text.setFont(this->font);

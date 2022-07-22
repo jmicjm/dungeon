@@ -1,5 +1,6 @@
 #include "text.h"
 #include "../../../utils/utf8ToUtf32.h"
+#include "../../../asset_storage/font_bank.h"
 
 #include <vector>
 #include <utility>
@@ -153,7 +154,7 @@ namespace gui
 
     void Text_impl::setFont(const std::string& filename)
     {
-        font.loadFromFile(filename);
+        font = *Font_bank::getFont(filename);
 
         render_required = true;
     }

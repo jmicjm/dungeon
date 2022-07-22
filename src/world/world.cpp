@@ -88,16 +88,16 @@ World::World(const World_params& params)
 
     for (int i = 0; i < levels.size()-1; i++)
     {
-        createPortal(Texture_bank::getTexture("assets/tiles/entrance_down.png"), { 0,0,64,64 }, Portal{ levels[i + 1], levels[i + 1]->getStructure().getRoomRect(0).tl }, levels[i].get(), levels[i]->getStructure().getRoomRect(0).tl);
+        createPortal(Texture_bank::getTexture("tiles/entrance_down.png"), { 0,0,64,64 }, Portal{ levels[i + 1], levels[i + 1]->getStructure().getRoomRect(0).tl }, levels[i].get(), levels[i]->getStructure().getRoomRect(0).tl);
     }
     for (int i = 1; i < levels.size(); i++)
     {
-        createPortal(Texture_bank::getTexture("assets/tiles/entrance_up.png"), { 0,0,64,64 }, Portal{ levels[i - 1], levels[i - 1]->getStructure().getRoomRect(0).tl + sf::Vector2i{ 1,0 } }, levels[i].get(), levels[i]->getStructure().getRoomRect(0).tl + sf::Vector2i{ 1,0 });
+        createPortal(Texture_bank::getTexture("tiles/entrance_up.png"), { 0,0,64,64 }, Portal{ levels[i - 1], levels[i - 1]->getStructure().getRoomRect(0).tl + sf::Vector2i{ 1,0 } }, levels[i].get(), levels[i]->getStructure().getRoomRect(0).tl + sf::Vector2i{ 1,0 });
     }
     for (auto l : levels)
     {
-        createPortal(Texture_bank::getTexture("assets/tiles/entrance_portal.png"), { 0,0,64,64 }, Portal{ l, l->getStructure().getRoomRect(1).tl + sf::Vector2i{ 0,1 } }, l.get(), l->getStructure().getRoomRect(0).tl + sf::Vector2i{ 0,1 });
-        createPortal(Texture_bank::getTexture("assets/tiles/entrance_portal.png"), { 0,0,64,64 }, Portal{ l, l->getStructure().getRoomRect(0).tl + sf::Vector2i{ 0,1 } }, l.get(), l->getStructure().getRoomRect(1).tl + sf::Vector2i{ 0,1 });
+        createPortal(Texture_bank::getTexture("tiles/entrance_portal.png"), { 0,0,64,64 }, Portal{ l, l->getStructure().getRoomRect(1).tl + sf::Vector2i{ 0,1 } }, l.get(), l->getStructure().getRoomRect(0).tl + sf::Vector2i{ 0,1 });
+        createPortal(Texture_bank::getTexture("tiles/entrance_portal.png"), { 0,0,64,64 }, Portal{ l, l->getStructure().getRoomRect(0).tl + sf::Vector2i{ 0,1 } }, l.get(), l->getStructure().getRoomRect(1).tl + sf::Vector2i{ 0,1 });
     }
 
     changeLevel(*levels.begin());
