@@ -34,7 +34,7 @@ bool updateInfectedZombie(entt::registry& registry, World& world, const entt::en
 {
     if (auto position = registry.try_get<Position>(entity))
     {
-        moveEntity(registry, position->getLevel()->getEntities(), *position, sf::Vector2i{ rand(-1, 1), rand(-1, 1) });
+        moveEntity(registry, *position, sf::Vector2i{ rand(-1, 1), rand(-1, 1) });
     }
     return true;
 }

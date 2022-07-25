@@ -78,7 +78,7 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
         offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 
         const sf::Vector2i old_pos = position->getCoords();
-        moveEntity(registry, position->getLevel()->getEntities(), *position, offset);
+        moveEntity(registry, *position, offset);
 
         return old_pos != position->getCoords();
     }
