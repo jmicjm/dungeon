@@ -1,5 +1,6 @@
 #include "../components/player.h"
 #include "../components/character.h"
+#include "../components/character_update_tags.h"
 #include "../components/nonpassable.h"
 #include "../components/render_component.h"
 #include "../components/portal.h"
@@ -43,6 +44,8 @@ entt::entity createPlayer(entt::registry& registry)
 
 bool updatePlayer(entt::registry& registry, World& world, const entt::entity entity)
 {
+    if (registry.remove<External_action_taken>(entity)) return true;
+
     if (auto player = registry.try_get<Player>(entity))
     {
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();

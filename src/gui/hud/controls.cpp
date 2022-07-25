@@ -4,6 +4,7 @@
 #include "../../utils/sf_vector2_utils.h"
 #include "../../global/window.h"
 #include "../../components/position.h"
+#include "../../components/character_update_tags.h"
 
 void gui::Controls::rescale()
 {
@@ -78,7 +79,7 @@ void gui::Controls::update()
     center_button.update();
 }
 
-void gui::Controls::setPlayer(const entt::registry& registry, entt::entity player)
+void gui::Controls::setPlayer(entt::registry& registry, entt::entity player)
 {
     center_button.setPressFunction([&, player] {
         auto view = window.getView();
@@ -86,6 +87,10 @@ void gui::Controls::setPlayer(const entt::registry& registry, entt::entity playe
             sf::Vector2f{ vecMul(registry.get<Position>(player).getCoords(), Tile_sprite_storage::tile_size) + sf::Vector2i{32, 0}}
         ); 
         window.setView(view);
+    });
+
+    skip_button.setPressFunction([&, player] {    
+        registry.emplace_or_replace<External_action_taken>(player);
     });
 }
 

@@ -127,7 +127,7 @@ void gui::Hud::update()
     controls.update();
 }
 
-void gui::Hud::setPlayer(const entt::registry& registry, entt::entity player)
+void gui::Hud::setPlayer(entt::registry& registry, entt::entity player)
 {
     this->player = player;
     this->registry = &registry;
