@@ -44,6 +44,8 @@ add_executable(dungeon
     src/entities/door.cpp
     src/entities/gate.cpp
     src/entities/portal.cpp
+    src/entities/npc/smuggler.cpp
+    src/entities/npc/infected_zombie.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
     src/gui/primitives/button/button.cpp   

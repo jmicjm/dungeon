@@ -59,9 +59,11 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
                 {
                     if (auto destination = portal->destination_level.lock())
                     {
-                        usePortal(*portal, *position);
-                        world.changeLevel(destination);
-                        return true;
+                        if (usePortal(*portal, *position))
+                        {
+                            world.changeLevel(destination);
+                            return true;
+                        }
                     }
                 }
                 else return false;

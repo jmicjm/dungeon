@@ -26,6 +26,7 @@ class World : public sf::Drawable
 
     void createPlayer();
     void initViewFollowers();
+    void spawnNpcs();
 
     void progressTurn();
 
