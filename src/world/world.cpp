@@ -13,6 +13,9 @@
 
 #include <vector>
 
+#include "../entities/npc/infected_zombie.h"
+#include "../entities/npc/smuggler.h"
+
 
 void World::createPlayer()
 {
@@ -64,6 +67,17 @@ void World::initViewFollowers()
     window.setView(vf_instant.followCenter(window.getView()));
 }
 
+void World::spawnNpcs()
+{
+    auto infected = createInfectedZombie(registry);
+    registry.emplace<Position>(infected, current_level->getStructure().getRoomRect(0).tl + sf::Vector2i{ 1,0 }, current_level.get(), entity_level_map, infected);
+    registry.emplace<Active_character>(infected);
+
+    auto smuggler = createSmuggler(registry);
+    registry.emplace<Position>(smuggler, current_level->getStructure().getRoomRect(0).br, current_level.get(), entity_level_map, smuggler);
+    registry.emplace<Active_character>(smuggler);
+}
+
 void World::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     rt.draw(*current_level, st);
@@ -103,6 +117,7 @@ World::World(const World_params& params)
     changeLevel(*levels.begin());
     createPlayer();
     initViewFollowers();
+    spawnNpcs();
 }
 
 void World::update(sf::RenderTarget& rt)
@@ -154,7 +169,7 @@ auto World::getEntities() const -> const decltype(entity_level_map)&
     return entity_level_map;
 }
 
-const entt::registry& World::getRegistry() const
+entt::registry& World::getRegistry()
 {
     return registry;
 }

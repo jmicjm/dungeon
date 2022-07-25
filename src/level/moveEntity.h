@@ -7,4 +7,4 @@
 #include "SFML/System/Vector2.hpp"
 
 
-void moveEntity(entt::registry& registry, const Quadtree<entt::entity>& entities, Position& position, sf::Vector2i offset);
+void moveEntity(entt::registry& registry, Position& position, sf::Vector2i offset);

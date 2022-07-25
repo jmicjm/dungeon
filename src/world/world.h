@@ -26,6 +26,7 @@ class World : public sf::Drawable
 
     void createPlayer();
     void initViewFollowers();
+    void spawnNpcs();
 
     void progressTurn();
 
@@ -39,5 +40,5 @@ public:
 
     entt::entity getPlayer() const;
     auto getEntities() const -> const decltype(entity_level_map)&;
-    const entt::registry& getRegistry() const;
+    entt::registry& getRegistry();
 };

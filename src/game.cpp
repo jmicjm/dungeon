@@ -4,6 +4,7 @@
 #include "level/level.h"
 #include "input/input.h"
 #include "gui/hud/hud.h"
+#include "components/character_update_tags.h"
 
 
 int main()
@@ -68,6 +69,9 @@ int main()
 
         world.update(window);
         window.draw(world);
+
+        if (world.getRegistry().all_of<Character_updating>(world.getPlayer()) && !gui_component_stack.size()) hud.activate();
+        else hud.deactivate();
 
         hud.update();
         hud.draw();

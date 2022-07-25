@@ -56,8 +56,8 @@ entt::entity createDoorSide(entt::registry& registry)
 
 entt::entity createDoor(entt::registry& registry, Animated_sprite open_rc, Animated_sprite closed_rc)
 {
-    Render_component open{ { { zlevel::door, { open_rc } } } };
-    Render_component closed{ { { zlevel::door, { closed_rc } } } };
+    Render_component open{ { { zlevel::door, { open_rc } } }, { { zlevel::door, { closed_rc } } } };
+    Render_component closed{ { { zlevel::door, { closed_rc } } }, { { zlevel::door, { closed_rc } } } };
 
     auto entity = registry.create();
     registry.emplace<Door>(entity);

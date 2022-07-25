@@ -4,6 +4,8 @@
 #include "../utils/sf_vector2_utils.h"
 #include "../asset_storage/tile_sprite_storage.h"
 #include "utils/visibleAreaBounds.h"
+#include "../components/opaque.h"
+#include "../components/door.h"
 
 #include "SFML/Graphics/RectangleShape.hpp"
 
@@ -111,7 +113,8 @@ void View_range_overlay::drawTileOverlay(const Level& l,
     const tile_sprite_id_t id = [&]
     {
         const auto& [tl, tr, bl, br] = tvi;
-        if (!l.isPassable(position))
+        if (l.getStructure().at(position).type == TILE_TYPE::WALL 
+            || l.getEntities().forEachUntil(position, [&](auto& entity) { return l.getRegistry().all_of<Door, Opaque>(entity.second); }))
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }

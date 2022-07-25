@@ -27,14 +27,20 @@ namespace gui
 
     void Gui_component::activate()
     {
-        is_active = true;
-        activateEvent();
+        if (!isActive())
+        {
+            is_active = true;
+            activateEvent();
+        }
     }
 
     void Gui_component::deactivate()
     {
-        is_active = false;
-        deactivateEvent();
+        if (isActive())
+        {
+            is_active = false;
+            deactivateEvent();
+        }
     }
 
     bool Gui_component::isActive() const

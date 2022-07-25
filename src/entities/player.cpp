@@ -1,5 +1,6 @@
 #include "../components/player.h"
 #include "../components/character.h"
+#include "../components/character_update_tags.h"
 #include "../components/nonpassable.h"
 #include "../components/render_component.h"
 #include "../components/portal.h"
@@ -11,6 +12,7 @@
 #include "../level/moveEntity.h"
 #include "../world/world.h"
 #include "../asset_storage/tile_sprite_storage.h"
+#include "../global/gui_component_stack.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
@@ -43,6 +45,10 @@ entt::entity createPlayer(entt::registry& registry)
 
 bool updatePlayer(entt::registry& registry, World& world, const entt::entity entity)
 {
+    if (gui_component_stack.size()) return false;
+
+    if (registry.remove<External_action_taken>(entity)) return true;
+
     if (auto player = registry.try_get<Player>(entity))
     {
         std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
@@ -59,9 +65,11 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
                 {
                     if (auto destination = portal->destination_level.lock())
                     {
-                        usePortal(*portal, *position);
-                        world.changeLevel(destination);
-                        return true;
+                        if (usePortal(*portal, *position))
+                        {
+                            world.changeLevel(destination);
+                            return true;
+                        }
                     }
                 }
                 else return false;
@@ -76,7 +84,7 @@ bool updatePlayer(entt::registry& registry, World& world, const entt::entity ent
         offset.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 
         const sf::Vector2i old_pos = position->getCoords();
-        moveEntity(registry, position->getLevel()->getEntities(), *position, offset);
+        moveEntity(registry, *position, offset);
 
         return old_pos != position->getCoords();
     }

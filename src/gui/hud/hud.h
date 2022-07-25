@@ -37,7 +37,7 @@ namespace gui
 
         void update() override;
 
-        void setPlayer(const entt::registry& registry, entt::entity player);
+        void setPlayer(entt::registry& registry, entt::entity player);
         void setScale(float scale);
         float getScale() const;
     };

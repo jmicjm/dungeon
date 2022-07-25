@@ -10,6 +10,7 @@
 #include "../components/nonpassable.h"
 #include "../components/opaque.h"
 #include "../components/render_component.h"
+#include "../gfx/zlevels.h"
 
 #include <algorithm>
 
@@ -26,7 +27,9 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         const auto pos = registry.try_get<Position>(entity.second);
         if (rc && pos)
         {
-            for (const auto& [zlevel, animations] : rc->zlevel_animation_map)
+            auto& map = visible_tiles.find(pos->getCoords()) != visible_tiles.end() ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
+
+            for (const auto& [zlevel, animations] : map)
             {
                 for (const auto& animation : animations)
                 {
@@ -41,9 +44,16 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         return vecMul(sf::Vector2f{ tile_position }, Tile_sprite_storage::tile_size);
     };
 
+    bool shadow_drew = false;
     for (auto& [zlevel, animations] : zlevel_map)
     {
         std::ranges::stable_sort(animations, [&](const auto& a, const auto& b) { return a.first.y * structure.getSize().x + a.first.x < b.first.y * structure.getSize().x + b.first.x; });
+
+        if (!shadow_drew && zlevel >= zlevel::character)
+        {
+            if (view_range_overlay) rt.draw(*view_range_overlay);
+            shadow_drew = true;
+        }
         for (const auto& [pos, animation] : animations)
         {
             sf::RenderStates st2 = st;
@@ -51,8 +61,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
             rt.draw(*animation, st2);
         }
     }
-    
-    if (view_range_overlay) rt.draw(*view_range_overlay);
+    if (!shadow_drew && view_range_overlay) rt.draw(*view_range_overlay);
 }
 
 void Level::placeDoors()
@@ -98,6 +107,7 @@ Level::~Level()
 
 void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt)
 {
+    this->visible_tiles = visible_tiles;
     const auto visible_tiles_vec = std::vector<std::pair<sf::Vector2i, Tile_visibility_info>>{ visible_tiles.begin(), visible_tiles.end() };
 
     reveal_mask.reveal(visible_tiles_vec);
@@ -130,6 +140,11 @@ const Level_structure& Level::getStructure() const
 const Quadtree<entt::entity>& Level::getEntities() const
 {
     return entity_level_map[this];
+}
+
+const entt::registry& Level::getRegistry() const
+{
+    return registry;
 }
 
 void Level::update(sf::RenderTarget& rt)
