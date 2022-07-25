@@ -90,21 +90,30 @@ std::unordered_map<sf::Vector2i, Tile_visibility_info> visibleTiles(const sf::Ve
             visible_tiles[vecDiv(pos - sf::Vector2i{ 0, ts.y }, ts)].combine({ 0,0,1,0 });
             visible_tiles[vecDiv(pos - ts, ts)].combine({ 0,0,0,1 });
 
-            const sf::Vector2i top = pos + sf::Vector2i{ 0,   -ts.y };
-            const sf::Vector2i bottom = pos + sf::Vector2i{ 0,    ts.y };
-            const sf::Vector2i left = pos + sf::Vector2i{ -ts.x, 0 };
-            const sf::Vector2i right = pos + sf::Vector2i{ ts.x, 0 };
+            const sf::Vector2i t = pos + sf::Vector2i{ 0, -ts.y };
+            const sf::Vector2i b = pos + sf::Vector2i{ 0, ts.y };
+            const sf::Vector2i l = pos + sf::Vector2i{ -ts.x, 0 };
+            const sf::Vector2i r = pos + sf::Vector2i{ ts.x, 0 };
+            const sf::Vector2i tl = pos + sf::Vector2i{ -ts.x, -ts.y };
+            const sf::Vector2i tr = pos + sf::Vector2i{ ts.x, -ts.y };
+            const sf::Vector2i bl = pos + sf::Vector2i{ -ts.x, ts.y };
+            const sf::Vector2i br = pos + sf::Vector2i{ ts.x, ts.y };
 
             auto add = [&](const sf::Vector2i& pos)
             {
+                if (isVisited(pos)) return;
                 to_visit.push(pos);
                 markAsVisited(pos);
             };
 
-            if (!isVisited(top)) add(top);
-            if (!isVisited(bottom)) add(bottom);
-            if (!isVisited(left)) add(left);
-            if (!isVisited(right)) add(right);
+            add(t);
+            add(b);
+            add(l);
+            add(r);
+            add(tl);
+            add(tr);
+            add(bl);
+            add(br);
         }
     }
 
