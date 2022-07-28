@@ -27,13 +27,51 @@ void World::createPlayer()
 
 void World::progressTurn()
 {
+    updatePendingAnimations();
+    if (registry.view<Pending_animation>().size()) return;
+
+    auto updateCharacter = [&] (const auto entity)
+    {
+        const auto update_f = registry.get<Character>(entity).update;
+        if (!update_f) return true;
+        return update_f(registry, *this, entity);
+    };
+
+    for (const auto entity : registry.view<Character_updating>())
+    {
+        if (!updateCharacter(entity)) return;
+        else registry.erase<Character_updating>(entity);
+        updatePendingAnimations();
+        if (registry.view<Pending_animation>().size()) return;
+    }
+
+    for (const auto entity : registry.view<Character_awaiting_update>())
+    {
+        registry.erase<Character_awaiting_update>(entity);
+        if (!updateCharacter(entity))
+        {
+            registry.emplace<Character_updating>(entity);           
+            return;
+        }
+        updatePendingAnimations();
+        if (registry.view<Pending_animation>().size()) return;
+    }
+
+    for (const auto entity : registry.view<Active_character>())
+    {
+        registry.emplace<Character_awaiting_update>(entity);
+    }
+}
+
+void World::updatePendingAnimations()
+{
     for (const auto& [entity, rc, pa] : registry.view<Render_component, Pending_animation>().each())
     {
-        const auto isVisible = [&]
+        const auto isInvisible = [&]
         {
             const auto valid_level = [&, pos = registry.try_get<Position>(entity)]{ return pos && pos->getLevel() == current_level.get(); }();
             const auto& vtiles = current_level->getVisibleTiles();
-            return valid_level && vtiles.find(pa.src) == vtiles.end() && vtiles.find(pa.dst) == vtiles.end();
+            return !valid_level || vtiles.find(pa.src) == vtiles.end() && vtiles.find(pa.dst) == vtiles.end();
         };
         const auto isRepeating = [&]
         {
@@ -52,42 +90,11 @@ void World::progressTurn()
             return false;
         };
 
-        if (isVisible() || isRepeating() || isFinished())
+        if (isInvisible() || isRepeating() || isFinished())
         {
             pa.restore(rc);
             registry.erase<Pending_animation>(entity);
         }
-    }
-    if (registry.view<Pending_animation>().size()) return;
-
-    auto updateCharacter = [&] (const auto entity)
-    {
-        const auto update_f = registry.get<Character>(entity).update;
-        if (!update_f) return true;
-        return update_f(registry, *this, entity);
-    };
-
-    for (const auto entity : registry.view<Character_updating>())
-    {
-        if (!updateCharacter(entity)) return;
-        else registry.erase<Character_updating>(entity);
-        if (registry.view<Pending_animation>().size()) return;
-    }
-
-    for (const auto entity : registry.view<Character_awaiting_update>())
-    {
-        registry.erase<Character_awaiting_update>(entity);
-        if (!updateCharacter(entity))
-        {
-            registry.emplace<Character_updating>(entity);           
-            return;
-        }
-        if (registry.view<Pending_animation>().size()) return;
-    }
-
-    for (const auto entity : registry.view<Active_character>())
-    {
-        registry.emplace<Character_awaiting_update>(entity);
     }
 }
 
