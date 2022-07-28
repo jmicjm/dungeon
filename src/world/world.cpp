@@ -54,8 +54,7 @@ void World::progressTurn()
 
         if (isVisible() || isRepeating() || isFinished())
         {
-            rc.zlevel_animation_map[pa.tracked_zlevel] = pa.new_animations;
-            rc.shadow_zlevel_animation_map[pa.tracked_zlevel] = pa.new_shadow_animations;
+            pa.restore(rc);
             registry.erase<Pending_animation>(entity);
         }
     }

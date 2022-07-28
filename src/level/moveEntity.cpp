@@ -36,6 +36,11 @@ void moveEntity(entt::registry& registry, entt::entity entity, sf::Vector2i offs
         {
             if (auto rc = registry.try_get<Render_component>(entity))
             {
+                if (auto pa = registry.try_get<Pending_animation>(entity))
+                {
+                    pa->restore(*rc);
+                }
+
                 auto [zlevel, anim] = Entity_animation_storage::getMoveAnimation(anim_id->id, offset);
 
                 registry.emplace_or_replace<Pending_animation>(
