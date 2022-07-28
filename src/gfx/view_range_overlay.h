@@ -12,8 +12,6 @@
 class View_range_overlay : public sf::Drawable
 {
     sf::RenderTexture overlay_tex;
-    std::vector<std::pair<sf::Vector2i, Tile_visibility_info>> last_visible_tiles;
-    sf::View last_display_view;
 
     std::map<TILE_SPRITE_ID::tile_sprite_id_t, sf::Sprite> sprites;
 
@@ -21,7 +19,8 @@ class View_range_overlay : public sf::Drawable
 
     void drawTileOverlay(const Level& l,
                          const sf::Vector2i& position,
-                         const Tile_visibility_info tvi);
+                         const Tile_visibility_info tvi,
+                         const bool visible);
 
 public:
     View_range_overlay();

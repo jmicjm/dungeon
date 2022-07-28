@@ -165,6 +165,13 @@ void Level::update(sf::RenderTarget& rt)
                     animation.updateFrameIdx();
                 }
             }
+            for (auto& [zlevel, animations] : rc->shadow_zlevel_animation_map)
+            {
+                for (auto& animation : animations)
+                {
+                    animation.updateFrameIdx();
+                }
+            }
         }
     });
 }

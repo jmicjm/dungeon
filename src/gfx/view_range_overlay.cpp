@@ -55,11 +55,8 @@ void View_range_overlay::update(const Level& l,
                                 const Tile_reveal_mask& revealed_tiles, 
                                 const sf::RenderTarget& rt)
 {
-    if (   visible_tiles != last_visible_tiles
-        || rt.getView().getTransform() != last_display_view.getTransform()
-        || rt.getView().getSize() != last_display_view.getSize())
     {
-        overlay_tex.create(rt.getSize().x, rt.getSize().y);
+        if(overlay_tex.getSize() != rt.getSize()) overlay_tex.create(rt.getSize().x, rt.getSize().y);
         overlay_tex.clear({ 0,0,0,255 });
         overlay_tex.setView(rt.getView());
 
@@ -79,7 +76,7 @@ void View_range_overlay::update(const Level& l,
             {
                 if (revealed_tiles.at({ x,y }).isVisible())
                 {
-                    drawTileOverlay(l, { x,y }, revealed_tiles.at({ x,y }));
+                    drawTileOverlay(l, { x,y }, revealed_tiles.at({ x,y }), false);
                 }
             }
         }
@@ -96,25 +93,24 @@ void View_range_overlay::update(const Level& l,
             const auto& [position, tvi] = tile;
             if (l.getStructure().isPositionValid(position))
             {
-                drawTileOverlay(l, position, tvi);
+                drawTileOverlay(l, position, tvi, true);
             }
         }
 
         overlay_tex.display();
     }
-    last_visible_tiles = visible_tiles;
-    last_display_view = rt.getView();
 }
 
 void View_range_overlay::drawTileOverlay(const Level& l, 
                                          const sf::Vector2i& position,
-                                         const Tile_visibility_info tvi)
+                                         const Tile_visibility_info tvi,
+                                         const bool visible)
 {
     const tile_sprite_id_t id = [&]
     {
         const auto& [tl, tr, bl, br] = tvi;
         if (l.getStructure().at(position).type == TILE_TYPE::WALL 
-            || l.getEntities().forEachUntil(position, [&](auto& entity) { return l.getRegistry().all_of<Door, Opaque>(entity.second); }))
+            || l.getEntities().forEachUntil(position, [&](auto& entity) { return visible ? l.getRegistry().all_of<Door, Opaque>(entity.second) : l.getRegistry().all_of<Door>(entity.second); }))
         {
             return tl * TL | tr * TR | bl * BL | br * BR;
         }
