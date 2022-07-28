@@ -1,12 +1,20 @@
 #include "moveEntity.h"
 #include "../entities/gate.h"
+#include "../components/render_component.h"
+#include "../components/pending_animation.h"
+#include "../components/move_animation_id.h"
+#include "../asset_storage/entity_animation_storage.h"
+#include "../gfx/zlevels.h"
 
 
-void moveEntity(entt::registry& registry, Position& position, sf::Vector2i offset)
+void moveEntity(entt::registry& registry, entt::entity entity, sf::Vector2i offset)
 {
-    const auto old_coords = position.getCoords();
-    const auto& level = *position.getLevel();
-    const auto& entities = position.getLevel()->getEntities();
+    auto position = registry.try_get<Position>(entity);
+    if (!position) return;
+
+    const auto old_coords = position->getCoords();
+    const auto& level = *position->getLevel();
+    const auto& entities = position->getLevel()->getEntities();
 
     offset.x = std::clamp(offset.x, -1, 1);
     offset.y = std::clamp(offset.y, -1, 1);
@@ -18,11 +26,35 @@ void moveEntity(entt::registry& registry, Position& position, sf::Vector2i offse
 
     auto moveToNewCoords = [&]
     {
-        position.setCoords(new_coords);
+        position->setCoords(new_coords);
 
         entities.forEach(old_coords, [&](auto& entity) {
             if (auto gate = registry.try_get<Gate>(entity.second)) closeGate(registry, entities, entity.second);
         });
+
+        if (auto anim_id = registry.try_get<Move_animation_id>(entity))
+        {
+            if (auto rc = registry.try_get<Render_component>(entity))
+            {
+                auto [zlevel, anim] = Entity_animation_storage::getMoveAnimation(anim_id->id, offset);
+
+                registry.emplace_or_replace<Pending_animation>(
+                    entity,
+                    Pending_animation
+                    {
+                        .tracked_zlevel = zlevel,
+                        .new_animations = rc->zlevel_animation_map[zlevel],
+                        .new_shadow_animations = rc->shadow_zlevel_animation_map[zlevel],
+                        .src = old_coords,
+                        .dst = new_coords
+                    }
+                );
+
+                anim.restart();
+                rc->zlevel_animation_map[zlevel] = { { anim } };
+                rc->shadow_zlevel_animation_map[zlevel] = { { anim } };
+            }
+        }
     };
 
     if (!level.isPassable(new_coords))

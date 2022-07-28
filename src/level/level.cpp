@@ -114,6 +114,11 @@ void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visib
     if(view_range_overlay) view_range_overlay->update(*this, visible_tiles_vec, reveal_mask, rt);
 }
 
+auto Level::getVisibleTiles() const -> const decltype(visible_tiles)&
+{
+    return visible_tiles;
+}
+
 bool Level::isPassable(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return false;

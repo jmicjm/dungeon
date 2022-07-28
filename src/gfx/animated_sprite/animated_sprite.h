@@ -15,6 +15,7 @@ class Animated_sprite : public sf::Drawable, public sf::Transformable
 {
     std::shared_ptr<Animated_sprite_frames> m_frames;
     unsigned int m_current_frame_idx = 0;
+    bool m_repeat = true;
 
     sf::Color m_color = {255,255,255,255};
 
@@ -36,6 +37,9 @@ public:
     void setFrameIdx(unsigned int idx, std::chrono::steady_clock::time_point tp);
     unsigned int getFrameIdx() const;
     unsigned int frameCount() const;
+
+    void setRepeat(bool repeat);
+    bool isRepeating() const;
 
     void setColor(sf::Color color);
     sf::Color getColor() const;

@@ -16,5 +16,6 @@ struct Animated_sprite_frames
 
     std::vector<frame_rect> frame_rects;
 
+    Animated_sprite_frames() = default;
     Animated_sprite_frames(const sf::Texture* texture, const std::vector<sf::IntRect>& rects);
 };
