@@ -34,6 +34,7 @@ class World : public sf::Drawable
 
 public:
     World(const World_params& params);
+    World(World&& other) = delete;
 
     void update(sf::RenderTarget& rt);
     std::shared_ptr<Level> changeLevel(std::shared_ptr<Level> level);
