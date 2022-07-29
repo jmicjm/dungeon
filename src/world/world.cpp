@@ -16,6 +16,7 @@
 
 #include "../entities/npc/infected_zombie.h"
 #include "../entities/npc/smuggler.h"
+#include "../entities/gate.h"
 
 
 void World::createPlayer()
@@ -42,6 +43,7 @@ void World::progressTurn()
         if (!updateCharacter(entity)) return;
         else registry.erase<Character_updating>(entity);
         updatePendingAnimations();
+        updateMovingFromGates(registry, current_level->getEntities());
         if (registry.view<Pending_animation>().size()) return;
     }
 
@@ -54,6 +56,7 @@ void World::progressTurn()
             return;
         }
         updatePendingAnimations();
+        updateMovingFromGates(registry, current_level->getEntities());
         if (registry.view<Pending_animation>().size()) return;
     }
 
@@ -180,6 +183,7 @@ void World::update(sf::RenderTarget& rt)
     auto& pos = registry.get<Position>(player);
     auto vis_tiles = visibleTiles(pos.getCoords(), *current_level);
     current_level->updateVisibleTiles(std::move(vis_tiles), rt);
+    updatePendingAnimations();//drop animations that are invisible now
 }
 
 std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)

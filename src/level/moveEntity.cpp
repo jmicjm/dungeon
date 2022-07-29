@@ -28,8 +28,8 @@ void moveEntity(entt::registry& registry, entt::entity entity, sf::Vector2i offs
     {
         position->setCoords(new_coords);
 
-        entities.forEach(old_coords, [&](auto& entity) {
-            if (auto gate = registry.try_get<Gate>(entity.second)) closeGate(registry, entities, entity.second);
+        entities.forEach(old_coords, [&](auto& e) {
+            if (auto gate = registry.try_get<Gate>(e.second)) registry.emplace_or_replace<Gate_moving_from>(e.second, entity);
         });
 
         if (auto anim_id = registry.try_get<Move_animation_id>(entity))

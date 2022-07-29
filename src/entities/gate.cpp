@@ -3,6 +3,7 @@
 #include "../components/nonpassable.h"
 #include "../components/opaque.h"
 #include "../components/render_component.h"
+#include "../components/pending_animation.h"
 
 
 bool openGate(entt::registry& registry, const Quadtree<entt::entity>& entities, entt::entity gate)
@@ -43,4 +44,16 @@ bool closeGate(entt::registry& registry, const Quadtree<entt::entity>& entities,
     gate_c->is_open = false;
 
     return true;
+}
+
+void updateMovingFromGates(entt::registry& registry, const Quadtree<entt::entity>& entities)
+{
+    for (const auto& [entity, gate, gmf] : registry.view<Gate, Gate_moving_from>().each())
+    {
+        if (!registry.valid(gmf.moving_from_entity) || !registry.try_get<Pending_animation>(gmf.moving_from_entity))
+        {
+            closeGate(registry, entities, entity);
+        }
+    }
+
 }
