@@ -9,6 +9,7 @@
 #include "../components/render_component.h"
 #include "../components/pending_animation.h"
 #include "../gfx/zlevels.h"
+#include "../gfx/utils/visibleAreaBounds.h"
 #include "../level/visibleTiles.h"
 #include "../global/window.h"
 
@@ -26,9 +27,9 @@ void World::createPlayer()
     registry.emplace<Active_character>(player);
 }
 
-void World::progressTurn()
+void World::progressTurn(const sf::RenderTarget& rt)
 {
-    updatePendingAnimations();
+    updatePendingAnimations(rt);
     if (registry.view<Pending_animation>().size()) return;
 
     auto updateCharacter = [&] (const auto entity)
@@ -42,7 +43,7 @@ void World::progressTurn()
     {
         if (!updateCharacter(entity)) return;
         else registry.erase<Character_updating>(entity);
-        updatePendingAnimations();
+        updatePendingAnimations(rt);
         if (registry.view<Pending_animation>().size()) return;
     }
 
@@ -54,7 +55,7 @@ void World::progressTurn()
             registry.emplace<Character_updating>(entity);           
             return;
         }
-        updatePendingAnimations();
+        updatePendingAnimations(rt);
         if (registry.view<Pending_animation>().size()) return;
     }
 
@@ -64,15 +65,27 @@ void World::progressTurn()
     }
 }
 
-void World::updatePendingAnimations()
+void World::updatePendingAnimations(const sf::RenderTarget& rt)
 {
     for (const auto& [entity, rc, pa] : registry.view<Render_component, Pending_animation>().each())
     {
         const auto isInvisible = [&]
         {
-            const auto valid_level = [&, pos = registry.try_get<Position>(entity)]{ return pos && pos->getLevel() == current_level.get(); }();
+            const auto outOfScreen = [&] 
+            {
+                auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+                tl -= {1, 1};
+                br += {1, 1};
+                auto contains = [&](const sf::Vector2i& point)
+                {
+                    return point.x >= tl.x && point.x < br.x
+                        && point.y >= tl.y && point.y < br.y;
+                };
+                return !contains(pa.dst);
+            };
+            const auto validLevel = [&, pos = registry.try_get<Position>(entity)]{ return pos && pos->getLevel() == current_level.get(); };
             const auto& vtiles = current_level->getVisibleTiles();
-            return !valid_level || vtiles.find(pa.src) == vtiles.end() && vtiles.find(pa.dst) == vtiles.end();
+            return outOfScreen() || !validLevel() || vtiles.find(pa.src) == vtiles.end() && vtiles.find(pa.dst) == vtiles.end();
         };
         const auto isRepeating = [&]
         {
@@ -169,7 +182,7 @@ void World::update(sf::RenderTarget& rt)
 {
     current_level->update(rt);
 
-    progressTurn();
+    progressTurn(rt);
 
     auto view = rt.getView();
     view = vf.follow(view);
@@ -182,7 +195,7 @@ void World::update(sf::RenderTarget& rt)
     auto& pos = registry.get<Position>(player);
     auto vis_tiles = visibleTiles(pos.getCoords(), *current_level);
     current_level->updateVisibleTiles(std::move(vis_tiles), rt);
-    updatePendingAnimations();//drop animations that are invisible now
+    updatePendingAnimations(rt);//drop animations that are invisible now
 }
 
 std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)

@@ -22,7 +22,9 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
     std::map<int, std::vector<std::tuple<sf::Vector2i, Animated_sprite*, float>>> zlevel_map;
 
-    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    tl -= {1, 1};
+    br += {1, 1};
     getEntities().forEach({ tl, br }, [&](auto& entity) {
         const auto rc = registry.try_get<Render_component>(entity.second);
         const auto pos = registry.try_get<Position>(entity.second);
@@ -185,7 +187,9 @@ const entt::registry& Level::getRegistry() const
 
 void Level::update(sf::RenderTarget& rt)
 {
-    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    tl -= {1, 1};
+    br += {1, 1};
     getEntities().forEach({ tl, br }, [&](auto& entity) {
         if (auto rc = registry.try_get<Render_component>(entity.second))
         {
