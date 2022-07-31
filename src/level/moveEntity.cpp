@@ -43,13 +43,24 @@ void moveEntity(entt::registry& registry, entt::entity entity, sf::Vector2i offs
 
                 auto [zlevel, anim] = Entity_animation_storage::getMoveAnimation(anim_id->id, offset);
 
+                auto newRc = [=](Render_component curr_rc)
+                {
+                    auto setReplacementZlevel = [&](auto& map)
+                    {
+                        if (map.find(zlevel) == map.end()) map.insert({ zlevel, {} });
+                    };
+                    setReplacementZlevel(curr_rc.zlevel_animation_map);
+                    setReplacementZlevel(curr_rc.shadow_zlevel_animation_map);
+
+                    return curr_rc;
+                };
+
                 registry.emplace_or_replace<Pending_animation>(
                     entity,
                     Pending_animation
                     {
                         .tracked_zlevel = zlevel,
-                        .new_animations = rc->zlevel_animation_map[zlevel],
-                        .new_shadow_animations = rc->shadow_zlevel_animation_map[zlevel],
+                        .new_zlevels = newRc(*rc),
                         .src = old_coords,
                         .dst = new_coords
                     }
