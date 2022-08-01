@@ -20,7 +20,7 @@ entt::entity createSmuggler(entt::registry& registry)
     registry.emplace<Nonpassable>(smuggler);
     registry.emplace<Opaque>(smuggler);
 
-    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/smuggler.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
+    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/smuggler/smuggler.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);
     animation.setPosition(-sf::Vector2f(0, Tile_sprite_storage::tile_size.y / 2));
     registry.emplace<Render_component>(smuggler, Render_component{ { { zlevel::character, { animation } } } });

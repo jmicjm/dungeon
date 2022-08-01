@@ -24,7 +24,7 @@ entt::entity createInfectedZombie(entt::registry& registry)
     registry.emplace<Nonpassable>(infected);
     registry.emplace<Opaque>(infected);
 
-    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
+    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);
     animation.setPosition(-sf::Vector2f(0, Tile_sprite_storage::tile_size.y / 2));
     registry.emplace<Render_component>(infected, Render_component{ { { zlevel::character, { animation } } } });
