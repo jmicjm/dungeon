@@ -10,6 +10,7 @@
 #include "../components/nonpassable.h"
 #include "../components/opaque.h"
 #include "../components/render_component.h"
+#include "../components/pending_animation.h"
 #include "../gfx/zlevels.h"
 
 #include <algorithm>
@@ -19,21 +20,43 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     if (tile_map) rt.draw(*tile_map, st);
 
-    std::map<int, std::vector<std::pair<sf::Vector2i, const Animated_sprite*>>> zlevel_map;
+    std::map<int, std::vector<std::tuple<sf::Vector2i, Animated_sprite*, float>>> zlevel_map;
 
-    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    tl -= {1, 1};
+    br += {1, 1};
     getEntities().forEach({ tl, br }, [&](auto& entity) {
         const auto rc = registry.try_get<Render_component>(entity.second);
         const auto pos = registry.try_get<Position>(entity.second);
+        const auto pa = registry.try_get<Pending_animation>(entity.second);
         if (rc && pos)
         {
-            auto& map = visible_tiles.find(pos->getCoords()) != visible_tiles.end() ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
+            const auto visible = visible_tiles.find(pos->getCoords()) != visible_tiles.end();
+            const auto src_visible = pa ? visible_tiles.find(pa->src) != visible_tiles.end() : visible;
 
-            for (const auto& [zlevel, animations] : map)
+            auto& map = visible ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
+
+            const auto opacity_mul = [&]
             {
-                for (const auto& animation : animations)
+                if (visible == src_visible) return 1.f;
+
+                if (auto it = map.find(pa->tracked_zlevel); it != map.end())
                 {
-                    zlevel_map[zlevel].push_back({ pos->getCoords(), &animation });
+                    auto max_perc = 0.f;
+                    for (const auto& anim : it->second)
+                    {
+                        if (!anim.isRepeating() && anim.frameCount()) max_perc = std::max(max_perc, static_cast<float>(anim.getFrameIdx()) / anim.frameCount());
+                    }
+                    return src_visible ? 1 - max_perc : max_perc;
+                }
+                return 1.f;
+            }();
+
+            for (auto& [zlevel, animations] : map)
+            {
+                for (auto& animation : animations)
+                {
+                    zlevel_map[zlevel].push_back({ pos->getCoords(), &animation, opacity_mul });
                 }
             }
         }
@@ -47,18 +70,28 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
     bool shadow_drew = false;
     for (auto& [zlevel, animations] : zlevel_map)
     {
-        std::ranges::stable_sort(animations, [&](const auto& a, const auto& b) { return a.first.y * structure.getSize().x + a.first.x < b.first.y * structure.getSize().x + b.first.x; });
+        std::ranges::stable_sort(animations, [&](const auto& a, const auto& b) {
+            return std::get<sf::Vector2i>(a).y * structure.getSize().x + std::get<sf::Vector2i>(a).x < std::get<sf::Vector2i>(b).y * structure.getSize().x + std::get<sf::Vector2i>(b).x; 
+        });
 
         if (!shadow_drew && zlevel >= zlevel::character)
         {
             if (view_range_overlay) rt.draw(*view_range_overlay);
             shadow_drew = true;
         }
-        for (const auto& [pos, animation] : animations)
+        for (const auto& [pos, animation, opacity_mul] : animations)
         {
-            sf::RenderStates st2 = st;
-            st2.transform.translate(pixelPosition(pos));
-            rt.draw(*animation, st2);
+            sf::RenderStates new_st = st;
+            new_st.transform.translate(pixelPosition(pos));
+
+            const auto old_color = animation->getColor();
+            auto new_color = old_color;
+            new_color.a *= opacity_mul;
+            animation->setColor(new_color);
+
+            rt.draw(*animation, new_st);
+
+            animation->setColor(old_color);
         }
     }
     if (!shadow_drew && view_range_overlay) rt.draw(*view_range_overlay);
@@ -114,6 +147,11 @@ void Level::updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visib
     if(view_range_overlay) view_range_overlay->update(*this, visible_tiles_vec, reveal_mask, rt);
 }
 
+auto Level::getVisibleTiles() const -> const decltype(visible_tiles)&
+{
+    return visible_tiles;
+}
+
 bool Level::isPassable(const sf::Vector2i& position) const
 {
     if (!structure.isPositionValid(position) || structure.at(position).type == TILE_TYPE::WALL) return false;
@@ -149,11 +187,20 @@ const entt::registry& Level::getRegistry() const
 
 void Level::update(sf::RenderTarget& rt)
 {
-    const auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    auto [tl, br] = visibleAreaBoundsTiles(rt.getView());
+    tl -= {1, 1};
+    br += {1, 1};
     getEntities().forEach({ tl, br }, [&](auto& entity) {
         if (auto rc = registry.try_get<Render_component>(entity.second))
         {
             for (auto& [zlevel, animations] : rc->zlevel_animation_map)
+            {
+                for (auto& animation : animations)
+                {
+                    animation.updateFrameIdx();
+                }
+            }
+            for (auto& [zlevel, animations] : rc->shadow_zlevel_animation_map)
             {
                 for (auto& animation : animations)
                 {

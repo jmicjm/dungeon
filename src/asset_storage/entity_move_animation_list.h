@@ -1,0 +1,17 @@
+{ PLAYER, { 0,-1 }, "characters/wild_mage/wild_mage_move_up.png", character, {0, 0, 64, 128}, 9, 16 },
+{ PLAYER, { 1,-1 }, "characters/wild_mage/wild_mage_move_up_right.png", character, {0, 0, 128, 128}, 9, 16 },
+{ PLAYER, { 1, 0 }, "characters/wild_mage/wild_mage_move_right.png", character, {0, 0, 128, 64}, 9, 16 },
+{ PLAYER, { 1, 1 }, "characters/wild_mage/wild_mage_move_down_right.png", character, {0, 0, 128, 128}, 9, 16 },
+{ PLAYER, { 0, 1 }, "characters/wild_mage/wild_mage_move_down.png", character, {0, 0, 64, 128}, 9, 16 },
+{ PLAYER, {-1, 1 }, "characters/wild_mage/wild_mage_move_down_left.png", character, {0, 0, 128, 128}, 9, 16 },
+{ PLAYER, {-1, 0 }, "characters/wild_mage/wild_mage_move_left.png", character, {0, 0, 128, 64}, 9, 16 },
+{ PLAYER, {-1,-1 }, "characters/wild_mage/wild_mage_move_up_left.png", character, {0, 0, 128, 128}, 9, 16 },
+
+{ INFECTED_ZOMBIE, { 0,-1 }, "characters/infected/infected_move_up.png", character, {0, 0, 64, 128}, 9, 16 },
+{ INFECTED_ZOMBIE, { 1,-1 }, "characters/infected/infected_move_up_right.png", character, {0, 0, 128, 128}, 9, 16 },
+{ INFECTED_ZOMBIE, { 1, 0 }, "characters/infected/infected_move_right.png", character, {0, 0, 128, 64}, 9, 16 },
+{ INFECTED_ZOMBIE, { 1, 1 }, "characters/infected/infected_move_down_right.png", character, {0, 0, 128, 128}, 9, 16 },
+{ INFECTED_ZOMBIE, { 0, 1 }, "characters/infected/infected_move_down.png", character, {0, 0, 64, 128}, 9, 16 },
+{ INFECTED_ZOMBIE, {-1, 1 }, "characters/infected/infected_move_down_left.png", character, {0, 0, 128, 128}, 9, 16 },
+{ INFECTED_ZOMBIE, {-1, 0 }, "characters/infected/infected_move_left.png", character, {0, 0, 128, 64}, 9, 16 },
+{ INFECTED_ZOMBIE, {-1,-1 }, "characters/infected/infected_move_up_left.png", character, {0, 0, 128, 128}, 9, 16 }

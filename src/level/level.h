@@ -39,6 +39,7 @@ public:
     const entt::registry& getRegistry() const;
     void update(sf::RenderTarget& rt);
     void updateVisibleTiles(const std::unordered_map<sf::Vector2i, Tile_visibility_info>& visible_tiles, const sf::RenderTarget& rt);
+    auto getVisibleTiles() const -> const decltype(visible_tiles)&;
 
     bool isPassable(const sf::Vector2i& position) const;
     bool isOpaque(const sf::Vector2i& position) const;

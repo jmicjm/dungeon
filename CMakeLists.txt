@@ -19,6 +19,7 @@ add_executable(dungeon
     src/asset_storage/texture_bank.cpp
     src/asset_storage/font_bank.cpp
     src/asset_storage/tile_sprite_storage.cpp
+    src/asset_storage/entity_animation_storage.cpp
     src/gfx/primitive_sprite.cpp
     src/gfx/animated_sprite/animated_sprite.cpp
     src/gfx/animated_sprite/animated_sprite_frames.cpp

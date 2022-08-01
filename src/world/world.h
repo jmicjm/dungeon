@@ -28,7 +28,8 @@ class World : public sf::Drawable
     void initViewFollowers();
     void spawnNpcs();
 
-    void progressTurn();
+    void progressTurn(const sf::RenderTarget& rt);
+    void updatePendingAnimations(const sf::RenderTarget& rt);
 
     void draw(sf::RenderTarget& rt, sf::RenderStates st) const override;
 

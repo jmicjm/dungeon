@@ -63,6 +63,16 @@ unsigned int Animated_sprite::frameCount() const
     return m_frames ? m_frames->frame_rects.size() : 0;
 }
 
+void Animated_sprite::setRepeat(bool repeat)
+{
+    m_repeat = repeat;
+}
+
+bool Animated_sprite::isRepeating() const
+{
+    return m_repeat;
+}
+
 void Animated_sprite::updateFrameIdx()
 {
     updateFrameIdx(std::chrono::steady_clock::now());
@@ -78,7 +88,10 @@ void Animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
 
         if (increase > 0)
         {
-            m_current_frame_idx = (m_current_frame_idx + increase) % m_frames->frame_rects.size();
+            auto new_frame_idx = (m_current_frame_idx + increase) % m_frames->frame_rects.size();
+            if (!isRepeating() && new_frame_idx < m_current_frame_idx) m_current_frame_idx = m_frames->frame_rects.size() - 1;
+            else m_current_frame_idx = new_frame_idx;
+
             m_frame_start_point += m_frame_time * increase;
         }
     }

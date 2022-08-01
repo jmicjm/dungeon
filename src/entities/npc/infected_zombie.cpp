@@ -5,6 +5,7 @@
 #include "../../components/opaque.h"
 #include "../../components/render_component.h"
 #include "../../components/position.h"
+#include "../../components/move_animation_id.h"
 #include "../../gfx/zlevels.h"
 #include "../../asset_storage/texture_bank.h"
 #include "../../gfx/animated_sprite/animated_sprite.h"
@@ -19,10 +20,11 @@ entt::entity createInfectedZombie(entt::registry& registry)
     registry.emplace<Infected_zombie>(infected);
     registry.emplace<Npc>(infected);
     registry.emplace<Character>(infected, updateInfectedZombie);
+    registry.emplace<Move_animation_id>(infected, ENTITY_ANIMATION::INFECTED_ZOMBIE);
     registry.emplace<Nonpassable>(infected);
     registry.emplace<Opaque>(infected);
 
-    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
+    static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);
     animation.setPosition(-sf::Vector2f(0, Tile_sprite_storage::tile_size.y / 2));
     registry.emplace<Render_component>(infected, Render_component{ { { zlevel::character, { animation } } } });
@@ -34,7 +36,7 @@ bool updateInfectedZombie(entt::registry& registry, World& world, const entt::en
 {
     if (auto position = registry.try_get<Position>(entity))
     {
-        moveEntity(registry, *position, sf::Vector2i{ rand(-1, 1), rand(-1, 1) });
+        moveEntity(registry, entity, sf::Vector2i{ rand(-1, 1), rand(-1, 1) });
     }
     return true;
 }

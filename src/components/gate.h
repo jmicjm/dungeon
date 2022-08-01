@@ -1,5 +1,6 @@
 #pragma once
 #include "render_component.h"
+#include "entt/entt.hpp"
 
 
 struct Gate
@@ -16,4 +17,9 @@ struct Gate
     STATE opaque_states;
 
     bool is_open;
+};
+
+struct Gate_moving_from
+{
+    entt::entity moving_from_entity = entt::null;
 };

@@ -7,3 +7,5 @@
 
 bool openGate(entt::registry& registry, const Quadtree<entt::entity>& entities, entt::entity gate);
 bool closeGate(entt::registry& registry, const Quadtree<entt::entity>& entities, entt::entity gate);
+
+void updateMovingFromGates(entt::registry& registry, const Quadtree<entt::entity>& entities);
