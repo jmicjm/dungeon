@@ -117,11 +117,12 @@ void World::initViewFollowers()
 {
     vf.target_position = [&]() { return sf::Vector2f(registry.get<Position>(player).getCoords()) * 64.f + sf::Vector2f(32, 0); };
     vf.velocity = 300;
-    vf.edge_dst = 64 * 3 + 32;
+    vf.screen_border = 192;
+    vf.target_border = 32;
 
     vf_instant = vf;
     vf_instant.velocity = -1;
-    vf_instant.edge_dst = 32;
+    vf_instant.screen_border = 0;
     window.setView(vf_instant.followCenter(window.getView()));
 }
 
@@ -185,8 +186,8 @@ void World::update(sf::RenderTarget& rt)
     progressTurn(rt);
 
     auto view = rt.getView();
-    view = vf.follow(view);
-    view = vf_instant.follow(view);
+    view = vf.follow(view, rt);
+    view = vf_instant.follow(view, rt);
     sf::View rounded_view = view;
     sf::Vector2f tl{ sf::Vector2i{ view.getCenter() - view.getSize() / 2.f } };
     rounded_view.setCenter(tl + view.getSize() / 2.f);

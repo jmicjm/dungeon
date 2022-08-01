@@ -1,18 +1,20 @@
 #include "view_follower.h"
+#include "../utils/sf_vector2_utils.h"
 
 #include <algorithm>
 #include <cmath>
+
 
 sf::Vector2f View_follower::centerDst(const sf::View& view)
 {
     return (target_position) ? target_position() - view.getCenter() : sf::Vector2f{0,0};
 }
 
-sf::Vector2f View_follower::edgeDst(const sf::View& view)
+sf::Vector2f View_follower::edgeDst(const sf::View& view, const sf::RenderTarget& rt)
 {
     if (target_position)
     {
-        const sf::Vector2f border = sf::Vector2f{ edge_dst, edge_dst };
+        const sf::Vector2f border = vecDiv(view.getSize(), sf::Vector2f{ rt.getSize() }) * screen_border + sf::Vector2f{ target_border, target_border };
 
         const sf::Vector2f tl = target_position() - view.getSize() / 2.f + border;
         const sf::Vector2f br = target_position() + view.getSize() / 2.f - border;
@@ -85,9 +87,9 @@ sf::View View_follower::followCenter(sf::View view)
     return followVec(centerDst(view), view);
 }
 
-sf::View View_follower::follow(sf::View view)
+sf::View View_follower::follow(sf::View view, const sf::RenderTarget& rt)
 {
-   return followVec(edgeDst(view), view);
+   return followVec(edgeDst(view, rt), view);
 }
 
 void View_follower::resetTime()
