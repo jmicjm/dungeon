@@ -6,12 +6,14 @@
 #include "SFML/Graphics/Drawable.hpp"
 #include "SFML/Graphics/RenderTexture.hpp"
 #include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/Shader.hpp"
 
 #include <map>
 
 class View_range_overlay : public sf::Drawable
 {
     sf::RenderTexture overlay_tex;
+    sf::Shader blur_shader;
 
     std::map<TILE_SPRITE_ID::tile_sprite_id_t, sf::Sprite> sprites;
 

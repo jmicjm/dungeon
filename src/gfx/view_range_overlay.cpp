@@ -19,7 +19,7 @@ void View_range_overlay::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 {
     const sf::View current_view = rt.getView();
     rt.setView(sf::View{ sf::FloatRect{ { 0.f,0.f }, sf::Vector2f{ rt.getSize() } } });
-    rt.draw(sf::Sprite{ overlay_tex.getTexture() });
+    rt.draw(sf::Sprite{ overlay_tex.getTexture() }, &blur_shader);
     rt.setView(current_view);
 }
 
@@ -44,10 +44,36 @@ View_range_overlay::View_range_overlay()
 
     for (const auto& id : ids)
     {
-        sf::Sprite spr{ *Texture_bank::getTexture(id.second) };
-        spr.setOrigin(8, 8);
+        sf::Sprite spr{ *Texture_bank::getTexture(id.second), sf::IntRect{8,8,64,64} };
+        spr.setOrigin(0, 0);
         sprites.insert({ id.first, spr });
     }
+
+    const char* shader = R"(
+        uniform sampler2D texture;
+        uniform vec2 texture_size;
+        uniform int radius;
+        uniform int quality;
+
+        void main()
+        {
+            vec2 inv_texture_size = vec2(1.0 / texture_size.x, 1.0 / texture_size.y);
+
+            vec4 color = vec4(0, 0, 0, 0);
+            for (int x = -radius; x < radius; x += quality)
+            {
+                for (int y = -radius; y < radius; y += quality)
+                {
+                    color += texture2D(texture, gl_TexCoord[0].xy + vec2(x, y) * inv_texture_size);
+                }
+            }
+            int sum = (2 * radius / quality) * (2 * radius / quality);
+            gl_FragColor = gl_Color * (color / float(sum));
+       }
+    )";
+    blur_shader.loadFromMemory(shader, sf::Shader::Fragment);
+    blur_shader.setUniform("texture", sf::Shader::CurrentTexture);
+    blur_shader.setUniform("quality", 1);
 }
 
 void View_range_overlay::update(const Level& l, 
@@ -59,6 +85,10 @@ void View_range_overlay::update(const Level& l,
         if(overlay_tex.getSize() != rt.getSize()) overlay_tex.create(rt.getSize().x, rt.getSize().y);
         overlay_tex.clear({ 0,0,0,255 });
         overlay_tex.setView(rt.getView());
+
+        blur_shader.setUniform("texture_size", sf::Vector2f{ overlay_tex.getSize() });
+        const float radius_mul = std::min(1.f, rt.getSize().x / rt.getView().getSize().x);
+        blur_shader.setUniform("radius", static_cast<int>(std::max(1.f, 8*radius_mul)));
 
         const auto [tl_tile, br_tile] = [&]()
         {
