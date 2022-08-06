@@ -30,33 +30,43 @@ void View_range_overlay::render(const Level& l, const pos_tvi_id_vec& visible, c
         overlay_tex.create(rt.getSize().x, rt.getSize().y);
         work_tex.create(rt.getSize().x, rt.getSize().y);
     }
-    work_tex.clear({ 0,0,0,255 });
-    work_tex.setView(rt.getView());
+    overlay_tex.clear({ 0,0,0,255 });
+    overlay_tex.setView(rt.getView());
 
     for (const auto& [pos, id] : revealed)
     {
         drawTileOverlay(pos, id);
     }
 
-    sf::RectangleShape dark_overlay(sf::Vector2f{ work_tex.getSize() });
+
+    sf::RectangleShape dark_overlay(sf::Vector2f{ overlay_tex.getSize() });
     dark_overlay.setFillColor({ 0,0,0,224 });
 
-    work_tex.setView(sf::View{ sf::FloatRect{ { 0,0 }, sf::Vector2f{ work_tex.getSize() } } });
-    work_tex.draw(dark_overlay);
-    work_tex.setView(rt.getView());
+    overlay_tex.setView(sf::View{ sf::FloatRect{ { 0,0 }, sf::Vector2f{ overlay_tex.getSize() } } });
+    overlay_tex.draw(dark_overlay);
+    overlay_tex.setView(rt.getView());
 
     for (const auto& [pos, id] : visible)
     {
         drawTileOverlay(pos, id);
     }
 
-    work_tex.display();
+    overlay_tex.display();
 
-    blur_shader.setUniform("texture_size", sf::Vector2f{ work_tex.getSize() });
+
+    blur_shader.setUniform("texture_size", sf::Vector2f{ overlay_tex.getSize() });
     const float radius_mul = std::min(1.f, rt.getSize().x / rt.getView().getSize().x);
     blur_shader.setUniform("radius", static_cast<int>(std::max(1.f, 8 * radius_mul)));
 
-    overlay_tex.clear({0,0,0,0});
+
+    work_tex.clear({ 0,0,0,0 });
+    blur_shader.setUniform("axis", sf::Vector2f{ 1,0 });
+    work_tex.draw(sf::Sprite{ overlay_tex.getTexture() }, &blur_shader);
+    work_tex.display();
+
+    overlay_tex.clear({ 0,0,0,0 });
+    overlay_tex.setView(sf::View{ sf::FloatRect{ { 0,0 }, sf::Vector2f{ overlay_tex.getSize() } } });
+    blur_shader.setUniform("axis", sf::Vector2f{ 0,1 });
     overlay_tex.draw(sf::Sprite{ work_tex.getTexture() }, &blur_shader);
     overlay_tex.display();
 }
@@ -92,6 +102,7 @@ View_range_overlay::View_range_overlay()
         uniform vec2 texture_size;
         uniform int radius;
         uniform int quality;
+        uniform vec2 axis;
 
         void main()
         {
@@ -100,12 +111,9 @@ View_range_overlay::View_range_overlay()
             vec4 color = vec4(0, 0, 0, 0);
             for (int x = -radius; x < radius; x += quality)
             {
-                for (int y = -radius; y < radius; y += quality)
-                {
-                    color += texture2D(texture, gl_TexCoord[0].xy + vec2(x, y) * inv_texture_size);
-                }
+                color += texture2D(texture, gl_TexCoord[0].xy + axis * float(x) * inv_texture_size);
             }
-            int sum = (2 * radius / quality) * (2 * radius / quality);
+            int sum = (2 * radius / quality);
             gl_FragColor = gl_Color * (color / float(sum));
        }
     )";
@@ -187,6 +195,6 @@ void View_range_overlay::drawTileOverlay(const sf::Vector2i& position, const TIL
     if (auto it = sprites.find(id); it != sprites.end())
     {
         it->second.setPosition(sf::Vector2f{ vecMul(position, Tile_sprite_storage::tile_size) });
-        work_tex.draw(it->second, sf::BlendMultiply);
+        overlay_tex.draw(it->second, sf::BlendMultiply);
     }
 }
