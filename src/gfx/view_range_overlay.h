@@ -16,6 +16,8 @@ class View_range_overlay : public sf::Drawable
     sf::RenderTexture work_tex;
 
     sf::Shader blur_shader;
+    int blur_quality = 1;
+    int blur_radius = 8;
 
     std::map<TILE_SPRITE_ID::tile_sprite_id_t, sf::Sprite> sprites;
 

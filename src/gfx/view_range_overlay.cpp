@@ -54,19 +54,21 @@ void View_range_overlay::render(const Level& l, const pos_tvi_id_vec& visible, c
     overlay_tex.display();
 
 
-    blur_shader.setUniform("texture_size", sf::Vector2f{ overlay_tex.getSize() });
+    const auto inv_texture_size = sf::Vector2f{ 1.f / overlay_tex.getSize().x, 1.f / overlay_tex.getSize().y };
     const float radius_mul = std::min(1.f, rt.getSize().x / rt.getView().getSize().x);
-    blur_shader.setUniform("radius", static_cast<int>(std::max(1.f, 8 * radius_mul)));
+    const int radius = std::max(1.f, blur_radius * radius_mul);
+    blur_shader.setUniform("radius", radius);
+    blur_shader.setUniform("inv_weight_sum", 1.f / std::ceil((2.f * radius + 1) / blur_quality));
 
 
     work_tex.clear({ 0,0,0,0 });
-    blur_shader.setUniform("axis", sf::Vector2f{ 1,0 });
+    blur_shader.setUniform("tex_pos_idx_mul", vecMul(sf::Vector2f{ 1,0 }, inv_texture_size ));
     work_tex.draw(sf::Sprite{ overlay_tex.getTexture() }, &blur_shader);
     work_tex.display();
 
     overlay_tex.clear({ 0,0,0,0 });
     overlay_tex.setView(sf::View{ sf::FloatRect{ { 0,0 }, sf::Vector2f{ overlay_tex.getSize() } } });
-    blur_shader.setUniform("axis", sf::Vector2f{ 0,1 });
+    blur_shader.setUniform("tex_pos_idx_mul", vecMul(sf::Vector2f{ 0,1 }, inv_texture_size));
     overlay_tex.draw(sf::Sprite{ work_tex.getTexture() }, &blur_shader);
     overlay_tex.display();
 }
@@ -99,27 +101,24 @@ View_range_overlay::View_range_overlay()
 
     const char* shader = R"(
         uniform sampler2D texture;
-        uniform vec2 texture_size;
+        uniform vec2 tex_pos_idx_mul;
         uniform int radius;
         uniform int quality;
-        uniform vec2 axis;
+        uniform float inv_weight_sum;
 
         void main()
         {
-            vec2 inv_texture_size = vec2(1.0 / texture_size.x, 1.0 / texture_size.y);
-
             vec4 color = vec4(0, 0, 0, 0);
-            for (int x = -radius; x < radius; x += quality)
+            for (int x = -radius; x <= radius; x += quality)
             {
-                color += texture2D(texture, gl_TexCoord[0].xy + axis * float(x) * inv_texture_size);
+                color += texture2D(texture, gl_TexCoord[0].xy + float(x) * tex_pos_idx_mul);
             }
-            int sum = (2 * radius / quality);
-            gl_FragColor = gl_Color * (color / float(sum));
+            gl_FragColor = gl_Color * color * inv_weight_sum;
        }
     )";
     blur_shader.loadFromMemory(shader, sf::Shader::Fragment);
     blur_shader.setUniform("texture", sf::Shader::CurrentTexture);
-    blur_shader.setUniform("quality", 1);
+    blur_shader.setUniform("quality", blur_quality);
 }
 
 void View_range_overlay::update(
