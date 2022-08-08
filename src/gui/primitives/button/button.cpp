@@ -6,6 +6,11 @@
 
 namespace gui
 {
+    Button::Button()
+    {
+        setAppearance(Button_appearance{});
+    }
+
     bool Button::isPressed() const
     {
         return is_pressed;

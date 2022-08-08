@@ -133,6 +133,7 @@ namespace gui
         scroll.setSizeInfo({ {0,0}, {0,1} });
         scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
         linkChilds();
+        setAppearance(Text_appearance{});
     }
 
     void Text_impl::update()

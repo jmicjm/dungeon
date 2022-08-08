@@ -8,6 +8,11 @@ namespace gui
         draw(background);
     }
 
+    Frame::Frame()
+    {
+        setAppearance(Frame_appearance{});
+    }
+
     void Frame::setAppearance(const Frame_appearance& a)
     {
         background = a.background;

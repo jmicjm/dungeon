@@ -1,4 +1,5 @@
 #include "inventory.h"
+#include "../primitives/apperance_common.h"
 
 void gui::Inventory::redraw()
 {
@@ -30,40 +31,12 @@ gui::Inventory::Inventory()
     btn.setSizeInfo({ {128,32} });
     btn.setPositionInfo({ {0,0}, {0,0}, {1,1} });
 
-
-    auto rect = [](sf::Color c)
-    {
-        sf::RectangleShape rs;
-        rs.setFillColor(c);
-        return rs;
-    };
-
-    gui::Button_appearance ba = {
-        .pressed = rect({ 255, 192, 192, 255 }),
-        .released = rect({ 245, 203, 66, 255}),
-        .pressed_hovered = rect({ 173, 144, 49, 255 }),
-        .released_hovered = rect({ 209, 173, 54, 255 })
-    };
-
-    gui::Scroll_appearance sa = {
-        .button_fixed_height = 16,
-        .top_button = ba,
-        .bottom_button = ba,      
-        .handle = { rect({ 173, 144, 49, 255 }) }
-    };
-
-    gui::Text_appearance ta = {
-        .scroll = sa,
-        .scroll_width = 16,
-    };
-
-    text.setAppearance(ta);
     text.setFont("FreeMono.ttf");
     text.setString("this text serves the purpose of distracting you from the fact that this screen is not yet implemented");
 
     bg.setAppearance({ rect({41, 32, 22, 224}) });
 
-    btn.setAppearance(ba);
+
     btn.setFont("FreeMono.ttf");
     btn.setPressedHoveredText("TEST");
     btn.setReleasedText("test");
@@ -99,7 +72,7 @@ gui::Inventory::Inventory()
                 close_btn.update();
             }
         public:
-            Dialog(const Text_appearance& ta, const Button_appearance& ba, const Frame_appearance& fa)
+            Dialog(const Frame_appearance& fa)
             {
                 bg.setParent(this);
                 bg.setSizeInfo({ .percentage = {1,1} });
@@ -107,12 +80,10 @@ gui::Inventory::Inventory()
                 text.setParent(this);
                 text.setFont("FreeMono.ttf");
                 text.setString("same purpose, different text");
-                text.setAppearance(ta);
                 text.setSizeInfo({ {0,-24}, {1,1} });
                 close_btn.setParent(this);
                 close_btn.setSizeInfo({ { 96, 24 } });
                 close_btn.setPositionInfo({ .relative_to = {1,1} });
-                close_btn.setAppearance(ba);
                 close_btn.setFont("FreeMono.ttf");
                 close_btn.setReleasedText("close");
                 close_btn.setReleasedHoveredText("close");
@@ -121,7 +92,7 @@ gui::Inventory::Inventory()
                 close_btn.setFontSize(16);
             }
         };
-        auto dialog = std::make_unique<Dialog>(ta, ba, Frame_appearance{ rect({0,0,0,255}) });
+        auto dialog = std::make_unique<Dialog>(Frame_appearance{ rect({0,0,0,255}) });
         dialog->setSizeInfo({ .percentage = {0.3,0.2} });
         dialog->setPositionInfo({ .relative_to = {0.5,0.5} });
         Component_stack::Component_config cfg;
