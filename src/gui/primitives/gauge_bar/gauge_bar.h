@@ -33,6 +33,8 @@ namespace gui
         void resizeEvent(sf::Vector2f size_diff) override;
 
     public:
+        Gauge_bar();
+
         void setDirection(DIRECTION dir);
 
         void  setMinValue(float val);

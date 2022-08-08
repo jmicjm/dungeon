@@ -60,6 +60,8 @@ namespace gui
         bottom_arrow.setSizeInfo({ {0,0}, {1,0} });
         bottom_arrow.setPositionInfo({ {0,0}, {0,0}, {0,1} });
         line.setSizeInfo({ { 0,0 }, { 1,1 } });
+
+        setAppearance(Scroll_appearance{});
     }
 
     void Scroll_impl::linkChilds()

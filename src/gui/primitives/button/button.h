@@ -49,6 +49,8 @@ namespace gui
         void deactivateEvent() override;
 
     public:
+        Button();
+
         bool isPressed() const;
 
         void update() override;

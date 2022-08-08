@@ -17,7 +17,8 @@ namespace gui
         std::string str;
         Copyable_rendertexture rendered_str;
         sf::Font font;
-        unsigned int character_size = 24;
+        std::string font_name;
+        float font_size = 24;
         float letter_spacing = 1;
         float line_spacing = 0;
         Scroll scroll;
@@ -44,8 +45,8 @@ namespace gui
 
         void setFont(const std::string& filename);
 
-        void setCharacterSize(unsigned int size);
-        unsigned int getCharacterSize() const;
+        void setFontSize(float size);
+        float getFontSize() const;
 
         void  setLetterSpacing(float spacing);
         float getLetterSpacing() const;

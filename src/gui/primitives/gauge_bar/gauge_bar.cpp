@@ -58,6 +58,11 @@ namespace gui
         render_required = true;
     }
 
+    Gauge_bar::Gauge_bar()
+    {
+        setAppearance(Gauge_bar_appearance{});
+    }
+
     void Gauge_bar::setDirection(DIRECTION dir)
     {
         direction = dir;

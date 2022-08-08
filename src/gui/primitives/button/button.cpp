@@ -6,6 +6,11 @@
 
 namespace gui
 {
+    Button::Button()
+    {
+        setAppearance(Button_appearance{});
+    }
+
     bool Button::isPressed() const
     {
         return is_pressed;
@@ -99,6 +104,8 @@ namespace gui
     void Button::setAppearance(const Button_appearance& a)
     {
         appearance = a;
+        setFont(appearance.font_name);
+        setFontSize(appearance.font_size);
     }
 
     Button_appearance Button::getAppearance() const
@@ -133,6 +140,7 @@ namespace gui
         pressed_hovered_text.setFont(this->font);
         released_text.setFont(this->font);
         released_hovered_text.setFont(this->font);
+        appearance.font_name = font;
     }
 
     void Button::setFontSize(float size)
@@ -141,6 +149,7 @@ namespace gui
         pressed_hovered_text.setCharacterSize(size);
         released_text.setCharacterSize(size);
         released_hovered_text.setCharacterSize(size);
+        appearance.font_size = size;
     }
 
     void Button::setPressFunction(const std::function<void()>& function)
