@@ -31,13 +31,10 @@ gui::Inventory::Inventory()
     btn.setSizeInfo({ {128,32} });
     btn.setPositionInfo({ {0,0}, {0,0}, {1,1} });
 
-    text.setFont("FreeMono.ttf");
     text.setString("this text serves the purpose of distracting you from the fact that this screen is not yet implemented");
 
     bg.setAppearance({ rect({41, 32, 22, 224}) });
 
-
-    btn.setFont("FreeMono.ttf");
     btn.setPressedHoveredText("TEST");
     btn.setReleasedText("test");
     btn.setReleasedHoveredText("TEST");
@@ -78,13 +75,11 @@ gui::Inventory::Inventory()
                 bg.setSizeInfo({ .percentage = {1,1} });
                 bg.setAppearance(fa);
                 text.setParent(this);
-                text.setFont("FreeMono.ttf");
                 text.setString("same purpose, different text");
                 text.setSizeInfo({ {0,-24}, {1,1} });
                 close_btn.setParent(this);
                 close_btn.setSizeInfo({ { 96, 24 } });
                 close_btn.setPositionInfo({ .relative_to = {1,1} });
-                close_btn.setFont("FreeMono.ttf");
                 close_btn.setReleasedText("close");
                 close_btn.setReleasedHoveredText("close");
                 close_btn.setPressedHoveredText("close");

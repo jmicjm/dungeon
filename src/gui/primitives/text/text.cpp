@@ -18,7 +18,7 @@ namespace gui
     {
         std::vector<Primitive_sprite> prepared_text;
 
-        const sf::Texture& tex = font.getTexture(character_size);    
+        const sf::Texture& tex = font.getTexture(font_size);    
 
         const unsigned int width = size().x - with_scroll*scroll.size().x;
         unsigned int height = 0;
@@ -39,7 +39,7 @@ namespace gui
                 continue;
             }            
 
-            sf::Glyph glyph = font.getGlyph(str[i], character_size, false);
+            sf::Glyph glyph = font.getGlyph(str[i], font_size, false);
             Primitive_sprite p_spr(&tex, glyph.textureRect);
 
             auto advance = [&](const sf::Glyph& glyph)
@@ -57,7 +57,7 @@ namespace gui
                      j < str.size() && !isWB(str[j]) && pos_in_line + word_width <= width;
                      j++)
                 {
-                    word_width += advance(font.getGlyph(str[j], character_size, false));
+                    word_width += advance(font.getGlyph(str[j], font_size, false));
                 }
                 return pos_in_line + word_width <= width;
             };
@@ -71,7 +71,7 @@ namespace gui
                 continue;
             }
 
-            p_spr.move(sf::Vector2f( pos_in_line, line*(character_size+line_spacing) + character_size + glyph.bounds.top ));
+            p_spr.move(sf::Vector2f( pos_in_line, line*(font_size+line_spacing) + font_size + glyph.bounds.top ));
             pos_in_line += advance(glyph);
 
             height = std::max(height, static_cast<unsigned int>(p_spr.vertices[1].position.y));
@@ -156,20 +156,21 @@ namespace gui
     void Text_impl::setFont(const std::string& filename)
     {
         font = *Font_bank::getFont(filename);
+        font_name = filename;
 
         render_required = true;
     }
 
-    void Text_impl::setCharacterSize(unsigned int size)
+    void Text_impl::setFontSize(float size)
     {
-        character_size = size;
+        font_size = size;
 
         render_required = true;
     }
 
-    unsigned int Text_impl::getCharacterSize() const
+    float Text_impl::getFontSize() const
     {
-        return character_size;
+        return font_size;
     }
 
     void Text_impl::setLetterSpacing(float spacing)
@@ -200,13 +201,22 @@ namespace gui
     {
         scroll.setAppearance(a.scroll);
         scroll.setSizeInfo({ {a.scroll_width,0}, {0,1} });
+        setFont(a.font_name);
+        font_size = a.font_size;
+        letter_spacing = a.letter_spacing;
+        line_spacing = a.line_spacing;
 
         render_required = true;
     }
 
     Text_appearance Text_impl::getAppearance() const
     {
-        return { scroll.getAppearance(), scroll.getSizeInfo().fixed.x };
+        return { scroll.getAppearance(),
+                 scroll.getSizeInfo().fixed.x,
+                 font_name,
+                 font_size,
+                 letter_spacing,
+                 line_spacing };
     }
 
 
