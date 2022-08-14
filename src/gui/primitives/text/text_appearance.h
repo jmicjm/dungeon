@@ -8,8 +8,8 @@ namespace gui
     {
         Scroll_appearance scroll;
         float scroll_width = 16;
-        std::string font_name = "FreeMono.ttf";
-        float font_size = 24;
+        std::string font_name = "font.ttf";
+        float font_size = 32;
         float letter_spacing = 1;
         float line_spacing = 0;
     };
