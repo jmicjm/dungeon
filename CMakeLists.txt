@@ -20,6 +20,7 @@ add_executable(dungeon
     src/asset_storage/font_bank.cpp
     src/asset_storage/tile_sprite_storage.cpp
     src/asset_storage/entity_animation_storage.cpp
+    src/asset_storage/item_rc_storage.cpp
     src/gfx/primitive_sprite.cpp
     src/gfx/animated_sprite/animated_sprite.cpp
     src/gfx/animated_sprite/animated_sprite_frames.cpp
@@ -47,6 +48,7 @@ add_executable(dungeon
     src/entities/portal.cpp
     src/entities/npc/smuggler.cpp
     src/entities/npc/infected_zombie.cpp
+    src/entities/items/createItem.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
     src/gui/primitives/button/button.cpp   
