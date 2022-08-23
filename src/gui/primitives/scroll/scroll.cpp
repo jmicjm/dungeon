@@ -146,6 +146,11 @@ namespace gui
         return top_position;
     }
 
+    bool Scroll_impl::isNeeded() const
+    {
+        return getContentLength() > visibleContentLength();
+    }
+
     void Scroll_impl::up(int n)
     {
         setTopPosition(top_position - n);

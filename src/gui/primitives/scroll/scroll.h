@@ -49,6 +49,7 @@ namespace gui
         int  getVisibleContentLength() const;
         void setTopPosition(int position);
         int  getTopPosition() const;
+        bool isNeeded() const;
 
         void up  (int n = 1);
         void down(int n = 1);
