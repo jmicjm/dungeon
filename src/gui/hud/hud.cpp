@@ -1,7 +1,7 @@
 #include "hud.h"
 #include "../../asset_storage/texture_bank.h"
 #include "../../global/gui_component_stack.h"
-#include "../inventory/inventory.h"
+#include "../inventory/player_inventory.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -99,7 +99,7 @@ gui::Hud::Hud()
 
     auto inventory_button_f = [&, inv_btn_a]
     {
-        auto inv = std::make_unique<gui::Inventory>();
+        auto inv = std::make_unique<gui::Player_inventory>();
         inv->setSizeInfo({ {0,0}, {0.5,0.5} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;

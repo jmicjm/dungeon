@@ -8,7 +8,7 @@
 
 namespace gui
 {
-    class Inventory : public Gui_component, public Component_stack_helper
+    class Player_inventory : public Gui_component, public Component_stack_helper
     {
         gui::Frame bg;
         gui::Text text;
@@ -19,7 +19,7 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Inventory();
+        Player_inventory();
 
         void update() override;
     };

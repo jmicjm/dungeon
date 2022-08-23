@@ -1,26 +1,26 @@
-#include "inventory.h"
+#include "player_inventory.h"
 #include "../primitives/apperance_common.h"
 
-void gui::Inventory::redraw()
+void gui::Player_inventory::redraw()
 {
     bg.draw();
     text.draw();
     btn.draw();
 }
 
-void gui::Inventory::activateEvent()
+void gui::Player_inventory::activateEvent()
 {
     text.activate();
     btn.activate();
 }
 
-void gui::Inventory::deactivateEvent()
+void gui::Player_inventory::deactivateEvent()
 {
     text.deactivate();
     btn.deactivate();
 }
 
-gui::Inventory::Inventory()
+gui::Player_inventory::Player_inventory()
 {
     bg.setParent(this);
     text.setParent(this);
@@ -97,7 +97,7 @@ gui::Inventory::Inventory()
     btn.setPressFunction(btn_f);
 }
 
-void gui::Inventory::update()
+void gui::Player_inventory::update()
 {
     text.update();
     btn.update();
