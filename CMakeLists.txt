@@ -13,6 +13,8 @@ endif()
 
 find_package(SFML 2 COMPONENTS graphics REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
+find_package(Boost REQUIRED)
+
 
 add_executable(dungeon
     src/game.cpp
@@ -67,7 +69,8 @@ add_executable(dungeon
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 
-    src/components/position.cpp   
+    src/components/position.cpp  
+    src/components/inventory.cpp
 )
 
 add_custom_target(
@@ -79,4 +82,4 @@ add_custom_target(
 
 add_dependencies(dungeon run)
 
-target_link_libraries(dungeon sfml-graphics EnTT::EnTT)
+target_link_libraries(dungeon sfml-graphics EnTT::EnTT Boost::boost)

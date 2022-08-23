@@ -5,6 +5,7 @@
 #include "../components/render_component.h"
 #include "../components/portal.h"
 #include "../components/move_animation_id.h"
+#include "../components/inventory.h"
 #include "portal.h"
 #include "../gfx/zlevels.h"
 #include "../asset_storage/texture_bank.h"
@@ -27,6 +28,7 @@ entt::entity createPlayer(entt::registry& registry)
     registry.emplace<Character>(player, updatePlayer);
     registry.emplace<Move_animation_id>(player, ENTITY_ANIMATION::PLAYER);
     registry.emplace<Nonpassable>(player);
+    registry.emplace<Inventory>(player, 64);
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {
