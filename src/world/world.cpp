@@ -225,6 +225,11 @@ entt::entity World::getPlayer() const
     return player;
 }
 
+const Level* World::getCurrentLevel() const
+{
+    return current_level.get();
+}
+
 auto World::getEntities() const -> const decltype(entity_level_map)&
 {
     return entity_level_map;

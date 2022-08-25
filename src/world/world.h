@@ -41,6 +41,7 @@ public:
     std::shared_ptr<Level> changeLevel(std::shared_ptr<Level> level);
 
     entt::entity getPlayer() const;
+    const Level* getCurrentLevel() const;
     auto getEntities() const -> const decltype(entity_level_map)&;
     entt::registry& getRegistry();
 };

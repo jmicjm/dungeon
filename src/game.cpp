@@ -5,12 +5,16 @@
 #include "input/input.h"
 #include "gui/hud/hud.h"
 #include "components/character_update_tags.h"
+#include "asset_storage/tile_sprite_storage.h"
+#include "utils/sf_vector2_utils.h"
+#include "components/inventory.h"
+#include "gui/inventory/dual_inventory.h"
+#include "entities/items/createItem.h"
 
 
 int main()
 {
     window.setFramerateLimit(60);
-
 
     Level_structure_params structure_params;
     structure_params.level_size = { 500, 500 };
@@ -37,10 +41,15 @@ int main()
 
     World world(world_params);
 
+    auto& inv = world.getRegistry().get<Inventory>(world.getPlayer());
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::BLOODTHIRSTY_BLADE), 4);
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::DAGGER), 5);
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::LONGSWORD), 18);
 
-    gui::Hud hud;
-    hud.setPlayer(world.getRegistry(), world.getPlayer());
+
+    gui::Hud hud(world.getRegistry(), world.getPlayer());
     hud.activate();
+
 
     while (window.isOpen())
     {
@@ -66,7 +75,6 @@ int main()
         window.clear();
         window.setView(view);
 
-
         world.update(window);
         window.draw(world);
 
@@ -75,6 +83,30 @@ int main()
 
         hud.update();
         hud.draw();
+
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !gui_component_stack.size())
+        {
+            auto world_tile = [&] {
+                auto world_px = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                return sf::Vector2i{ vecDiv(world_px, Tile_sprite_storage::tile_size) };
+            }();
+
+            world.getEntities().at(world.getCurrentLevel()).forEachUntil(world_tile, [&](auto entity) {
+                if (entity.second != world.getPlayer())
+                {
+                    if (auto inv = world.getRegistry().try_get<Inventory>(entity.second))
+                    {
+                        auto dual_inventory = std::make_unique<gui::Dual_inventory>(world.getRegistry(), world.getPlayer(), entity.second);
+                        dual_inventory->setSizeInfo({ .percentage = {0.5, 0.5} });
+                        dual_inventory->setPositionInfo({ .relative_to = {0.5, 0.5} });
+                        gui_component_stack.insert(std::move(dual_inventory));
+
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
 
         gui_component_stack.update();
         gui_component_stack.draw();

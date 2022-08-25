@@ -48,6 +48,7 @@ add_executable(dungeon
     src/entities/door.cpp
     src/entities/gate.cpp
     src/entities/portal.cpp
+    src/entities/chest.cpp
     src/entities/npc/smuggler.cpp
     src/entities/npc/infected_zombie.cpp
     src/entities/items/createItem.cpp
@@ -67,6 +68,7 @@ add_executable(dungeon
     src/gui/component_stack/component_stack_helper.cpp
     src/gui/inventory/player_inventory.cpp
     src/gui/inventory/inventory.cpp
+    src/gui/inventory/dual_inventory.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 
