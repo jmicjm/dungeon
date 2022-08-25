@@ -23,5 +23,5 @@ public:
     bool insert(const entt::registry& registry, entt::entity item, unsigned int slot);
     bool insert(const entt::registry& registry, entt::entity item);
     entt::entity remove(unsigned int slot);
-    entt::entity get(unsigned int slot);
+    entt::entity get(unsigned int slot) const;
 };

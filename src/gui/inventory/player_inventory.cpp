@@ -19,7 +19,7 @@ void gui::Player_inventory::deactivateEvent()
 }
 
 gui::Player_inventory::Player_inventory(entt::registry& registry, entt::entity player)
-    : registry(registry), player(player), inventory(registry, registry.get<::Inventory>(player))
+    : registry(registry), player(player), inventory(registry, player)
 {
     bg.setParent(this);
     bg.setSizeInfo({ {0,0}, {1,1} });

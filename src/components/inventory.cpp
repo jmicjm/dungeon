@@ -71,7 +71,7 @@ entt::entity Inventory::remove(unsigned int slot)
     return item;
 }
 
-entt::entity Inventory::get(unsigned int slot)
+entt::entity Inventory::get(unsigned int slot) const
 {
     if (auto it = items.find(slot); it != items.end()) return it->second;
     return entt::null;

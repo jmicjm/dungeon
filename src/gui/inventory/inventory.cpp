@@ -4,12 +4,14 @@
 
 void gui::Inventory::redraw()
 {
+    if (!inventory()) return;
+
     const float slot_size = item_field_size - item_field_border*2;
     item_field.setSizeInfo({ { slot_size, slot_size } });
 
     const unsigned int first_row = scroll.getTopPosition() / item_field_size;
     const unsigned int first_slot = first_row * slotsPerRow();
-    for (auto slot = first_slot; slot < inventory_component.slotCount(); slot++)
+    for (auto slot = first_slot; slot < inventory()->slotCount(); slot++)
     {
         const auto coords = slotToCoords(slot);
         if (coords.y > size().y) break;
@@ -19,8 +21,8 @@ void gui::Inventory::redraw()
     }  
 
     [&]{
-        for (auto it = inventory_component.usedSlots().lower_bound({ first_slot, first_slot + 1 });
-             it != inventory_component.usedSlots().end();
+        for (auto it = inventory()->usedSlots().lower_bound({ first_slot, first_slot + 1 });
+             it != inventory()->usedSlots().end();
              it++)
         {
             for (auto slot = it->lower() >= first_slot ? it->lower() : first_slot;
@@ -30,7 +32,7 @@ void gui::Inventory::redraw()
                 const auto coords = slotToCoords(slot);
                 if (coords.y > size().y) return;
 
-                if (auto rc = registry.try_get<Render_component>(inventory_component.get(slot)))
+                if (auto rc = registry.try_get<Render_component>(inventory()->get(slot)))
                 {
                     sf::RenderStates st;
                     st.transform.translate(coords);
@@ -62,7 +64,8 @@ void gui::Inventory::deactivateEvent()
 
 void gui::Inventory::resizeEvent(sf::Vector2f size_diff)
 {
-    scroll.setContentLength(std::ceil(static_cast<float>(inventory_component.slotCount()) / slotsPerRow()) * item_field_size);
+    if (!inventory()) return;
+    scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow()) * item_field_size);
 }
 
 int gui::Inventory::slotsPerRow() const
@@ -79,8 +82,13 @@ sf::Vector2f gui::Inventory::slotToCoords(unsigned int slot) const
     return sf::Vector2f(column * item_field_size, row * item_field_size - scroll.getTopPosition());
 }
 
-gui::Inventory::Inventory(entt::registry& registry, ::Inventory& inventory_component) 
-    : inventory_component(inventory_component), registry(registry)
+const Inventory* gui::Inventory::inventory() const
+{
+    return registry.valid(entity) ? registry.try_get<::Inventory>(entity) : nullptr;
+}
+
+gui::Inventory::Inventory(entt::registry& registry, entt::entity entity)
+    : registry(registry), entity(entity)
 {
     item_field.setParent(this);
     scroll.setParent(this);

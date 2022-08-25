@@ -11,7 +11,7 @@ namespace gui
     class Inventory : public Gui_component
     {
         entt::registry& registry;
-        ::Inventory& inventory_component;
+        entt::entity entity;
 
         Frame item_field;
         Scroll scroll;
@@ -26,9 +26,10 @@ namespace gui
 
         int slotsPerRow() const;
         sf::Vector2f slotToCoords(unsigned int slot) const;
+        const ::Inventory* inventory() const;
 
     public:
-        Inventory(entt::registry& registry, ::Inventory& inventory_component);
+        Inventory(entt::registry& registry, entt::entity entity);
 
         void update() override;
     };
