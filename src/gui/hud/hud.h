@@ -15,7 +15,7 @@ namespace gui
     class Hud : public Gui_component
     {
         entt::entity player;
-        const entt::registry* registry = nullptr;
+        entt::registry& registry;
 
         Player_frame player_frame;
         Stat_bar hp_bar;
@@ -33,11 +33,11 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Hud();
+        Hud(entt::registry& registry, entt::entity player);
 
         void update() override;
 
-        void setPlayer(entt::registry& registry, entt::entity player);
+        void setPlayer(entt::entity player);
         void setScale(float scale);
         float getScale() const;
     };

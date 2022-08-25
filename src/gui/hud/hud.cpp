@@ -56,7 +56,8 @@ void gui::Hud::deactivateEvent()
     controls.deactivate();
 }
 
-gui::Hud::Hud()
+gui::Hud::Hud(entt::registry& registry, entt::entity player)
+    : registry(registry), player(player)
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -99,7 +100,7 @@ gui::Hud::Hud()
 
     auto inventory_button_f = [&, inv_btn_a]
     {
-        auto inv = std::make_unique<gui::Player_inventory>();
+        auto inv = std::make_unique<gui::Player_inventory>(this->registry, this->player);
         inv->setSizeInfo({ {0,0}, {0.5,0.5} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;
@@ -114,6 +115,9 @@ gui::Hud::Hud()
     };
     inventory_button.setPressFunction(inventory_button_f);
 
+    player_frame.setPlayer(registry, player);
+    controls.setPlayer(registry, player);
+
     rescale();
 }
 
@@ -127,10 +131,9 @@ void gui::Hud::update()
     controls.update();
 }
 
-void gui::Hud::setPlayer(entt::registry& registry, entt::entity player)
+void gui::Hud::setPlayer(entt::entity player)
 {
     this->player = player;
-    this->registry = &registry;
     player_frame.setPlayer(registry, player);
     controls.setPlayer(registry, player);
 }
