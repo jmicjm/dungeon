@@ -20,29 +20,25 @@ namespace gui
     {
         if (!isActive()) return;
 
-        if (is_pressed && type == PUSH)
-        {
-            is_pressed = false;
-        }
         is_hovered = Gui_component::isHovered();
 
-        const auto isSelected = [&] {
-            if (type == TYPE::PUSH) return Input::isHold(sf::Mouse::Left);
-            else return Input::isPressed(sf::Mouse::Left);
-        };
-
-        if (!isLocked() && isHovered() && isSelected())
+        if (type == PUSH && is_pressed)
         {
-            press_tp = std::chrono::steady_clock::now();
-
-            if (!std::exchange(is_pressed, !is_pressed))
+            if (Input::isReleased(sf::Mouse::Left))
+            {
+                is_pressed = false;
+                if (release_function) release_function();
+            }
+            else if (!isLocked())
             {
                 if (press_function) press_function();
             }
-            else
-            {
-                if (release_function) release_function();
-            }
+        }
+        if (isHovered() && Input::isPressed(sf::Mouse::Left))
+        {
+            is_pressed = !is_pressed;
+            press_tp = std::chrono::steady_clock::now();
+            if (press_function) press_function();
         }
     }
 
