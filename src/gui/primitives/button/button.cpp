@@ -25,12 +25,17 @@ namespace gui
             is_pressed = false;
         }
         is_hovered = Gui_component::isHovered();
-        if (!isLocked() && isHovered() && Input::getMouseHoldVec(sf::Mouse::Button::Left))
+
+        const auto isSelected = [&] {
+            if (type == TYPE::PUSH) return Input::isHold(sf::Mouse::Left);
+            else return Input::isPressed(sf::Mouse::Left);
+        };
+
+        if (!isLocked() && isHovered() && isSelected())
         {
-            is_pressed = !is_pressed;
             press_tp = std::chrono::steady_clock::now();
 
-            if (isPressed())
+            if (!std::exchange(is_pressed, !is_pressed))
             {
                 if (press_function) press_function();
             }
@@ -44,6 +49,22 @@ namespace gui
     void Button::setType(TYPE t)
     {
         type = t;
+    }
+
+    void Button::press()
+    {
+        if (!std::exchange(is_pressed, true))
+        {
+            if (press_function) press_function();
+        }
+    }
+
+    void Button::release()
+    {
+        if (std::exchange(is_pressed, false))
+        {
+            if (release_function) release_function();
+        }
     }
 
     void Button::setPressDelay(const std::chrono::milliseconds& delay)

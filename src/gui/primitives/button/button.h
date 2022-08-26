@@ -57,6 +57,9 @@ namespace gui
 
         void setType(TYPE t);
 
+        void press();
+        void release();
+
         void setPressDelay(const std::chrono::milliseconds& delay);
 
         void setAppearance(const Button_appearance& a);
