@@ -6,20 +6,25 @@ void gui::Player_inventory::redraw()
 {
     bg.draw();
     inventory.draw();
+    item_swapper.draw();
 }
 
 void gui::Player_inventory::activateEvent()
 {
     inventory.activate();
+    item_swapper.activate();
 }
 
 void gui::Player_inventory::deactivateEvent()
 {
     inventory.deactivate();
+    item_swapper.deactivate();
 }
 
 gui::Player_inventory::Player_inventory(entt::registry& registry, entt::entity player)
-    : registry(registry), player(player), inventory(registry, player)
+  : registry(registry), player(player),
+    inventory(registry, player),
+    item_swapper(registry, { std::ref(inventory) })
 {
     bg.setParent(this);
     bg.setSizeInfo({ {0,0}, {1,1} });
@@ -27,9 +32,12 @@ gui::Player_inventory::Player_inventory(entt::registry& registry, entt::entity p
 
     inventory.setParent(this);
     inventory.setSizeInfo({ {0,0}, {1,1} });
+
+    item_swapper.setSizeInfo({ .percentage = {1,1} });
 }
 
 void gui::Player_inventory::update()
 {
     inventory.update();
+    item_swapper.update();
 }

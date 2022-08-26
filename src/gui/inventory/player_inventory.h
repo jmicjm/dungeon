@@ -1,23 +1,24 @@
 #pragma once
 #include "../gui_component.h"
-#include "../component_stack/component_stack_helper.h"
 #include "../primitives/frame/frame.h"
 #include "../primitives/text/text.h";
 #include "../primitives/button/button.h"
 #include "inventory.h"
+#include "item_swapper.h"
 #include "../../components/inventory.h"
 #include <entt/entt.hpp>
 
 
 namespace gui
 {
-    class Player_inventory : public Gui_component, public Component_stack_helper
+    class Player_inventory : public Gui_component
     {
         entt::registry& registry;
         entt::entity player;
 
         Frame bg;
         Inventory inventory;
+        Item_swapper item_swapper;
 
         void redraw() override;
         void activateEvent() override;

@@ -1,19 +1,20 @@
 #pragma once
 #include "../gui_component.h"
-#include "../component_stack/component_stack_helper.h"
 #include "../primitives/frame/frame.h"
 #include "inventory.h"
+#include "item_swapper.h"
 #include "../../components/inventory.h"
 #include <entt/entt.hpp>
 
 
 namespace gui
 {
-    class Dual_inventory : public Gui_component, public Component_stack_helper
+    class Dual_inventory : public Gui_component
     {
         Frame bg;
         Inventory inventory_a;
         Inventory inventory_b;
+        Item_swapper item_swapper;
 
         void redraw() override;
         void activateEvent() override;

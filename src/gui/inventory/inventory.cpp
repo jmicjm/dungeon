@@ -65,12 +65,16 @@ void gui::Inventory::deactivateEvent()
 void gui::Inventory::resizeEvent(sf::Vector2f size_diff)
 {
     if (!inventory()) return;
-    scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow()) * item_field_size);
+    scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow(false)) * item_field_size);
+    if (scroll.isNeeded())
+    {
+        scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow(true)) * item_field_size);
+    }
 }
 
-int gui::Inventory::slotsPerRow() const
+int gui::Inventory::slotsPerRow(bool with_scroll) const
 {
-    auto width = scroll.isNeeded() ? size().x - scroll.size().x : size().x;
+    auto width = (with_scroll && scroll.isNeeded()) ? size().x - scroll.size().x : size().x;
     return std::max(1.f, width / item_field_size);
 }
 
@@ -87,13 +91,33 @@ const Inventory* gui::Inventory::inventory() const
     return registry.valid(entity) ? registry.try_get<::Inventory>(entity) : nullptr;
 }
 
+Inventory* gui::Inventory::inventory()
+{
+    return const_cast<::Inventory*>(std::as_const(*this).inventory());
+}
+
+std::tuple<bool, unsigned int, sf::Vector2f> gui::Inventory::coordsToSlot(const sf::Vector2f& coords) const
+{
+    if (!visibleArea().contains(coords) || !inventory()) return { 0, -1u, {0,0} };
+
+    const auto px = coords - globalPosition();
+    const int x_slot = px.x / item_field_size;
+    if (x_slot >= slotsPerRow()) return { 0, -1u, {0,0} };
+    const int y_slot = (px.y + scroll.getTopPosition()) / item_field_size;    
+    const unsigned int slot = y_slot * slotsPerRow() + x_slot;
+    const sf::Vector2f offset = px - sf::Vector2f(x_slot, y_slot) * static_cast<float>(item_field_size) + sf::Vector2f(0, scroll.getTopPosition());
+
+    return { slot < inventory()->slotCount(), slot, offset };
+}
+
 gui::Inventory::Inventory(entt::registry& registry, entt::entity entity)
-    : registry(registry), entity(entity)
+  : registry(registry),
+    entity(entity)
 {
     item_field.setParent(this);
     scroll.setParent(this);
     scroll.setSizeInfo({ {16,0}, {0,1} });
-    scroll.setPositionInfo({ {0,0}, {0,0}, {1,0} });
+    scroll.setPositionInfo({ .relative_to = {1,0} });
 }
 
 void gui::Inventory::update()

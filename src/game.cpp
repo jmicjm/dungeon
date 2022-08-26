@@ -84,7 +84,7 @@ int main()
         hud.update();
         hud.draw();
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !gui_component_stack.size())
+        if (Input::isPressed(sf::Mouse::Left) && !gui_component_stack.size())
         {
             auto world_tile = [&] {
                 auto world_px = window.mapPixelToCoords(sf::Mouse::getPosition(window));

@@ -24,12 +24,16 @@ namespace gui
         void deactivateEvent() override;
         void resizeEvent(sf::Vector2f size_diff) override;
 
-        int slotsPerRow() const;
+        int slotsPerRow(bool with_scroll = true) const;
         sf::Vector2f slotToCoords(unsigned int slot) const;
-        const ::Inventory* inventory() const;
 
     public:
         Inventory(entt::registry& registry, entt::entity entity);
+
+        const ::Inventory* inventory() const;
+        ::Inventory* inventory();
+
+        std::tuple<bool, unsigned int, sf::Vector2f> coordsToSlot(const sf::Vector2f& coords) const;
 
         void update() override;
     };

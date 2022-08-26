@@ -69,6 +69,7 @@ add_executable(dungeon
     src/gui/inventory/player_inventory.cpp
     src/gui/inventory/inventory.cpp
     src/gui/inventory/dual_inventory.cpp
+    src/gui/inventory/item_swapper.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 
