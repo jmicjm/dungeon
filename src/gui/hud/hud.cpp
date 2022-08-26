@@ -90,6 +90,7 @@ gui::Hud::Hud(entt::registry& registry, entt::entity player)
                                           .pressed_hovered = sf::Sprite{ *inv_btn_tex, { {32,0}, {16,16} } },
                                           .released_hovered = sf::Sprite{ *inv_btn_tex, { {16,0}, {16,16} } } };
     inventory_button.setAppearance(inv_btn_a);
+    inventory_button.setType(Button::SWITCH);
     inventory_button.setParent(this);
 
     const auto qselect_tex = Texture_bank::getTexture("gui/quick_select.png");
@@ -98,19 +99,18 @@ gui::Hud::Hud(entt::registry& registry, entt::entity player)
     quick_select.setAnchor(&inventory_button);
 
 
-    auto inventory_button_f = [&, inv_btn_a]
+    auto inventory_button_f = [this]
     {
         auto inv = std::make_unique<gui::Player_inventory>(this->registry, this->player);
         inv->setSizeInfo({ {0,0}, {0.5,0.5} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;
-        cfg.on_close = [&, inv_btn_a] 
+        cfg.on_close = [this] 
         {
             activate();
-            inventory_button.setAppearance(inv_btn_a);
+            inventory_button.release();
         };
         gui_component_stack.insert(std::move(inv), cfg);
-        inventory_button.setAppearance({ .released = inv_btn_a.pressed });
         deactivate();
     };
     inventory_button.setPressFunction(inventory_button_f);
