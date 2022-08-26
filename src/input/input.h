@@ -29,4 +29,5 @@ public:
     static std::optional<Mouse_hold_info> getMouseHoldVec(sf::Mouse::Button button);
     static bool isPressed(sf::Mouse::Button button);
     static bool isReleased(sf::Mouse::Button button);
+    static bool isHold(sf::Mouse::Button button);
 };

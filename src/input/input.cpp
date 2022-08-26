@@ -53,3 +53,8 @@ bool Input::isReleased(sf::Mouse::Button button)
 {
     return mouse_released_buttons.find(button) != mouse_released_buttons.end();
 }
+
+bool Input::isHold(sf::Mouse::Button button)
+{
+    return getMouseHoldVec(button).has_value();
+}
