@@ -19,6 +19,7 @@ void gui::Hud::rescale()
 
     quick_select.setSizeInfo({ sf::Vector2f{18,82} * scale });
     quick_select.setAnchorPositionInfo({ .offset = sf::Vector2f{0,-2} * scale });
+    quick_select.setScale(scale);
 
     inventory_button.setSizeInfo({ sf::Vector2f{16,16} * scale });
     inventory_button.setPositionInfo({ sf::Vector2f{2,-2} * scale, {0,0}, {0,1} });
@@ -57,7 +58,9 @@ void gui::Hud::deactivateEvent()
 }
 
 gui::Hud::Hud(entt::registry& registry, entt::entity player)
-    : registry(registry), player(player)
+    : registry(registry),
+    player(player),
+    quick_select(registry, player)
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -93,8 +96,6 @@ gui::Hud::Hud(entt::registry& registry, entt::entity player)
     inventory_button.setType(Button::SWITCH);
     inventory_button.setParent(this);
 
-    const auto qselect_tex = Texture_bank::getTexture("gui/quick_select.png");
-    quick_select.setAppearance({ sf::Sprite{ *qselect_tex } });
     quick_select.setParent(this);
     quick_select.setAnchor(&inventory_button);
 
@@ -136,6 +137,7 @@ void gui::Hud::setPlayer(entt::entity player)
     this->player = player;
     player_frame.setPlayer(registry, player);
     controls.setPlayer(registry, player);
+    quick_select.setPlayer(player);
 }
 
 void gui::Hud::setScale(float scale)
