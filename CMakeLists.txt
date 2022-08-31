@@ -44,6 +44,7 @@ add_executable(dungeon
     src/level_gen/level_structure_generator.cpp 
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
+    src/entities/cloneEntity.cpp
     src/entities/player.cpp
     src/entities/door.cpp
     src/entities/gate.cpp
@@ -75,6 +76,7 @@ add_executable(dungeon
     src/world/world.cpp 
     src/components/position.cpp  
     src/components/inventory.cpp
+    src/components/stackable_item.cpp 
 )
 
 add_custom_target(

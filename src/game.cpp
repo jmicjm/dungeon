@@ -10,6 +10,7 @@
 #include "components/inventory.h"
 #include "gui/inventory/dual_inventory.h"
 #include "entities/items/createItem.h"
+#include "components/stackable_item.h"
 
 
 int main()
@@ -45,6 +46,10 @@ int main()
     inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::BLOODTHIRSTY_BLADE), 4);
     inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::DAGGER), 5);
     inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::LONGSWORD), 18);
+    auto coins = items::createItem(world.getRegistry(), items::Item_id::COINS);
+    world.getRegistry().get<Stackable_item>(coins).setAmount(999);
+    inv.insert(world.getRegistry(), coins);
+
 
 
     gui::Hud hud(world.getRegistry(), world.getPlayer());

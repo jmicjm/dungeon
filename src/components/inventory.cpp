@@ -50,7 +50,7 @@ bool Inventory::insert(const entt::registry& registry, entt::entity item)
 
     const auto first_empty = [&] {
         if (used_slots.empty()) return 0u;
-        return used_slots.begin()->upper();
+        return used_slots.begin()->lower() > 0 ? 0u : used_slots.begin()->upper();
     }();
     if (first_empty >= slotCount()) return false;
 

@@ -2,6 +2,8 @@
 #include "../../components/item.h"
 #include "../../components/weapon.h"
 #include "../../components/render_component.h"
+#include "../../components/stackable_item.h"
+#include "../../components/coins.h"
 #include "../../asset_storage/item_rc_storage.h"
 #include "../../gfx/zlevels.h"
 #include <functional>
@@ -11,6 +13,12 @@
 static void createSimpleWeapon(entt::registry& registry, const entt::entity item, const Weapon& weapon_component)
 {
     registry.emplace<Weapon>(item, weapon_component);
+}
+
+static void createCoins(entt::registry& registry, const entt::entity item)
+{
+    registry.emplace<Coins>(item);
+    registry.emplace<Stackable_item>(item, item, 999);
 }
 
 namespace items
@@ -25,6 +33,7 @@ namespace items
             { Item_id::LONGSWORD, std::bind(createSimpleWeapon, _1, _2, Weapon{ 32 }) },
             { Item_id::DAGGER, std::bind(createSimpleWeapon, _1, _2, Weapon{ 16 }) },
             { Item_id::BLOODTHIRSTY_BLADE, std::bind(createSimpleWeapon, _1, _2, Weapon{ 48 }) },
+            { Item_id::COINS, createCoins },
         };
 
         if (auto it = create_function_map.find(id); id != create_function_map.end())

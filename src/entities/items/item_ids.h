@@ -6,6 +6,7 @@ namespace items
     {
         LONGSWORD,
         DAGGER,
-        BLOODTHIRSTY_BLADE
+        BLOODTHIRSTY_BLADE,
+        COINS
     };
 }
