@@ -1,26 +1,16 @@
 #include "item_swapper.h"
 #include "../../input/input.h"
-#include "../../components/render_component.h"
 #include "../../components/stackable_item.h"
+#include "common/drawItem.h"
 
 
 void gui::Item_swapper::redraw()
 {
-    if (hold_item != entt::null)
+    if (registry.valid(hold_item))
     {
-        if (auto rc = registry.try_get<Render_component>(hold_item))
-        {
-            sf::RenderStates st;
-            st.transform.translate(sf::Vector2f{ sf::Mouse::getPosition(window) } - hold_offset);
-            for (auto& [zlevel, animations] : rc->zlevel_animation_map)
-            {
-                for (auto& animation : animations)
-                {
-                    animation.updateFrameIdx();
-                    draw(animation, st);
-                }
-            }
-        }
+        sf::RenderStates st;
+        st.transform.translate(sf::Vector2f{ sf::Mouse::getPosition(window) } - hold_offset);
+        drawItem(window, st, registry, hold_item);
     }
 }
 

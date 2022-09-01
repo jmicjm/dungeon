@@ -1,9 +1,5 @@
 #include "inventory.h"
-#include "../../components/render_component.h"
-#include "../../components/stackable_item.h"
-
-#include "SFML/Graphics/Text.hpp"
-#include "../../asset_storage/font_bank.h"
+#include "common/drawItem.h"
 
 
 void gui::Inventory::redraw()
@@ -36,30 +32,11 @@ void gui::Inventory::redraw()
                 const auto coords = slotToCoords(slot);
                 if (coords.y > size().y) return;
 
-                if (auto rc = registry.try_get<Render_component>(inventory()->get(slot)))
+                if (auto item = inventory()->get(slot); registry.valid(item))
                 {
                     sf::RenderStates st;
                     st.transform.translate(coords);
-                    for (auto& [zlevel, animations] : rc->zlevel_animation_map)
-                    {
-                        for (auto& animation : animations)
-                        {
-                            animation.updateFrameIdx();
-                            draw(animation, st);
-                        }
-                    }
-                }
-                if (auto si = registry.try_get<Stackable_item>(inventory()->get(slot)))
-                {
-                    sf::Text text;
-                    text.setFont(*Font_bank::getFont("font.ttf"));
-                    text.setOutlineColor(sf::Color::Black);
-                    text.setOutlineThickness(1);
-                    text.setString(std::to_string(si->getAmount()) + "/" + std::to_string(si->getMaxAmount()));
-                    const auto lbounds = text.getLocalBounds();
-                    text.setOrigin(lbounds.left + lbounds.width, lbounds.top + lbounds.height);
-                    text.setPosition(coords + sf::Vector2f(item_field_size - item_field_border, item_field_size - item_field_border));
-                    draw(text);
+                    drawItem(window, st, registry, item);
                 }
             }
         }
