@@ -1,5 +1,6 @@
 #include "inventory.h"
 #include "item.h"
+#include "stackable_item.h"
 
 
 bool defaultAllowCheck(const entt::registry& registry, entt::entity entity)
@@ -34,19 +35,40 @@ bool Inventory::isAllowed(const entt::registry& registry, entt::entity entity) c
     return allow_item_check ? allow_item_check(registry, entity) : true;
 }
 
-bool Inventory::insert(const entt::registry& registry, entt::entity item, unsigned int slot)
+bool Inventory::insert(entt::registry& registry, entt::entity item, unsigned int slot)
 {
-    if (!isAllowed(registry, item) || slot >= slotCount() || !isSlotEmpty(slot)) return false;
+    if (!isAllowed(registry, item) || slot >= slotCount()) return false;
 
-    items.insert({ slot, item });
-    used_slots.insert(slot);
+    if(isSlotEmpty(slot))
+    {
+        items.insert({ slot, item });
+        used_slots.insert(slot);
 
-    return true;
+        return true;
+    }
+    else if (auto slot_stackable = registry.try_get<Stackable_item>(get(slot)))
+    {
+        slot_stackable->stackWith(registry, item);
+        if(!registry.valid(item)) return true;
+    }
+    return false;
 }
 
-bool Inventory::insert(const entt::registry& registry, entt::entity item)
+bool Inventory::insert(entt::registry& registry, entt::entity item)
 {
     if (!isAllowed(registry, item)) return false;
+
+    if (auto stackable_item = registry.try_get<Stackable_item>(item))
+    {
+        for (auto&& [slot, slot_item] : items)
+        {
+            if (auto stackable_slot = registry.try_get<Stackable_item>(slot_item))
+            {
+                stackable_slot->stackWith(registry, item);
+                if (!registry.valid(item)) return true;
+            }
+        }
+    }
 
     const auto first_empty = [&] {
         if (used_slots.empty()) return 0u;

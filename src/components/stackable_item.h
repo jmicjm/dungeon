@@ -25,4 +25,5 @@ public:
     void setAmount(int amount);
     int getAmount() const;
     int getMaxAmount() const;
+    bool isEmpty() const;
 };

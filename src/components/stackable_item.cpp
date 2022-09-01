@@ -39,6 +39,8 @@ void Stackable_item::stackWith(entt::registry& registry, entt::entity other)
         if (stack_with) stack_with(registry, self, other, amount_to_take);
         amount += amount_to_take;
         other_stackable->amount -= amount_to_take;
+
+        if (other_stackable->isEmpty()) registry.destroy(other);
     }
 }
 
@@ -66,4 +68,9 @@ int Stackable_item::getAmount() const
 int Stackable_item::getMaxAmount() const
 {
     return max_amount;
+}
+
+bool Stackable_item::isEmpty() const
+{
+    return amount == 0;
 }
