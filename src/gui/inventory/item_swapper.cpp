@@ -1,6 +1,7 @@
 #include "item_swapper.h"
 #include "../../input/input.h"
 #include "../../components/render_component.h"
+#include "../../components/stackable_item.h"
 
 
 void gui::Item_swapper::redraw()
@@ -57,30 +58,35 @@ void gui::Item_swapper::update()
             {
                 const auto [valid, slot_idx, offset] = inventory.coordsToSlot(mouse_coords);
 
+                if (!valid) continue;
+
                 if (hold_item == entt::null && Input::isPressed(sf::Mouse::Left))
                 {
-                    if (valid)
+                    if (auto selected_item = inventory.inventory()->remove(slot_idx); selected_item != entt::null)
                     {
-                        if (auto selected_item = inventory.inventory()->remove(slot_idx); selected_item != entt::null)
-                        {
-                            hold_item = selected_item;
-                            src_slot = slot_idx;
-                            src_inventory = &inventory;
-                            hold_offset = offset;
-                        }
+                        hold_item = selected_item;
+                        src_slot = slot_idx;
+                        src_inventory = &inventory;
+                        hold_offset = offset;
                     }
                 }
                 else if (hold_item != entt::null && Input::isReleased(sf::Mouse::Left))
                 {
-                    if (!valid || !inventory.inventory()->isSlotEmpty(slot_idx))
-                    {
-                        restore();
-                    }
-                    else
-                    {
-                        inventory.inventory()->insert(registry, hold_item, slot_idx);
+                    if (inventory.inventory()->insert(registry, hold_item, slot_idx))
+                    {            
                         hold_item = entt::null;
                         src_inventory = nullptr;
+                    }
+                    else if (auto hovered_item = inventory.inventory()->get(slot_idx); hovered_item != entt::null)
+                    {
+                        if (auto stackable = registry.try_get<Stackable_item>(hovered_item); !stackable || !stackable->canStackWith(registry, hold_item))
+                        {
+                            inventory.inventory()->remove(slot_idx);
+                            inventory.inventory()->insert(registry, hold_item, slot_idx);
+                            src_inventory->inventory()->insert(registry, hovered_item, src_slot);
+                            hold_item = entt::null;
+                            src_inventory = nullptr;
+                        }
                     }
                 }
             }
