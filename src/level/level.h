@@ -43,6 +43,7 @@ public:
 
     bool isPassable(const sf::Vector2i& position) const;
     bool isOpaque(const sf::Vector2i& position) const;
+    bool isVisible(const sf::Vector2i& position) const;
 
     void loadVisuals();
     void unloadVisuals();

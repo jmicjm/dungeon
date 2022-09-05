@@ -11,6 +11,7 @@
 #include "gui/inventory/dual_inventory.h"
 #include "entities/items/createItem.h"
 #include "components/stackable_item.h"
+#include "components/render_component.h"
 
 
 int main()
@@ -48,8 +49,13 @@ int main()
     inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::LONGSWORD), 18);
     auto coins = items::createItem(world.getRegistry(), items::Item_id::COINS);
     world.getRegistry().get<Stackable_item>(coins).setAmount(999);
+    auto coins2 = world.getRegistry().get<Stackable_item>(coins).take(world.getRegistry(), 16);
+    world.getRegistry().get<Stackable_item>(coins2).setAmount(999);
+    auto coins3 = world.getRegistry().get<Stackable_item>(coins2).take(world.getRegistry(), 16);
+    world.getRegistry().get<Stackable_item>(coins3).setAmount(4);
     inv.insert(world.getRegistry(), coins);
-
+    inv.insert(world.getRegistry(), coins2,1);
+    inv.insert(world.getRegistry(), coins3,3);
 
 
     gui::Hud hud(world.getRegistry(), world.getPlayer());
@@ -89,19 +95,36 @@ int main()
         hud.update();
         hud.draw();
 
-        if (Input::isPressed(sf::Mouse::Left) && !gui_component_stack.size())
+        if (Input::isPressed(sf::Mouse::Left) && !gui_component_stack.size() && world.getCurrentLevel())
         {
-            auto world_tile = [&] {
-                auto world_px = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-                return sf::Vector2i{ vecDiv(world_px, Tile_sprite_storage::tile_size) };
-            }();
+            const auto world_px = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            const auto world_tile = sf::Vector2i{ vecDiv(world_px, Tile_sprite_storage::tile_size) };
 
-            world.getEntities().at(world.getCurrentLevel()).forEachUntil(world_tile, [&](auto entity) {
-                if (entity.second != world.getPlayer())
-                {
-                    if (auto inv = world.getRegistry().try_get<Inventory>(entity.second))
+            world.getEntities().at(world.getCurrentLevel()).forEachUntil({ world_tile - sf::Vector2i{1,1}, world_tile + sf::Vector2i{2,2} }, [&](auto value) {
+                const auto [coords, entity] = value;
+
+                auto isHovered = [&] {
+                    const auto tile_px = world_px - sf::Vector2f{ vecMul(coords, Tile_sprite_storage::tile_size) };
+
+                    if (const auto* rc = world.getRegistry().try_get<Render_component>(entity))
                     {
-                        auto dual_inventory = std::make_unique<gui::Dual_inventory>(world.getRegistry(), world.getPlayer(), entity.second);
+                        const auto& animation_map = world.getCurrentLevel()->isVisible(coords) ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
+                        for (const auto& [zlevel, animations] : animation_map)
+                        {
+                            for (const auto& animation : animations)
+                            {
+                                if (animation.getGlobalBounds().contains(tile_px)) return true;
+                            }
+                        }
+                    }
+                    return false;
+                };
+
+                if (isHovered() && entity != world.getPlayer())
+                {    
+                    if (auto inv = world.getRegistry().try_get<Inventory>(entity))
+                    {
+                        auto dual_inventory = std::make_unique<gui::Dual_inventory>(world.getRegistry(), world.getPlayer(), entity);
                         dual_inventory->setSizeInfo({ .percentage = {0.5, 0.5} });
                         dual_inventory->setPositionInfo({ .relative_to = {0.5, 0.5} });
                         gui_component_stack.insert(std::move(dual_inventory));

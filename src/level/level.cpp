@@ -31,7 +31,7 @@ void Level::draw(sf::RenderTarget& rt, sf::RenderStates st) const
         const auto pa = registry.try_get<Pending_animation>(entity.second);
         if (rc && pos)
         {
-            const auto visible = visible_tiles.find(pos->getCoords()) != visible_tiles.end();
+            const auto visible = isVisible(pos->getCoords());
             const auto src_visible = pa ? visible_tiles.find(pa->src) != visible_tiles.end() : visible;
 
             auto& map = visible ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
@@ -168,6 +168,11 @@ bool Level::isOpaque(const sf::Vector2i& position) const
     return getEntities().forEachUntil(position, [&](auto& entity) {
         return registry.all_of<Opaque>(entity.second);
     });
+}
+
+bool Level::isVisible(const sf::Vector2i& position) const
+{
+    return visible_tiles.find(position) != visible_tiles.end();
 }
 
 const Level_structure& Level::getStructure() const
