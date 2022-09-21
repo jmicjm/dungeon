@@ -2,6 +2,7 @@
 #include "../components/chest.h"
 #include "../components/inventory.h"
 #include "../components/render_component.h"
+#include "../components/description.h"
 #include "../asset_storage/texture_bank.h"
 #include "../gfx/zlevels.h"
 
@@ -11,6 +12,7 @@ entt::entity createChest(entt::registry& registry, unsigned int chest_size)
     auto chest = registry.create();
     registry.emplace<Chest>(chest);
     registry.emplace<Inventory>(chest, chest_size);
+    registry.emplace<Description>(chest, "chest");
 
     auto chest_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("chest.png"), std::vector<sf::IntRect>{ {0,0,64,64} });
     Animated_sprite chest_animation{ chest_frames, 1 };

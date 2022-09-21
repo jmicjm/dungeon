@@ -19,6 +19,10 @@
 #include "../entities/npc/smuggler.h"
 #include "../entities/gate.h"
 
+#include "../entities/chest.h"
+#include "../entities/items/createItem.h"
+#include "../components/description.h"
+
 
 void World::createPlayer()
 {
@@ -154,6 +158,7 @@ World::World(const World_params& params)
         auto entity = registry.create();
         registry.emplace<Portal>(entity, portal);
         registry.emplace<Position>(entity, dst_coords, dst_level, entity_level_map, entity);
+        registry.emplace<Description>(entity, "portal");
 
         auto frames = std::make_shared<Animated_sprite_frames>(tex, std::vector<sf::IntRect>{ tex_rect });
         registry.emplace<Render_component>(entity, Render_component{ { { zlevel::portal, { Animated_sprite{frames, 1} } } } });
@@ -177,6 +182,12 @@ World::World(const World_params& params)
     createPlayer();
     initViewFollowers();
     spawnNpcs();
+
+    auto chest = createChest(registry, 32);
+    registry.emplace<Position>(chest, current_level->getStructure().getRoomRect(0).tl, current_level.get(), entity_level_map, chest);
+
+    auto item = items::createItem(registry, items::Item_id::LONGSWORD);
+    registry.emplace<Position>(item, current_level->getStructure().getRoomRect(0).tl, current_level.get(), entity_level_map, item);
 }
 
 void World::update(sf::RenderTarget& rt)

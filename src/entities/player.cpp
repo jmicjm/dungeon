@@ -15,6 +15,7 @@
 #include "../world/world.h"
 #include "../asset_storage/tile_sprite_storage.h"
 #include "../global/gui_component_stack.h"
+#include "../components/description.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
@@ -29,6 +30,7 @@ entt::entity createPlayer(entt::registry& registry)
     registry.emplace<Move_animation_id>(player, ENTITY_ANIMATION::PLAYER);
     registry.emplace<Nonpassable>(player);
     registry.emplace<Inventory>(player, 64);
+    registry.emplace<Description>(player, "you");
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {

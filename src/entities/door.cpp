@@ -4,6 +4,7 @@
 #include "../components/nonpassable.h"
 #include "../components/opaque.h"
 #include "../components/render_component.h"
+#include "../components/description.h"
 #include "../asset_storage/texture_bank.h"
 #include "../gfx/zlevels.h"
 
@@ -65,6 +66,7 @@ entt::entity createDoor(entt::registry& registry, Animated_sprite open_rc, Anima
     registry.emplace<Render_component>(entity, closed);
     registry.emplace<Nonpassable>(entity);
     registry.emplace<Opaque>(entity);
+    registry.emplace<Description>(entity, "door");
 
     return entity;
 }
