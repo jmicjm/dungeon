@@ -12,6 +12,9 @@
 #include "entities/items/createItem.h"
 #include "components/stackable_item.h"
 #include "components/render_component.h"
+#include "components/position.h"
+#include "gui/world_context_menu/world_context_menu.h"
+
 
 
 int main()
@@ -58,9 +61,9 @@ int main()
     inv.insert(world.getRegistry(), coins3,3);
 
 
+
     gui::Hud hud(world.getRegistry(), world.getPlayer());
     hud.activate();
-
 
     while (window.isOpen())
     {
@@ -95,50 +98,16 @@ int main()
         hud.update();
         hud.draw();
 
-        if (Input::isPressed(sf::Mouse::Left) && !gui_component_stack.size() && world.getCurrentLevel())
+        if (!gui_component_stack.size() && world.getCurrentLevel() && Input::isPressedConsume(sf::Mouse::Left))
         {
-            const auto world_px = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-            const auto world_tile = sf::Vector2i{ vecDiv(world_px, Tile_sprite_storage::tile_size) };
+            auto context_menu = std::make_unique<gui::World_context_menu>(world, window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+            context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
 
-            world.getEntities().at(world.getCurrentLevel()).forEachUntil({ world_tile - sf::Vector2i{1,1}, world_tile + sf::Vector2i{2,2} }, [&](auto value) {
-                const auto [coords, entity] = value;
-
-                auto isHovered = [&] {
-                    const auto tile_px = world_px - sf::Vector2f{ vecMul(coords, Tile_sprite_storage::tile_size) };
-
-                    if (const auto* rc = world.getRegistry().try_get<Render_component>(entity))
-                    {
-                        const auto& animation_map = world.getCurrentLevel()->isVisible(coords) ? rc->zlevel_animation_map : rc->shadow_zlevel_animation_map;
-                        for (const auto& [zlevel, animations] : animation_map)
-                        {
-                            for (const auto& animation : animations)
-                            {
-                                if (animation.getGlobalBounds().contains(tile_px)) return true;
-                            }
-                        }
-                    }
-                    return false;
-                };
-
-                if (isHovered() && entity != world.getPlayer())
-                {    
-                    if (auto inv = world.getRegistry().try_get<Inventory>(entity))
-                    {
-                        auto dual_inventory = std::make_unique<gui::Dual_inventory>(world.getRegistry(), world.getPlayer(), entity);
-                        dual_inventory->setSizeInfo({ .percentage = {0.5, 0.5} });
-                        dual_inventory->setPositionInfo({ .relative_to = {0.5, 0.5} });
-                        gui_component_stack.insert(std::move(dual_inventory));
-
-                        return true;
-                    }
-                }
-                return false;
-            });
+            gui_component_stack.insert(std::move(context_menu));
         }
 
         gui_component_stack.update();
         gui_component_stack.draw();
-
 
         window.display();
     }   
