@@ -41,7 +41,7 @@ void gui::Component_stack::update()
     if (isActive() && !press_blocked && components.size())
     {
         auto& top_component = *components.back().first;
-        if (Input::isPressed(sf::Mouse::Left) && !top_component.isHovered())
+        if (Input::isPressedConsume(sf::Mouse::Left) && !top_component.isHovered())
         {
             switch (components.back().second.outside_click_action)
             {

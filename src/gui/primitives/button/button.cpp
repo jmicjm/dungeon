@@ -24,7 +24,7 @@ namespace gui
 
         if (type == PUSH && is_pressed)
         {
-            if (Input::isReleased(sf::Mouse::Left))
+            if (Input::isReleasedConsume(sf::Mouse::Left))
             {
                 is_pressed = false;
                 if (release_function) release_function();
@@ -34,7 +34,7 @@ namespace gui
                 if (press_function) press_function();
             }
         }
-        if (isHovered() && Input::isPressed(sf::Mouse::Left))
+        if (isHovered() && Input::isPressedConsume(sf::Mouse::Left))
         {
             is_pressed = !is_pressed;
             press_tp = std::chrono::steady_clock::now();
