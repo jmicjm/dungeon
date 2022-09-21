@@ -60,6 +60,7 @@ add_executable(dungeon
     src/gui/primitives/frame/frame.cpp  
     src/gui/primitives/scroll/scroll.cpp
     src/gui/primitives/text/text.cpp
+    src/gui/primitives/list/list.cpp
     src/gui/hud/player_frame.cpp 
     src/gui/hud/stat_bar.cpp
     src/gui/hud/quick_select.cpp 
