@@ -130,6 +130,14 @@ namespace gui
         return appearance;
     }
 
+    void Button::setText(const std::string& text)
+    {
+        setPressedText(text);
+        setPressedHoveredText(text);
+        setReleasedText(text);
+        setReleasedHoveredText(text);
+    }
+
     void Button::setPressedText(const std::string& text)
     {
         setText(pressed_text, text);

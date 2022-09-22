@@ -65,6 +65,7 @@ namespace gui
         void setAppearance(const Button_appearance& a);
         Button_appearance getAppearance() const;
 
+        void setText(const std::string& text);
         void setPressedText(const std::string& text);
         void setPressedHoveredText(const std::string& text);
         void setReleasedHoveredText(const std::string& text);

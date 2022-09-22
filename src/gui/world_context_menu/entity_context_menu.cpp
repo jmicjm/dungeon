@@ -33,10 +33,7 @@ std::vector<std::unique_ptr<gui::Gui_component>> gui::Entity_context_menu::gener
     if (world.getRegistry().try_get<::Inventory>(entity))
     {
         auto btn = std::make_unique<Button>();
-        btn->setReleasedText("loot");
-        btn->setPressedHoveredText("loot");
-        btn->setReleasedText("loot");
-        btn->setReleasedHoveredText("loot");
+        btn->setText("loot");
         btn->setSizeInfo({ .fixed = {0,32}, .percentage = {1,0} });
         btn->setPressFunction([&world, entity, on_action] {
             auto dual_inventory = std::make_unique<Dual_inventory>(world.getRegistry(), world.getPlayer(), entity);
@@ -50,10 +47,7 @@ std::vector<std::unique_ptr<gui::Gui_component>> gui::Entity_context_menu::gener
     if (auto item = world.getRegistry().try_get<Item>(entity))
     {
         auto btn = std::make_unique<Button>();
-        btn->setReleasedText("pick");
-        btn->setPressedHoveredText("pick");
-        btn->setReleasedText("pick");
-        btn->setReleasedHoveredText("pick");
+        btn->setText("pick");
         btn->setSizeInfo({ .fixed = {0,32}, .percentage = {1,0} });
         btn->setPressFunction([&, entity, on_action] {
             bool inserted = (world.getRegistry().get<::Inventory>(world.getPlayer()).insert(world.getRegistry(), entity));
