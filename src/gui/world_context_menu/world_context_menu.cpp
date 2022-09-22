@@ -8,6 +8,7 @@
 #include "../../components/description.h"
 #include "entity_context_menu.h"
 #include "../../global/gui_component_stack.h"
+#include <algorithm>
 
 
 void gui::World_context_menu::redraw()
@@ -70,7 +71,6 @@ std::vector<std::unique_ptr<gui::Gui_component>> gui::World_context_menu::genera
             btn->setPressFunction([&, entity, world_px] {
                 auto entity_menu = std::make_unique<Entity_context_menu>(world, entity, [&, world_px] {
                     entity_list.setEntries(generateListEntries(world, world_px)); 
-                    setSizeInfo({ .fixed = {0, entity_list.length() + 8}, .percentage = {0.2,0} });
                 });
                 entity_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
                 gui_component_stack.insert(std::move(entity_menu));
@@ -101,7 +101,10 @@ gui::World_context_menu::World_context_menu(World& world, const sf::Vector2f& wo
     entity_list.setPositionInfo({ .offset = {4,4} });
     entity_list.setEntries(generateListEntries(world, world_px));
 
-    setSizeInfo({ .fixed = {0, entity_list.length()+8}, .percentage = {0.2,0} });
+    setSizeFunction([&](sf::Vector2f parent_size) {
+        const auto desired_height = entity_list.length() + 8;
+        return sf::Vector2f{ parent_size.x * 0.2f, std::min(desired_height, parent_size.y * 0.5f) };
+    });
 }
 
 void gui::World_context_menu::update()

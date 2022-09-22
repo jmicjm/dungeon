@@ -76,7 +76,10 @@ gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity e
     interaction_list.setPositionInfo({ .offset = {4,4} });
     interaction_list.setEntries(generateListEntries(world, entity, on_action));
 
-    setSizeInfo({ .fixed = {0, interaction_list.length()+8}, .percentage = {0.3,0} });
+    setSizeFunction([&](sf::Vector2f parent_size) {
+        const auto desired_height = interaction_list.length() + 8;
+        return sf::Vector2f{ parent_size.x * 0.3f, std::min(desired_height, parent_size.y * 0.5f) };
+    });
 }
 
 void gui::Entity_context_menu::update()
