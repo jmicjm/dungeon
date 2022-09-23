@@ -4,6 +4,7 @@
 #include "../../components/item.h"
 #include "../../components/inventory.h"
 #include "../../components/position.h"
+#include "../../components/description.h"
 #include "../../world/world.h"
 #include "../../global/gui_component_stack.h"
 
@@ -11,18 +12,21 @@
 void gui::Entity_context_menu::redraw()
 {
     bg.draw();
+    description.draw();
     interaction_list.draw();
 }
 
 void gui::Entity_context_menu::activateEvent()
 {
     bg.activate();
+    description.activate();
     interaction_list.activate();
 }
 
 void gui::Entity_context_menu::deactivateEvent()
 {
     bg.deactivate();
+    description.deactivate();
     interaction_list.deactivate();
 }
 
@@ -65,18 +69,37 @@ gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity e
 {
     bg.setParent(this);
     bg.setSizeInfo({ .percentage = {1,1} });
+
+    constexpr auto border_px = 4;
+    const auto descriptionHeight = [&] {
+        return std::min(description.length(), 120.f);
+    };
+
+    description.setParent(this);
+    description.setPositionInfo({ .offset = {border_px, border_px} });
+    description.setSizeFunction([=](sf::Vector2f parent_size) {
+        return sf::Vector2f{ parent_size.x - border_px * 2, descriptionHeight() };
+    });
+    if (auto description_component = world.getRegistry().try_get<Description>(entity))
+    {
+        description.setString(description_component->name);
+    }
+
     interaction_list.setParent(this);
-    interaction_list.setSizeInfo({ .fixed = {-8,-8}, .percentage = {1,1} });
-    interaction_list.setPositionInfo({ .offset = {4,4} });
+    interaction_list.setPositionInfo({ .offset = {border_px, -border_px}, .relative_to = {0,1} });
+    interaction_list.setSizeFunction([=](sf::Vector2f parent_size) {
+        return sf::Vector2f{ parent_size.x - border_px * 2, parent_size.y -(descriptionHeight() + border_px * 3) };
+    });
     interaction_list.setEntries(generateListEntries(world, entity, on_action));
 
-    setSizeFunction([&](sf::Vector2f parent_size) {
-        const auto desired_height = interaction_list.length() + 8;
+    setSizeFunction([=](sf::Vector2f parent_size) {
+        const auto desired_height = interaction_list.length() + descriptionHeight() + border_px * 3;
         return sf::Vector2f{ parent_size.x * 0.3f, std::min(desired_height, parent_size.y * 0.5f) };
     });
 }
 
 void gui::Entity_context_menu::update()
 {
+    description.update();
     interaction_list.update();
 }

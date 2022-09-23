@@ -3,6 +3,7 @@
 #include "../component_stack/component_stack_helper.h"
 #include "../primitives/list/list.h"
 #include "../primitives/frame/frame.h"
+#include "../primitives/text/text.h"
 #include "../../world/world.fwd.h"
 #include "SFML/System/Vector2.hpp"
 #include "entt/entt.hpp"
@@ -16,6 +17,7 @@ namespace gui
     class Entity_context_menu : public Gui_component, public Component_stack_helper
     {
         Frame bg;
+        Text description;
         List interaction_list;
 
         void redraw() override;
