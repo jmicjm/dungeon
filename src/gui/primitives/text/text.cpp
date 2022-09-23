@@ -110,7 +110,7 @@ namespace gui
                                     sf::Vector2i(rendered_str.getSize().x, std::min(static_cast<unsigned int>(size().y), rendered_str.getSize().y)) });
 
         draw(str_sprite);
-        if (rendered_str.getSize().y >= size().y) scroll.draw();
+        if (rendered_str.getSize().y > size().y) scroll.draw();
     }
 
     void Text_impl::resizeEvent(sf::Vector2f size_diff)
@@ -151,6 +151,11 @@ namespace gui
     const std::string& Text_impl::getString() const
     {
         return str;
+    }
+
+    float Text_impl::length() const
+    {
+        return rendered_str.getSize().y;
     }
 
     void Text_impl::setFont(const std::string& filename)

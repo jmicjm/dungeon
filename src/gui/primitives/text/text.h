@@ -43,6 +43,8 @@ namespace gui
         void setString(std::string str);
         const std::string& getString() const;
 
+        float length() const;
+
         void setFont(const std::string& filename);
 
         void setFontSize(float size);
