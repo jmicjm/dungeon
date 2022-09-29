@@ -1,4 +1,5 @@
 #include "player_inventory.h"
+#include "../../world/world.h"
 #include "../primitives/apperance_common.h"
 
 
@@ -21,10 +22,10 @@ void gui::Player_inventory::deactivateEvent()
     item_swapper.deactivate();
 }
 
-gui::Player_inventory::Player_inventory(entt::registry& registry, entt::entity player)
-  : registry(registry), player(player),
-    inventory(registry, player),
-    item_swapper(registry, { std::ref(inventory) })
+gui::Player_inventory::Player_inventory(World& world, entt::entity player)
+  : world(world), player(player),
+    inventory(world, player),
+    item_swapper(world, { std::ref(inventory) })
 {
     bg.setParent(this);
     bg.setSizeInfo({ {0,0}, {1,1} });

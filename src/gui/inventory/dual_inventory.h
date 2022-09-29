@@ -4,6 +4,7 @@
 #include "inventory.h"
 #include "item_swapper.h"
 #include "../../components/inventory.h"
+#include "../../world/world.fwd.h"
 #include <entt/entt.hpp>
 
 
@@ -21,7 +22,7 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Dual_inventory(entt::registry& registry, entt::entity entity_a, entt::entity entity_b);
+        Dual_inventory(World& world, entt::entity entity_a, entt::entity entity_b);
 
         void update() override;
     };

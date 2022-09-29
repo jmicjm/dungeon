@@ -62,7 +62,7 @@ int main()
 
 
 
-    gui::Hud hud(world.getRegistry(), world.getPlayer());
+    gui::Hud hud(world, world.getPlayer());
     hud.activate();
 
     while (window.isOpen())

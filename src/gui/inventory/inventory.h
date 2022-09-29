@@ -3,6 +3,7 @@
 #include "../gui_component.h"
 #include "../primitives/frame/frame.h"
 #include "../primitives/scroll/scroll.h"
+#include "../../world/world.fwd.h"
 #include <entt/entt.hpp>
 
 
@@ -10,7 +11,7 @@ namespace gui
 {
     class Inventory : public Gui_component
     {
-        entt::registry& registry;
+        World& world;
         entt::entity entity;
 
         Frame item_field;
@@ -28,10 +29,11 @@ namespace gui
         sf::Vector2f slotToCoords(unsigned int slot) const;
 
     public:
-        Inventory(entt::registry& registry, entt::entity entity);
+        Inventory(World& world, entt::entity entity);
 
         const ::Inventory* inventory() const;
         ::Inventory* inventory();
+        const entt::entity inventoryEntity() const;
 
         std::tuple<bool, unsigned int, sf::Vector2f> coordsToSlot(const sf::Vector2f& coords) const;
 

@@ -1,4 +1,5 @@
 #include "dual_inventory.h"
+#include "../../world/world.h"
 
 
 void gui::Dual_inventory::redraw()
@@ -23,10 +24,10 @@ void gui::Dual_inventory::deactivateEvent()
     item_swapper.deactivate();
 }
 
-gui::Dual_inventory::Dual_inventory(entt::registry& registry, entt::entity entity_a, entt::entity entity_b)
-  : inventory_a(registry, entity_a),
-    inventory_b(registry, entity_b),
-    item_swapper(registry, { std::ref(inventory_a), std::ref(inventory_b) })
+gui::Dual_inventory::Dual_inventory(World& world, entt::entity entity_a, entt::entity entity_b)
+  : inventory_a(world, entity_a),
+    inventory_b(world, entity_b),
+    item_swapper(world, {std::ref(inventory_a), std::ref(inventory_b)})
 {
     bg.setParent(this);
     bg.setSizeInfo({ .percentage = {1,1} });

@@ -2,6 +2,7 @@
 #include "../../asset_storage/texture_bank.h"
 #include "../../global/gui_component_stack.h"
 #include "../inventory/player_inventory.h"
+#include "../../world/world.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -57,10 +58,10 @@ void gui::Hud::deactivateEvent()
     controls.deactivate();
 }
 
-gui::Hud::Hud(entt::registry& registry, entt::entity player)
-    : registry(registry),
+gui::Hud::Hud(World& world, entt::entity player)
+    : world(world),
     player(player),
-    quick_select(registry, player)
+    quick_select(world.getRegistry(), player)
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -102,7 +103,7 @@ gui::Hud::Hud(entt::registry& registry, entt::entity player)
 
     auto inventory_button_f = [this]
     {
-        auto inv = std::make_unique<gui::Player_inventory>(this->registry, this->player);
+        auto inv = std::make_unique<gui::Player_inventory>(this->world, this->player);
         inv->setSizeInfo({ {0,0}, {0.5,0.5} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;
@@ -116,8 +117,8 @@ gui::Hud::Hud(entt::registry& registry, entt::entity player)
     };
     inventory_button.setPressFunction(inventory_button_f);
 
-    player_frame.setPlayer(registry, player);
-    controls.setPlayer(registry, player);
+    player_frame.setPlayer(world.getRegistry(), player);
+    controls.setPlayer(world.getRegistry(), player);
 
     rescale();
 }
@@ -135,8 +136,8 @@ void gui::Hud::update()
 void gui::Hud::setPlayer(entt::entity player)
 {
     this->player = player;
-    player_frame.setPlayer(registry, player);
-    controls.setPlayer(registry, player);
+    player_frame.setPlayer(world.getRegistry(), player);
+    controls.setPlayer(world.getRegistry(), player);
     quick_select.setPlayer(player);
 }
 

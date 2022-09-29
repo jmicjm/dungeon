@@ -1,5 +1,6 @@
 #pragma once
 #include "../gui_component.h"
+#include "../../world/world.fwd.h"
 #include "../primitives/frame/frame.h"
 #include "../primitives/text/text.h";
 #include "../primitives/button/button.h"
@@ -13,7 +14,7 @@ namespace gui
 {
     class Player_inventory : public Gui_component
     {
-        entt::registry& registry;
+        World& world;
         entt::entity player;
 
         Frame bg;
@@ -25,7 +26,7 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Player_inventory(entt::registry& registry, entt::entity player);
+        Player_inventory(World& world, entt::entity player);
 
         void update() override;
     };

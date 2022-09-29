@@ -1,4 +1,5 @@
 #include "inventory.h"
+#include "../../world/world.h"
 #include "common/drawItem.h"
 
 
@@ -32,11 +33,11 @@ void gui::Inventory::redraw()
                 const auto coords = slotToCoords(slot);
                 if (coords.y > size().y) return;
 
-                if (auto item = inventory()->get(slot); registry.valid(item))
+                if (auto item = inventory()->get(slot); world.getRegistry().valid(item))
                 {
                     sf::RenderStates st;
                     st.transform.translate(coords);
-                    drawItem(window, st, registry, item);
+                    drawItem(window, st, world.getRegistry(), item);
                 }
             }
         }
@@ -81,12 +82,17 @@ sf::Vector2f gui::Inventory::slotToCoords(unsigned int slot) const
 
 const Inventory* gui::Inventory::inventory() const
 {
-    return registry.valid(entity) ? registry.try_get<::Inventory>(entity) : nullptr;
+    return world.getRegistry().valid(entity) ? world.getRegistry().try_get<::Inventory>(entity) : nullptr;
 }
 
 Inventory* gui::Inventory::inventory()
 {
     return const_cast<::Inventory*>(std::as_const(*this).inventory());
+}
+
+const entt::entity gui::Inventory::inventoryEntity() const
+{
+    return entity;
 }
 
 std::tuple<bool, unsigned int, sf::Vector2f> gui::Inventory::coordsToSlot(const sf::Vector2f& coords) const
@@ -103,8 +109,8 @@ std::tuple<bool, unsigned int, sf::Vector2f> gui::Inventory::coordsToSlot(const 
     return { slot < inventory()->slotCount(), slot, offset };
 }
 
-gui::Inventory::Inventory(entt::registry& registry, entt::entity entity)
-  : registry(registry),
+gui::Inventory::Inventory(World& world, entt::entity entity)
+  : world(world),
     entity(entity)
 {
     item_field.setParent(this);

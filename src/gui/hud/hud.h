@@ -5,6 +5,7 @@
 #include "player_frame.h"
 #include "quick_select.h"
 #include "controls.h"
+#include "../../world/world.fwd.h"
 #include "../../entities/player.h"
 
 #include <entt/entt.hpp>
@@ -14,8 +15,8 @@ namespace gui
 {
     class Hud : public Gui_component
     {
+        World& world;
         entt::entity player;
-        entt::registry& registry;
 
         Player_frame player_frame;
         Stat_bar hp_bar;
@@ -33,7 +34,7 @@ namespace gui
         void deactivateEvent() override;
 
     public:
-        Hud(entt::registry& registry, entt::entity player);
+        Hud(World& world, entt::entity player);
 
         void update() override;
 
