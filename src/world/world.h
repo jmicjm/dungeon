@@ -24,6 +24,8 @@ class World : public sf::Drawable
     View_follower vf;
     View_follower vf_instant;
 
+    void initRegistry();
+
     void createPlayer();
     void initViewFollowers();
     void spawnNpcs();

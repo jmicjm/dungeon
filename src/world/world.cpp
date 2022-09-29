@@ -8,6 +8,7 @@
 #include "../components/character_update_tags.h"
 #include "../components/render_component.h"
 #include "../components/pending_animation.h"
+#include "../components/inventory.h"
 #include "../gfx/zlevels.h"
 #include "../gfx/utils/visibleAreaBounds.h"
 #include "../level/visibleTiles.h"
@@ -23,6 +24,20 @@
 #include "../entities/items/createItem.h"
 #include "../components/description.h"
 
+
+void World::initRegistry()
+{
+    registry.on_destroy<Inventory>().connect<[](entt::registry& registry, entt::entity entity) {
+        auto& inventory = registry.get<Inventory>(entity);
+        for (auto&& interval : inventory.usedSlots())
+        {
+            for (auto slot = interval.lower(); slot < interval.upper(); slot++)
+            {
+                registry.destroy(inventory.get(slot));
+            }
+        }
+    }>();
+}
 
 void World::createPlayer()
 {
@@ -148,6 +163,8 @@ void World::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
 World::World(const World_params& params)
 {
+    initRegistry();
+
     for (const auto& lp : params.level_params)
     {
         levels.push_back(std::make_shared<Level>(lp, registry, entity_level_map));
