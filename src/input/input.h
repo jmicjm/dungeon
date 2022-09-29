@@ -18,8 +18,8 @@ class Input
         bool released;
     };
     inline static std::map<sf::Mouse::Button, Mouse_hold_info_impl> mouse_hold_info;
-    inline static std::set<sf::Mouse::Button> mouse_pressed_buttons;
-    inline static std::set<sf::Mouse::Button> mouse_released_buttons;
+    inline static std::map<sf::Mouse::Button, bool> mouse_pressed_buttons;
+    inline static std::map<sf::Mouse::Button, bool> mouse_released_buttons;
 
 public:
 
@@ -28,5 +28,8 @@ public:
 
     static std::optional<Mouse_hold_info> getMouseHoldVec(sf::Mouse::Button button);
     static bool isPressed(sf::Mouse::Button button);
+    static bool isPressedConsume(sf::Mouse::Button button);
     static bool isReleased(sf::Mouse::Button button);
+    static bool isReleasedConsume(sf::Mouse::Button button);
+    static bool isHold(sf::Mouse::Button button);
 };

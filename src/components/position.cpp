@@ -54,3 +54,8 @@ Level* Position::getLevel() const
 {
     return level;
 }
+
+Position Position::replicate(entt::entity other) const
+{
+    return { coords, level, *elvl_map, other };
+}

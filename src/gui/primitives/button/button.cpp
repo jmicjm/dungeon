@@ -20,30 +20,47 @@ namespace gui
     {
         if (!isActive()) return;
 
-        if (is_pressed && type == PUSH)
-        {
-            is_pressed = false;
-        }
         is_hovered = Gui_component::isHovered();
-        if (!isLocked() && isHovered() && Input::getMouseHoldVec(sf::Mouse::Button::Left))
-        {
-            is_pressed = !is_pressed;
-            press_tp = std::chrono::steady_clock::now();
 
-            if (isPressed())
+        if (type == PUSH && is_pressed)
+        {
+            if (Input::isReleasedConsume(sf::Mouse::Left))
+            {
+                is_pressed = false;
+                if (release_function) release_function();
+            }
+            else if (!isLocked())
             {
                 if (press_function) press_function();
             }
-            else
-            {
-                if (release_function) release_function();
-            }
+        }
+        if (isHovered() && Input::isPressedConsume(sf::Mouse::Left))
+        {
+            is_pressed = !is_pressed;
+            press_tp = std::chrono::steady_clock::now();
+            if (press_function) press_function();
         }
     }
 
     void Button::setType(TYPE t)
     {
         type = t;
+    }
+
+    void Button::press()
+    {
+        if (!std::exchange(is_pressed, true))
+        {
+            if (press_function) press_function();
+        }
+    }
+
+    void Button::release()
+    {
+        if (std::exchange(is_pressed, false))
+        {
+            if (release_function) release_function();
+        }
     }
 
     void Button::setPressDelay(const std::chrono::milliseconds& delay)
@@ -111,6 +128,14 @@ namespace gui
     Button_appearance Button::getAppearance() const
     {
         return appearance;
+    }
+
+    void Button::setText(const std::string& text)
+    {
+        setPressedText(text);
+        setPressedHoveredText(text);
+        setReleasedText(text);
+        setReleasedHoveredText(text);
     }
 
     void Button::setPressedText(const std::string& text)

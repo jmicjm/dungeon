@@ -37,7 +37,7 @@ namespace gui
         template<typename ...T>
         void draw(T&&... args);
 
-        virtual void redraw() = 0;
+        virtual void redraw() {}
 
         virtual void resizeEvent(sf::Vector2f size_diff) {}
         virtual void activateEvent() {}

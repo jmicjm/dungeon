@@ -28,4 +28,6 @@ public:
     void setCoords(const sf::Vector2i& coords);
     const sf::Vector2i& getCoords() const;
     Level* getLevel() const;
+
+    Position replicate(entt::entity other) const;
 };

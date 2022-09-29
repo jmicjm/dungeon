@@ -2,7 +2,12 @@
 
 namespace zlevel
 {
-    constexpr auto portal = 0;
-    constexpr auto door = 1;
-    constexpr auto character = 2;
+    enum zlevel
+    {
+        portal,
+        chest,
+        item,
+        door,
+        character
+    };
 }

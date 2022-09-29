@@ -5,12 +5,21 @@
 #include "input/input.h"
 #include "gui/hud/hud.h"
 #include "components/character_update_tags.h"
+#include "asset_storage/tile_sprite_storage.h"
+#include "utils/sf_vector2_utils.h"
+#include "components/inventory.h"
+#include "gui/inventory/dual_inventory.h"
+#include "entities/items/createItem.h"
+#include "components/stackable_item.h"
+#include "components/render_component.h"
+#include "components/position.h"
+#include "gui/world_context_menu/world_context_menu.h"
+
 
 
 int main()
 {
     window.setFramerateLimit(60);
-
 
     Level_structure_params structure_params;
     structure_params.level_size = { 500, 500 };
@@ -37,9 +46,23 @@ int main()
 
     World world(world_params);
 
+    auto& inv = world.getRegistry().get<Inventory>(world.getPlayer());
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::BLOODTHIRSTY_BLADE), 4);
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::DAGGER), 5);
+    inv.insert(world.getRegistry(), items::createItem(world.getRegistry(), items::Item_id::LONGSWORD), 18);
+    auto coins = items::createItem(world.getRegistry(), items::Item_id::COINS);
+    world.getRegistry().get<Stackable_item>(coins).setAmount(999);
+    auto coins2 = world.getRegistry().get<Stackable_item>(coins).take(world.getRegistry(), 16);
+    world.getRegistry().get<Stackable_item>(coins2).setAmount(999);
+    auto coins3 = world.getRegistry().get<Stackable_item>(coins2).take(world.getRegistry(), 16);
+    world.getRegistry().get<Stackable_item>(coins3).setAmount(4);
+    inv.insert(world.getRegistry(), coins);
+    inv.insert(world.getRegistry(), coins2,1);
+    inv.insert(world.getRegistry(), coins3,3);
 
-    gui::Hud hud;
-    hud.setPlayer(world.getRegistry(), world.getPlayer());
+
+
+    gui::Hud hud(world, world.getPlayer());
     hud.activate();
 
     while (window.isOpen())
@@ -66,7 +89,6 @@ int main()
         window.clear();
         window.setView(view);
 
-
         world.update(window);
         window.draw(world);
 
@@ -76,9 +98,16 @@ int main()
         hud.update();
         hud.draw();
 
+        if (!gui_component_stack.size() && world.getCurrentLevel() && Input::isPressedConsume(sf::Mouse::Left))
+        {
+            auto context_menu = std::make_unique<gui::World_context_menu>(world, window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+            context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
+
+            gui_component_stack.insert(std::move(context_menu));
+        }
+
         gui_component_stack.update();
         gui_component_stack.draw();
-
 
         window.display();
     }   

@@ -1,7 +1,8 @@
 #include "hud.h"
 #include "../../asset_storage/texture_bank.h"
 #include "../../global/gui_component_stack.h"
-#include "../inventory/inventory.h"
+#include "../inventory/player_inventory.h"
+#include "../../world/world.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -19,6 +20,7 @@ void gui::Hud::rescale()
 
     quick_select.setSizeInfo({ sf::Vector2f{18,82} * scale });
     quick_select.setAnchorPositionInfo({ .offset = sf::Vector2f{0,-2} * scale });
+    quick_select.setScale(scale);
 
     inventory_button.setSizeInfo({ sf::Vector2f{16,16} * scale });
     inventory_button.setPositionInfo({ sf::Vector2f{2,-2} * scale, {0,0}, {0,1} });
@@ -56,7 +58,10 @@ void gui::Hud::deactivateEvent()
     controls.deactivate();
 }
 
-gui::Hud::Hud()
+gui::Hud::Hud(World& world, entt::entity player)
+    : world(world),
+    player(player),
+    quick_select(world.getRegistry(), player)
 {
     setSizeInfo({ {0,0}, {1,1} });
 
@@ -89,30 +94,31 @@ gui::Hud::Hud()
                                           .pressed_hovered = sf::Sprite{ *inv_btn_tex, { {32,0}, {16,16} } },
                                           .released_hovered = sf::Sprite{ *inv_btn_tex, { {16,0}, {16,16} } } };
     inventory_button.setAppearance(inv_btn_a);
+    inventory_button.setType(Button::SWITCH);
     inventory_button.setParent(this);
 
-    const auto qselect_tex = Texture_bank::getTexture("gui/quick_select.png");
-    quick_select.setAppearance({ sf::Sprite{ *qselect_tex } });
     quick_select.setParent(this);
     quick_select.setAnchor(&inventory_button);
 
 
-    auto inventory_button_f = [&, inv_btn_a]
+    auto inventory_button_f = [this]
     {
-        auto inv = std::make_unique<gui::Inventory>();
+        auto inv = std::make_unique<gui::Player_inventory>(this->world, this->player);
         inv->setSizeInfo({ {0,0}, {0.5,0.5} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;
-        cfg.on_close = [&, inv_btn_a] 
+        cfg.on_close = [this] 
         {
             activate();
-            inventory_button.setAppearance(inv_btn_a);
+            inventory_button.release();
         };
         gui_component_stack.insert(std::move(inv), cfg);
-        inventory_button.setAppearance({ .released = inv_btn_a.pressed });
         deactivate();
     };
     inventory_button.setPressFunction(inventory_button_f);
+
+    player_frame.setPlayer(world.getRegistry(), player);
+    controls.setPlayer(world.getRegistry(), player);
 
     rescale();
 }
@@ -127,12 +133,12 @@ void gui::Hud::update()
     controls.update();
 }
 
-void gui::Hud::setPlayer(entt::registry& registry, entt::entity player)
+void gui::Hud::setPlayer(entt::entity player)
 {
     this->player = player;
-    this->registry = &registry;
-    player_frame.setPlayer(registry, player);
-    controls.setPlayer(registry, player);
+    player_frame.setPlayer(world.getRegistry(), player);
+    controls.setPlayer(world.getRegistry(), player);
+    quick_select.setPlayer(player);
 }
 
 void gui::Hud::setScale(float scale)

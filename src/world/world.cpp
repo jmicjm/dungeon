@@ -8,6 +8,7 @@
 #include "../components/character_update_tags.h"
 #include "../components/render_component.h"
 #include "../components/pending_animation.h"
+#include "../components/inventory.h"
 #include "../gfx/zlevels.h"
 #include "../gfx/utils/visibleAreaBounds.h"
 #include "../level/visibleTiles.h"
@@ -19,6 +20,24 @@
 #include "../entities/npc/smuggler.h"
 #include "../entities/gate.h"
 
+#include "../entities/chest.h"
+#include "../entities/items/createItem.h"
+#include "../components/description.h"
+
+
+void World::initRegistry()
+{
+    registry.on_destroy<Inventory>().connect<[](entt::registry& registry, entt::entity entity) {
+        auto& inventory = registry.get<Inventory>(entity);
+        for (auto&& interval : inventory.usedSlots())
+        {
+            for (auto slot = interval.lower(); slot < interval.upper(); slot++)
+            {
+                registry.destroy(inventory.get(slot));
+            }
+        }
+    }>();
+}
 
 void World::createPlayer()
 {
@@ -144,6 +163,8 @@ void World::draw(sf::RenderTarget& rt, sf::RenderStates st) const
 
 World::World(const World_params& params)
 {
+    initRegistry();
+
     for (const auto& lp : params.level_params)
     {
         levels.push_back(std::make_shared<Level>(lp, registry, entity_level_map));
@@ -154,6 +175,7 @@ World::World(const World_params& params)
         auto entity = registry.create();
         registry.emplace<Portal>(entity, portal);
         registry.emplace<Position>(entity, dst_coords, dst_level, entity_level_map, entity);
+        registry.emplace<Description>(entity, "portal");
 
         auto frames = std::make_shared<Animated_sprite_frames>(tex, std::vector<sf::IntRect>{ tex_rect });
         registry.emplace<Render_component>(entity, Render_component{ { { zlevel::portal, { Animated_sprite{frames, 1} } } } });
@@ -177,6 +199,12 @@ World::World(const World_params& params)
     createPlayer();
     initViewFollowers();
     spawnNpcs();
+
+    auto chest = createChest(registry, 32);
+    registry.emplace<Position>(chest, current_level->getStructure().getRoomRect(0).tl, current_level.get(), entity_level_map, chest);
+
+    auto item = items::createItem(registry, items::Item_id::LONGSWORD);
+    registry.emplace<Position>(item, current_level->getStructure().getRoomRect(0).tl, current_level.get(), entity_level_map, item);
 }
 
 void World::update(sf::RenderTarget& rt)
@@ -223,6 +251,11 @@ std::shared_ptr<Level> World::changeLevel(std::shared_ptr<Level> new_level)
 entt::entity World::getPlayer() const
 {
     return player;
+}
+
+const Level* World::getCurrentLevel() const
+{
+    return current_level.get();
 }
 
 auto World::getEntities() const -> const decltype(entity_level_map)&

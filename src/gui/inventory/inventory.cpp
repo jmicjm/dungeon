@@ -1,104 +1,125 @@
 #include "inventory.h"
-#include "../primitives/apperance_common.h"
+#include "../../world/world.h"
+#include "common/drawItem.h"
+
 
 void gui::Inventory::redraw()
 {
-    bg.draw();
-    text.draw();
-    btn.draw();
+    if (!inventory()) return;
+
+    const float slot_size = item_field_size - item_field_border*2;
+    item_field.setSizeInfo({ { slot_size, slot_size } });
+
+    const unsigned int first_row = scroll.getTopPosition() / item_field_size;
+    const unsigned int first_slot = first_row * slotsPerRow();
+    for (auto slot = first_slot; slot < inventory()->slotCount(); slot++)
+    {
+        const auto coords = slotToCoords(slot);
+        if (coords.y > size().y) break;
+
+        item_field.setPositionInfo({ coords + sf::Vector2f(item_field_border, item_field_border) });
+        item_field.draw();
+    }  
+
+    [&]{
+        for (auto it = inventory()->usedSlots().lower_bound({ first_slot, first_slot + 1 });
+             it != inventory()->usedSlots().end();
+             it++)
+        {
+            for (auto slot = it->lower() >= first_slot ? it->lower() : first_slot;
+                 slot < it->upper();
+                 slot++)
+            {
+                const auto coords = slotToCoords(slot);
+                if (coords.y > size().y) return;
+
+                if (auto item = inventory()->get(slot); world.getRegistry().valid(item))
+                {
+                    sf::RenderStates st;
+                    st.transform.translate(coords);
+                    drawItem(window, st, world.getRegistry(), item);
+                }
+            }
+        }
+    }();
+
+    if (scroll.isNeeded()) scroll.draw();
 }
 
 void gui::Inventory::activateEvent()
 {
-    text.activate();
-    btn.activate();
+    scroll.activate();
 }
 
 void gui::Inventory::deactivateEvent()
 {
-    text.deactivate();
-    btn.deactivate();
+    scroll.deactivate();
 }
 
-gui::Inventory::Inventory()
+void gui::Inventory::resizeEvent(sf::Vector2f size_diff)
 {
-    bg.setParent(this);
-    text.setParent(this);
-    btn.setParent(this);
-
-    bg.setSizeInfo({ {0,0}, {1,1} });
-    text.setSizeInfo({ {0,-32}, {1,1} });
-    btn.setSizeInfo({ {128,32} });
-    btn.setPositionInfo({ {0,0}, {0,0}, {1,1} });
-
-    text.setString("this text serves the purpose of distracting you from the fact that this screen is not yet implemented");
-
-    bg.setAppearance({ rect({41, 32, 22, 224}) });
-
-    btn.setPressedHoveredText("TEST");
-    btn.setReleasedText("test");
-    btn.setReleasedHoveredText("TEST");
-
-    auto btn_f = [=]
+    if (!inventory()) return;
+    scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow(false)) * item_field_size);
+    if (scroll.isNeeded())
     {
-        class Dialog : public Gui_component, public Component_stack_helper
-        {
-            gui::Frame bg;
-            gui::Text text;
-            gui::Button close_btn;
+        scroll.setContentLength(std::ceil(static_cast<float>(inventory()->slotCount()) / slotsPerRow(true)) * item_field_size);
+    }
+}
 
-            void redraw() override 
-            {
-                bg.draw();
-                text.draw(); 
-                close_btn.draw();
-            }
-            void activateEvent() override
-            {
-                text.activate();
-                close_btn.activate();
-            }
-            void deactivateEvent() override
-            {
-                text.deactivate();
-                close_btn.deactivate();
-            }
-            void update() override
-            {
-                text.update();
-                close_btn.update();
-            }
-        public:
-            Dialog(const Frame_appearance& fa)
-            {
-                bg.setParent(this);
-                bg.setSizeInfo({ .percentage = {1,1} });
-                bg.setAppearance(fa);
-                text.setParent(this);
-                text.setString("same purpose, different text");
-                text.setSizeInfo({ {0,-24}, {1,1} });
-                close_btn.setParent(this);
-                close_btn.setSizeInfo({ { 96, 24 } });
-                close_btn.setPositionInfo({ .relative_to = {1,1} });
-                close_btn.setReleasedText("close");
-                close_btn.setReleasedHoveredText("close");
-                close_btn.setPressedHoveredText("close");
-                close_btn.setPressFunction([&] { removeFromComponentStack(); });
-                close_btn.setFontSize(16);
-            }
-        };
-        auto dialog = std::make_unique<Dialog>(Frame_appearance{ rect({0,0,0,255}) });
-        dialog->setSizeInfo({ .percentage = {0.3,0.2} });
-        dialog->setPositionInfo({ .relative_to = {0.5,0.5} });
-        Component_stack::Component_config cfg;
-        cfg.outside_click_action = Component_stack::Component_config::OUTSIDE_CLICK_ACTION::NOTHING;
-        insertIntoComponentStack(std::move(dialog), cfg);
-    };
-    btn.setPressFunction(btn_f);
+int gui::Inventory::slotsPerRow(bool with_scroll) const
+{
+    auto width = (with_scroll && scroll.isNeeded()) ? size().x - scroll.size().x : size().x;
+    return std::max(1.f, width / item_field_size);
+}
+
+sf::Vector2f gui::Inventory::slotToCoords(unsigned int slot) const
+{
+    const int row = slot / slotsPerRow();
+    const int column = slot % slotsPerRow();
+
+    return sf::Vector2f(column * item_field_size, row * item_field_size - scroll.getTopPosition());
+}
+
+const Inventory* gui::Inventory::inventory() const
+{
+    return world.getRegistry().valid(entity) ? world.getRegistry().try_get<::Inventory>(entity) : nullptr;
+}
+
+Inventory* gui::Inventory::inventory()
+{
+    return const_cast<::Inventory*>(std::as_const(*this).inventory());
+}
+
+const entt::entity gui::Inventory::inventoryEntity() const
+{
+    return entity;
+}
+
+std::tuple<bool, unsigned int, sf::Vector2f> gui::Inventory::coordsToSlot(const sf::Vector2f& coords) const
+{
+    if (!visibleArea().contains(coords) || !inventory()) return { 0, -1u, {0,0} };
+
+    const auto px = coords - globalPosition();
+    const int x_slot = px.x / item_field_size;
+    if (x_slot >= slotsPerRow()) return { 0, -1u, {0,0} };
+    const int y_slot = (px.y + scroll.getTopPosition()) / item_field_size;    
+    const unsigned int slot = y_slot * slotsPerRow() + x_slot;
+    const sf::Vector2f offset = px - sf::Vector2f(x_slot, y_slot) * static_cast<float>(item_field_size) + sf::Vector2f(0, scroll.getTopPosition());
+
+    return { slot < inventory()->slotCount(), slot, offset };
+}
+
+gui::Inventory::Inventory(World& world, entt::entity entity)
+  : world(world),
+    entity(entity)
+{
+    item_field.setParent(this);
+    scroll.setParent(this);
+    scroll.setSizeInfo({ {16,0}, {0,1} });
+    scroll.setPositionInfo({ .relative_to = {1,0} });
 }
 
 void gui::Inventory::update()
 {
-    text.update();
-    btn.update();
+    scroll.update();
 }
