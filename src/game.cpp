@@ -16,7 +16,6 @@
 #include "gui/world_context_menu/world_context_menu.h"
 
 
-
 int main()
 {
     window.setFramerateLimit(60);
@@ -100,10 +99,18 @@ int main()
 
         if (!gui_component_stack.size() && world.getCurrentLevel() && Input::isPressedConsume(sf::Mouse::Left))
         {
-            auto context_menu = std::make_unique<gui::World_context_menu>(world, window.mapPixelToCoords(sf::Mouse::getPosition(window)));
-            context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
+            const auto coords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-            gui_component_stack.insert(std::move(context_menu));
+            if (world.getCurrentLevel()->isVisible(vecDiv(sf::Vector2i{ coords }, Tile_sprite_storage::tile_size)))
+            {
+                auto context_menu = std::make_unique<gui::World_context_menu>(world, coords);
+                context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
+
+                if (context_menu->entryCount())
+                {
+                    gui_component_stack.insert(std::move(context_menu));
+                }
+            }
         }
 
         gui_component_stack.update();

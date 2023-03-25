@@ -27,5 +27,7 @@ namespace gui
         World_context_menu(World& world, const sf::Vector2f& world_pixel);
 
         void update() override;
+
+        size_t entryCount() const;
     };
 }

@@ -111,3 +111,8 @@ void gui::World_context_menu::update()
 {
     entity_list.update();
 }
+
+size_t gui::World_context_menu::entryCount() const
+{
+    return entity_list.entryCount();
+}

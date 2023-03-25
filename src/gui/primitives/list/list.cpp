@@ -73,6 +73,11 @@ void gui::List::update()
     for (auto& entry : entries) entry->update();
 }
 
+size_t gui::List::entryCount() const
+{
+    return entries.size();
+}
+
 float gui::List::length() const
 {
     return entries.empty() ? 0 : scroll.getContentLength();

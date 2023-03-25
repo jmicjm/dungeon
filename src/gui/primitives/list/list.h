@@ -29,6 +29,7 @@ namespace gui
 
         void update() override;
 
+        size_t entryCount() const;
         float length() const;
 
         void setAppearance(const List_appearance& a);
