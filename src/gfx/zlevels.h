@@ -8,6 +8,7 @@ namespace zlevel
         chest,
         item,
         door,
+        shadow,
         character
     };
 }
