@@ -1,7 +1,10 @@
 #include "animated_sprite.h"
 
+using namespace std::chrono_literals;
+
+
 Animated_sprite::Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, unsigned int fps)
-    : Animated_sprite(frames, std::chrono::milliseconds(1000) / fps) {}
+    : Animated_sprite(frames, fps != 0 ? 1000ms / fps : 0ms) {}
 
 Animated_sprite::Animated_sprite(std::shared_ptr<Animated_sprite_frames> frames, std::chrono::milliseconds frame_time)
     : m_frames(frames), m_frame_time(frame_time)
@@ -80,6 +83,8 @@ void Animated_sprite::updateFrameIdx()
 
 void Animated_sprite::updateFrameIdx(std::chrono::steady_clock::time_point tp)
 {
+    if (m_frame_time == 0ms) return;
+
     if (m_frames && m_frames->frame_rects.size() > 1)
     {
         std::chrono::steady_clock::time_point current_point = tp;
