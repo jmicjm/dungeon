@@ -40,7 +40,7 @@ namespace items
             { Item_id::COINS, createCoins },
         };
 
-        if (auto it = create_function_map.find(id); id != create_function_map.end())
+        if (auto it = create_function_map.find(id); it != create_function_map.end())
         {
             auto item = registry.create();
             registry.emplace<Item>(item, id);
