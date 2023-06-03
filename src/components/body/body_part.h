@@ -14,7 +14,7 @@ enum class Body_part_type
     FOOT
 };
 
-std::string bodyPartTypeToString(Body_part_type bpt);
+std::string toString(Body_part_type bpt);
 
 
 struct Body_part;
@@ -39,9 +39,11 @@ private:
 struct Body_part : Body_part_base
 {
     Body_part_type type;
+    std::string prefix;
 
-    Body_part(Body_part_type type);
+    Body_part(Body_part_type type, std::string prefix = "");
 
     Body_part& addChild(Body_part part);
-    std::string describe(const std::string& pronoun);
+    std::string name() const;
+    std::string describe(const std::string& pronoun) const;
 };
