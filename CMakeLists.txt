@@ -81,6 +81,7 @@ add_executable(dungeon
     src/components/position.cpp  
     src/components/inventory.cpp
     src/components/stackable_item.cpp 
+    src/components/body/body_part.cpp
 )
 
 add_custom_target(
