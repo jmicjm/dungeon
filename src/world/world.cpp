@@ -16,8 +16,8 @@
 
 #include <vector>
 
-#include "../entities/npc/infected_zombie.h"
-#include "../entities/npc/smuggler.h"
+#include "../entities/characters/npc/infected_zombie.h"
+#include "../entities/characters/npc/smuggler.h"
 #include "../entities/gate.h"
 
 #include "../entities/chest.h"

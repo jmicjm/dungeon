@@ -1,7 +1,7 @@
 #pragma once
-#include "../components/player.h"
-#include "../world/world.fwd.h"
-#include "../utils/quadtree.h"
+#include "../../components/player.h"
+#include "../../world/world.fwd.h"
+#include "../../utils/quadtree.h"
 
 #include <entt/entt.hpp>
 

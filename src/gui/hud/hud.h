@@ -6,7 +6,7 @@
 #include "quick_select.h"
 #include "controls.h"
 #include "../../world/world.fwd.h"
-#include "../../entities/player.h"
+#include "../../entities/characters/player.h"
 
 #include <entt/entt.hpp>
 

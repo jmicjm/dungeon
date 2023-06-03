@@ -4,7 +4,7 @@
 #include "../utils/sf_vector2_utils.h"
 #include "../gfx/animated_sprite/animated_sprite.h"
 #include "../components/position.h"
-#include "../entities/player.h"
+#include "../entities/characters/player.h"
 #include "visibleTiles.h"
 #include "../entities/door.h"
 #include "../components/nonpassable.h"

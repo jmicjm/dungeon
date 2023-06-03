@@ -1,7 +1,7 @@
 #pragma once
 #include "world_params.h"
 #include "../level/level.fwd.h"
-#include "../entities/player.h"
+#include "../entities/characters/player.h"
 #include "../utils/quadtree.h"
 #include "../gfx/view_follower.h"
 

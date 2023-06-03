@@ -45,13 +45,13 @@ add_executable(dungeon
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
     src/entities/cloneEntity.cpp
-    src/entities/player.cpp
+    src/entities/characters/player.cpp
     src/entities/door.cpp
     src/entities/gate.cpp
     src/entities/portal.cpp
     src/entities/chest.cpp
-    src/entities/npc/smuggler.cpp
-    src/entities/npc/infected_zombie.cpp
+    src/entities/characters/npc/smuggler.cpp
+    src/entities/characters/npc/infected_zombie.cpp
     src/entities/items/createItem.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
