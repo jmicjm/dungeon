@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <concepts>
 
 
 enum class Body_part_type
@@ -16,34 +17,74 @@ enum class Body_part_type
 
 std::string toString(Body_part_type bpt);
 
-
 struct Body_part;
 
-struct Body_part_base
+class Body_node
 {
+    friend struct Body_part;
+
     Body_part* parent = nullptr;
     std::vector<std::unique_ptr<Body_part>> childs;
 
-private:
-    Body_part_base() = default;
-    Body_part_base(const Body_part_base& other);
-    Body_part_base(Body_part_base&& other) noexcept;
-    Body_part_base& operator=(const Body_part_base& other);
-    Body_part_base& operator=(Body_part_base&& other) noexcept;
+    Body_node() = default;
+    Body_node(const Body_node& other);
+    Body_node(Body_node&& other) noexcept;
+    Body_node& operator=(const Body_node& other);
+    Body_node& operator=(Body_node&& other) noexcept;
 
-    void swap(Body_part_base& other);
+    void swap(Body_node& other);
 
-    friend class Body_part;
+public:
+    Body_part* getParent();
+    const Body_part* getParent() const;
+    auto childCount() const -> decltype(childs)::size_type;
+    Body_node& getChild(decltype(childs)::size_type idx);
+    const Body_node& getChild(decltype(childs)::size_type idx) const;
+
+    Body_part& addChild(Body_part part);
+    Body_part& addChild(std::unique_ptr<Body_part> part);
+    std::unique_ptr<Body_part> removeChild(decltype(childs)::size_type idx);
+
+    void foreachChild(std::invocable<Body_part&> auto f);
+    void foreachChild(std::invocable<const Body_part&> auto f) const;
+
+    void foreachDescendant(std::invocable<Body_part&> auto f);
+    void foreachDescendant(std::invocable<const Body_part&> auto f) const;
 };
 
-struct Body_part : Body_part_base
+struct Body_part : Body_node
 {
     Body_part_type type;
     std::string prefix;
 
     Body_part(Body_part_type type, std::string prefix = "");
 
-    Body_part& addChild(Body_part part);
     std::string name() const;
     std::string describe(const std::string& pronoun) const;
 };
+
+
+void Body_node::foreachChild(std::invocable<Body_part&> auto f)
+{
+    for (auto& child : childs) f(*child);
+}
+
+void Body_node::foreachChild(std::invocable<const Body_part&> auto f) const
+{
+    for (const auto& child : childs) f(const_cast<const Body_part&>(*child));
+}
+
+void Body_node::foreachDescendant(std::invocable<Body_part&> auto f)
+{
+    std::as_const(*this).foreachDescendant([&](const Body_part& bp) {
+        f(const_cast<Body_part&>(bp)); 
+    });
+}
+
+void Body_node::foreachDescendant(std::invocable<const Body_part&> auto f) const 
+{
+    foreachChild([&](const Body_part& bp) {
+        f(bp);
+        bp.foreachDescendant(f);
+    });
+}
