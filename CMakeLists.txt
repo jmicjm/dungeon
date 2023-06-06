@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(WIN32)
-    set (SFML_DIR "C:/SFML-2.5.1/lib/cmake/SFML/")
     set(PYTHON_EXECUTABLE python)
 else()
     set(PYTHON_EXECUTABLE python3)
@@ -82,6 +81,7 @@ add_executable(dungeon
     src/components/inventory.cpp
     src/components/stackable_item.cpp 
     src/components/body/body_part.cpp
+    src/entities/characters/body_templates.cpp
 )
 
 add_custom_target(
