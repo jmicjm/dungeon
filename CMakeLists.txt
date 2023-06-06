@@ -72,6 +72,8 @@ add_executable(dungeon
     src/gui/inventory/dual_inventory.cpp
     src/gui/inventory/item_swapper.cpp
     src/gui/inventory/common/drawItem.cpp
+    src/gui/inventory/body_inventory.cpp
+    src/gui/inventory/body_inventory_entry.cpp
     src/gui/world_context_menu/world_context_menu.cpp
     src/gui/world_context_menu/entity_context_menu.cpp
     src/input/input.cpp

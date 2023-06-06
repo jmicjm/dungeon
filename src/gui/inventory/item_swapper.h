@@ -30,5 +30,7 @@ namespace gui
         ~Item_swapper();
 
         void update() override;
+
+        void addInventory(Inventory& inventory);
     };
 }
