@@ -1,5 +1,7 @@
 #pragma once
 #include "body_part.h"
+#include <concepts>
+#include <utility>
 
 
 struct Body_graph
@@ -18,4 +20,25 @@ struct Body_graph
         return *this;
     }
     Body_graph& operator=(Body_graph&& other) noexcept = default;
+
+    void foreach(std::invocable<Body_part&> auto f);
+    void foreach(std::invocable<const Body_part&> auto f) const;
 };
+
+void Body_graph::foreach(std::invocable<Body_part&> auto f)
+{
+    if (root)
+    {
+        f(*root);
+        root->foreachDescendant(f);
+    }
+}
+
+void Body_graph::foreach(std::invocable<const Body_part&> auto f) const
+{
+    if (root)
+    {
+        f(std::as_const(*root));
+        std::as_const(root)->foreachDescendant(f);
+    }
+}
