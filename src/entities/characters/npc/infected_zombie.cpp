@@ -16,20 +16,20 @@
 #include "../body_templates.h"
 
 
-Body createInfectedZombieBody()
+Body createInfectedZombieBody(entt::registry& registry)
 {
     using enum Body_part_type;
 
     auto mutilated_left_arm = Body_part{ JOINT, "left shoulder", true }.addChild(Body_part{ FOREARM, "left" });
 
     Body body;
-    body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD }
-        .addChild(Body_part{ UPPER_TORSO }
+    body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD, registry, Inventory{ 1 } }
+        .addChild(Body_part{ UPPER_TORSO, registry, Inventory{ 1 } }
             .addChild(mutilated_left_arm)
-            .addChild(createArm("right"))
-            .addChild(Body_part{ LOWER_TORSO }
-                .addChild(createLeg("left"))
-                .addChild(createLeg("right"))
+            .addChild(createArm(registry, "right"))
+            .addChild(Body_part{ LOWER_TORSO, registry, Inventory{ 1 } }
+                .addChild(createLeg(registry, "left"))
+                .addChild(createLeg(registry, "right"))
             )
         )
     );
@@ -47,7 +47,7 @@ entt::entity createInfectedZombie(entt::registry& registry)
     registry.emplace<Nonpassable>(infected);
     registry.emplace<Opaque>(infected);
     registry.emplace<Description>(infected, "infected zombie");
-    registry.emplace<Body>(infected, createInfectedZombieBody());
+    registry.emplace<Body>(infected, createInfectedZombieBody(registry));
 
     static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);

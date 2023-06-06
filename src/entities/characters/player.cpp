@@ -32,7 +32,7 @@ entt::entity createPlayer(entt::registry& registry)
     registry.emplace<Nonpassable>(player);
     registry.emplace<Inventory>(player, 64);
     registry.emplace<Description>(player, "you");
-    registry.emplace<Body>(player, createHumanoidBody());
+    registry.emplace<Body>(player, createHumanoidBody(registry));
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {

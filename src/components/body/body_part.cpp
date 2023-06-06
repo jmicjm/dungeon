@@ -100,6 +100,16 @@ Body_part::Body_part(Body_part_type type, std::string prefix, bool prefix_as_nam
     prefix{ std::move(prefix) },
     prefix_as_name{ prefix_as_name } {}
 
+Body_part::Body_part(Body_part_type type, entt::registry& registry, Inventory inventory)
+    : Body_part{ type, "", false, registry, inventory} {}
+
+Body_part::Body_part(Body_part_type type, std::string prefix, bool prefix_as_name, entt::registry& registry, Inventory inventory)
+    : Body_part{ type, prefix, prefix_as_name }
+{
+    inventory_entity = registry.create();
+    registry.emplace<Inventory>(inventory_entity, std::move(inventory));
+}
+
 std::string Body_part::name() const
 {
     if (prefix_as_name) return prefix;
@@ -118,6 +128,11 @@ std::string Body_part::describe(const std::string& pronoun) const
     }
 
     return desc;
+}
+
+Inventory* Body_part::getInventory(entt::registry& registry)
+{
+    return registry.valid(inventory_entity) ? registry.try_get<Inventory>(inventory_entity) : nullptr;
 }
 
 std::string toString(Body_part_type bpt)

@@ -22,7 +22,7 @@ entt::entity createSmuggler(entt::registry& registry)
     registry.emplace<Nonpassable>(smuggler);
     registry.emplace<Opaque>(smuggler);
     registry.emplace<Description>(smuggler, "smuggler");
-    registry.emplace<Body>(smuggler, createHumanoidBody());
+    registry.emplace<Body>(smuggler, createHumanoidBody(registry));
 
     static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/smuggler/smuggler.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);
