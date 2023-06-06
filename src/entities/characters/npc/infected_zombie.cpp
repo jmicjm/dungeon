@@ -13,7 +13,29 @@
 #include "../../../asset_storage/tile_sprite_storage.h"
 #include "../../../utils/rand.h"
 #include "../../../level/moveEntity.h"
+#include "../body_templates.h"
 
+
+Body createInfectedZombieBody()
+{
+    using enum Body_part_type;
+
+    auto mutilated_left_arm = Body_part{ JOINT, "left shoulder", true }.addChild(Body_part{ FOREARM, "left" });
+
+    Body body;
+    body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD }
+        .addChild(Body_part{ UPPER_TORSO }
+            .addChild(mutilated_left_arm)
+            .addChild(createArm("right"))
+            .addChild(Body_part{ LOWER_TORSO }
+                .addChild(createLeg("left"))
+                .addChild(createLeg("right"))
+            )
+        )
+    );
+
+    return body;
+}
 
 entt::entity createInfectedZombie(entt::registry& registry)
 {
@@ -25,6 +47,7 @@ entt::entity createInfectedZombie(entt::registry& registry)
     registry.emplace<Nonpassable>(infected);
     registry.emplace<Opaque>(infected);
     registry.emplace<Description>(infected, "infected zombie");
+    registry.emplace<Body>(infected, createInfectedZombieBody());
 
     static auto animation_frames = std::make_shared<Animated_sprite_frames>(Texture_bank::getTexture("characters/infected/infected.png"), std::vector<sf::IntRect>{ {0, 0, 64, 64} });
     Animated_sprite animation(animation_frames, 1);

@@ -3,16 +3,22 @@
 #include <vector>
 #include <string>
 #include <concepts>
+#include <utility>
 
 
 enum class Body_part_type
 {
     HEAD,
-    TORSO,
+    NECK,
+    UPPER_TORSO,
+    LOWER_TORSO,
+    FOREARM,
     ARM,
     HAND,
-    LEG,
-    FOOT
+    THIGH,
+    CALF,
+    FOOT,
+    JOINT
 };
 
 std::string toString(Body_part_type bpt);
@@ -56,8 +62,9 @@ struct Body_part : Body_node
 {
     Body_part_type type;
     std::string prefix;
+    bool prefix_as_name = false;
 
-    Body_part(Body_part_type type, std::string prefix = "");
+    Body_part(Body_part_type type, std::string prefix = "", bool prefix_as_name = false);
 
     std::string name() const;
     std::string describe(const std::string& pronoun) const;

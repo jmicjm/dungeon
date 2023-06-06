@@ -16,6 +16,7 @@
 #include "../../asset_storage/tile_sprite_storage.h"
 #include "../../global/gui_component_stack.h"
 #include "../../components/description.h"
+#include "body_templates.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
@@ -31,6 +32,7 @@ entt::entity createPlayer(entt::registry& registry)
     registry.emplace<Nonpassable>(player);
     registry.emplace<Inventory>(player, 64);
     registry.emplace<Description>(player, "you");
+    registry.emplace<Body>(player, createHumanoidBody());
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {

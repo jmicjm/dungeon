@@ -95,12 +95,14 @@ void Body_node::swap(Body_node& other)
 
 
 
-Body_part::Body_part(Body_part_type type, std::string prefix)
+Body_part::Body_part(Body_part_type type, std::string prefix, bool prefix_as_name)
   : type{ type },
-    prefix{ std::move(prefix) } {}
+    prefix{ std::move(prefix) },
+    prefix_as_name{ prefix_as_name } {}
 
 std::string Body_part::name() const
 {
+    if (prefix_as_name) return prefix;
     return (prefix.empty() ? "" : prefix + " ") + toString(type);
 }
 
@@ -124,11 +126,15 @@ std::string toString(Body_part_type bpt)
     switch (bpt)
     {
     case HEAD: return "head";
-    case TORSO: return "torso";
+    case UPPER_TORSO: return "upper torso";
+    case LOWER_TORSO: return "lower torso";
+    case FOREARM: return "forearm";
     case ARM: return "arm";
     case HAND: return "hand";
-    case LEG: return "leg";
+    case THIGH: return "thigh";
+    case CALF: return "calf";
     case FOOT: return "foot";
+    case JOINT: return "joint";
     default: return "";
     }
 }
