@@ -10,7 +10,7 @@ class Inventory
     boost::icl::interval_set<unsigned int, std::less, boost::icl::right_open_interval<unsigned int>> used_slots;
     unsigned int slot_count;
 
-    using allow_f = bool(const entt::registry&, entt::entity);
+    using allow_f = bool(const entt::registry&, entt::entity, const Inventory& inventory);
     allow_f* allow_item_check;
 
 public:
