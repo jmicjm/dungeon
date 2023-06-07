@@ -1,21 +1,22 @@
-#include "../components/player.h"
-#include "../components/character.h"
-#include "../components/character_update_tags.h"
-#include "../components/nonpassable.h"
-#include "../components/render_component.h"
-#include "../components/portal.h"
-#include "../components/move_animation_id.h"
-#include "../components/inventory.h"
-#include "portal.h"
-#include "../gfx/zlevels.h"
-#include "../asset_storage/texture_bank.h"
-#include "../gfx/animated_sprite/animated_sprite.h"
-#include "../components/position.h"
-#include "../level/moveEntity.h"
-#include "../world/world.h"
-#include "../asset_storage/tile_sprite_storage.h"
-#include "../global/gui_component_stack.h"
-#include "../components/description.h"
+#include "../../components/player.h"
+#include "../../components/character.h"
+#include "../../components/character_update_tags.h"
+#include "../../components/nonpassable.h"
+#include "../../components/render_component.h"
+#include "../../components/portal.h"
+#include "../../components/move_animation_id.h"
+#include "../../components/inventory.h"
+#include "../portal.h"
+#include "../../gfx/zlevels.h"
+#include "../../asset_storage/texture_bank.h"
+#include "../../gfx/animated_sprite/animated_sprite.h"
+#include "../../components/position.h"
+#include "../../level/moveEntity.h"
+#include "../../world/world.h"
+#include "../../asset_storage/tile_sprite_storage.h"
+#include "../../global/gui_component_stack.h"
+#include "../../components/description.h"
+#include "body_templates.h"
 
 #include "SFML/Window/Keyboard.hpp"
 
@@ -31,6 +32,7 @@ entt::entity createPlayer(entt::registry& registry)
     registry.emplace<Nonpassable>(player);
     registry.emplace<Inventory>(player, 64);
     registry.emplace<Description>(player, "you");
+    registry.emplace<Body>(player, createHumanoidBody(registry));
 
     std::shared_ptr<Animated_sprite_frames> player_frames = []()
     {

@@ -73,6 +73,14 @@ void gui::Item_swapper::update()
                 {
                     if (inventory.inventory()->insert(world.getRegistry(), hold_item, slot_idx))
                     {            
+                        if (slot_idx == src_slot && &inventory == src_inventory)
+                        {
+                            auto context_menu = std::make_unique<gui::Entity_context_menu>(world, inventory.inventory()->get(slot_idx), [] {}, inventory.inventoryEntity(), slot_idx);
+                            context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
+
+                            gui_component_stack.insert(std::move(context_menu));
+                        }
+
                         hold_item = entt::null;
                         src_inventory = nullptr;
                     }
@@ -84,14 +92,6 @@ void gui::Item_swapper::update()
                         hold_item = entt::null;
                         src_inventory = nullptr;
                     }
-
-                    if (slot_idx == src_slot)
-                    {
-                        auto context_menu = std::make_unique<gui::Entity_context_menu>(world, inventory.inventory()->get(slot_idx), []{}, inventory.inventoryEntity(), slot_idx);
-                        context_menu->setPositionInfo({ .relative_to = {0.5,0.5} });
-
-                        gui_component_stack.insert(std::move(context_menu));
-                    }
                 }
             }
         }
@@ -100,4 +100,9 @@ void gui::Item_swapper::update()
             restore();
         }
     }
+}
+
+void gui::Item_swapper::addInventory(Inventory& inventory)
+{
+    inventories.push_back(inventory);
 }

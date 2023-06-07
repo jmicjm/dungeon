@@ -3,7 +3,7 @@
 #include "stackable_item.h"
 
 
-bool defaultAllowCheck(const entt::registry& registry, entt::entity entity)
+bool defaultAllowCheck(const entt::registry& registry, entt::entity entity, const Inventory& inventory)
 {
     return registry.try_get<Item>(entity);
 }
@@ -32,7 +32,7 @@ auto Inventory::usedSlots() const -> const decltype(used_slots)&
 
 bool Inventory::isAllowed(const entt::registry& registry, entt::entity entity) const
 {
-    return allow_item_check ? allow_item_check(registry, entity) : true;
+    return allow_item_check ? allow_item_check(registry, entity, *this) : true;
 }
 
 bool Inventory::insert(entt::registry& registry, entt::entity item, unsigned int slot)

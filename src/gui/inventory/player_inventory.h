@@ -5,6 +5,7 @@
 #include "../primitives/text/text.h";
 #include "../primitives/button/button.h"
 #include "inventory.h"
+#include "body_inventory.h"
 #include "item_swapper.h"
 #include "../../components/inventory.h"
 #include <entt/entt.hpp>
@@ -20,6 +21,8 @@ namespace gui
         Frame bg;
         Inventory inventory;
         Item_swapper item_swapper;
+        Body_inventory body_inventory;
+
 
         void redraw() override;
         void activateEvent() override;

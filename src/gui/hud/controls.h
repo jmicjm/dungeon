@@ -2,7 +2,7 @@
 #include "../gui_component.h"
 #include "../primitives/frame/frame.h"
 #include "../primitives/button/button.h"
-#include "../../entities/player.h"
+#include "../../entities/characters/player.h"
 
 #include <entt/entt.hpp>
 

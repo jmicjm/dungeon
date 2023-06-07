@@ -26,6 +26,7 @@ namespace gui
         void deactivateEvent() override;
 
         std::vector<std::unique_ptr<Gui_component>> generateListEntries(World& world, const entt::entity entity, std::function<void()> on_action, entt::entity inventory, unsigned int inventory_slot);
+        std::string generateDescriptionText(const entt::registry& registry, entt::entity entity) const;
 
     public:
         Entity_context_menu(World& world, const entt::entity entity, std::function<void()> on_action = nullptr, entt::entity inventory = entt::null, unsigned int inventory_slot = 0);

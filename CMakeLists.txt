@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(WIN32)
-    set (SFML_DIR "C:/SFML-2.5.1/lib/cmake/SFML/")
     set(PYTHON_EXECUTABLE python)
 else()
     set(PYTHON_EXECUTABLE python3)
@@ -45,13 +44,13 @@ add_executable(dungeon
     src/level_gen/level_structure_decorator.cpp
     src/level_gen/createLevelStructure.cpp
     src/entities/cloneEntity.cpp
-    src/entities/player.cpp
+    src/entities/characters/player.cpp
     src/entities/door.cpp
     src/entities/gate.cpp
     src/entities/portal.cpp
     src/entities/chest.cpp
-    src/entities/npc/smuggler.cpp
-    src/entities/npc/infected_zombie.cpp
+    src/entities/characters/npc/smuggler.cpp
+    src/entities/characters/npc/infected_zombie.cpp
     src/entities/items/createItem.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
@@ -73,6 +72,8 @@ add_executable(dungeon
     src/gui/inventory/dual_inventory.cpp
     src/gui/inventory/item_swapper.cpp
     src/gui/inventory/common/drawItem.cpp
+    src/gui/inventory/body_inventory.cpp
+    src/gui/inventory/body_inventory_entry.cpp
     src/gui/world_context_menu/world_context_menu.cpp
     src/gui/world_context_menu/entity_context_menu.cpp
     src/input/input.cpp
@@ -81,6 +82,8 @@ add_executable(dungeon
     src/components/position.cpp  
     src/components/inventory.cpp
     src/components/stackable_item.cpp 
+    src/components/body/body_part.cpp
+    src/entities/characters/body_templates.cpp
 )
 
 add_custom_target(
