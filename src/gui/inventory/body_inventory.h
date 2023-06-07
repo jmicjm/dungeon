@@ -27,11 +27,12 @@ namespace gui
 
         void fillList(Item_swapper& item_swapper);
         std::vector<Body_part*> bodyPartsWithInventory();
-        std::unique_ptr<Gui_component> entryFromBodyPart(const Body_part& bp);
-        Body* getBody();
+        std::unique_ptr<Gui_component> entryFromBodyPart(const Body_part& bp);      
 
     public:
         Body_inventory(World& world, entt::entity entity, Item_swapper& item_swapper);
+
+        Body* getBody();
 
         void update() override;
     };
