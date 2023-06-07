@@ -24,12 +24,14 @@ Body createInfectedZombieBody(entt::registry& registry)
 
     Body body;
     body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD, registry, createHeadInventory() }
-        .addChild(Body_part{ UPPER_TORSO, registry, createUpperTorsoInventory() }
-            .addChild(mutilated_left_arm)
-            .addChild(createArm(registry, "right"))
-            .addChild(Body_part{ LOWER_TORSO, registry, createLowerTorsoInventory() }
-                .addChild(createLeg(registry, "left"))
-                .addChild(createLeg(registry, "right"))
+        .addChild(Body_part{ NECK }
+            .addChild(Body_part{ UPPER_TORSO, registry, createUpperTorsoInventory() }
+                .addChild(mutilated_left_arm)
+                .addChild(createArm(registry, "right"))
+                .addChild(Body_part{ LOWER_TORSO, registry, createLowerTorsoInventory() }
+                    .addChild(createLeg(registry, "left"))
+                    .addChild(createLeg(registry, "right"))
+                )
             )
         )
     );

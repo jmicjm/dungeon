@@ -141,6 +141,7 @@ std::string toString(Body_part_type bpt)
     switch (bpt)
     {
     case HEAD: return "head";
+    case NECK: return "neck";
     case UPPER_TORSO: return "upper torso";
     case LOWER_TORSO: return "lower torso";
     case FOREARM: return "forearm";
