@@ -23,11 +23,11 @@ Body createInfectedZombieBody(entt::registry& registry)
     auto mutilated_left_arm = Body_part{ JOINT, "left shoulder", true }.addChild(Body_part{ FOREARM, "left" });
 
     Body body;
-    body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD, registry, Inventory{ 1 } }
-        .addChild(Body_part{ UPPER_TORSO, registry, Inventory{ 1 } }
+    body.graph.root = std::make_unique<Body_part>(Body_part{ HEAD, registry, createHeadInventory() }
+        .addChild(Body_part{ UPPER_TORSO, registry, createUpperTorsoInventory() }
             .addChild(mutilated_left_arm)
             .addChild(createArm(registry, "right"))
-            .addChild(Body_part{ LOWER_TORSO, registry, Inventory{ 1 } }
+            .addChild(Body_part{ LOWER_TORSO, registry, createLowerTorsoInventory() }
                 .addChild(createLeg(registry, "left"))
                 .addChild(createLeg(registry, "right"))
             )

@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <concepts>
 #include <boost/icl/interval_set.hpp>
 #include <entt/entt.hpp>
 
@@ -24,4 +25,20 @@ public:
     bool insert(entt::registry& registry, entt::entity item);
     entt::entity remove(unsigned int slot);
     entt::entity get(unsigned int slot) const;
+    void foreach(std::invocable<entt::entity> auto f) const;
 };
+
+void Inventory::foreach(std::invocable<entt::entity> auto f) const
+{
+    for (auto item : items) f(item.second);
+}
+
+template<typename T>
+auto countTInInventory(const entt::registry& registry, const Inventory& inventory)
+{
+    auto c = 0;
+    inventory.foreach([&](auto entity) {
+        if (registry.try_get<T>(entity)) c++;
+    });
+    return c;
+}
