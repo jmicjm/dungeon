@@ -20,7 +20,8 @@ namespace gui
 
         const sf::Texture& tex = font.getTexture(font_size);    
 
-        const unsigned int width = size().x - with_scroll*scroll.size().x;
+        const int width = size().x - with_scroll*scroll.size().x;
+        if (width <= 0) return true;
         unsigned int height = 0;
 
         unsigned int line = 0;
