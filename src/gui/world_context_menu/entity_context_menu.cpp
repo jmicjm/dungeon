@@ -7,6 +7,7 @@
 #include "../../components/description.h"
 #include "../../world/world.h"
 #include "../../global/gui_component_stack.h"
+#include "../../components/body/body.h"
 
 
 void gui::Entity_context_menu::redraw()
@@ -83,6 +84,24 @@ std::vector<std::unique_ptr<gui::Gui_component>> gui::Entity_context_menu::gener
     return entries;
 }
 
+std::string gui::Entity_context_menu::generateDescriptionText(const entt::registry& registry, entt::entity entity) const
+{
+    std::string desc = "";
+
+    if (auto description_component = registry.try_get<Description>(entity))
+    {
+        desc += description_component->name;
+    }
+
+    if (auto body_component = registry.try_get<Body>(entity))
+    {
+        if (!desc.empty()) desc += "\n\n";
+        desc += body_component->describe("he");
+    }
+
+    return desc;
+}
+
 gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity entity, std::function<void()> on_action, entt::entity inventory, unsigned int inventory_slot)
 {
     bg.setParent(this);
@@ -90,7 +109,7 @@ gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity e
 
     constexpr auto border_px = 4;
     const auto descriptionHeight = [&] {
-        return std::min(description.length(), 120.f);
+        return std::min(description.length(), 320.f);
     };
 
     description.setParent(this);
@@ -98,10 +117,9 @@ gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity e
     description.setSizeFunction([=](sf::Vector2f parent_size) {
         return sf::Vector2f{ parent_size.x - border_px * 2, descriptionHeight() };
     });
-    if (auto description_component = world.getRegistry().try_get<Description>(entity))
-    {
-        description.setString(description_component->name);
-    }
+
+    description.setString(generateDescriptionText(world.getRegistry(), entity));
+
 
     interaction_list.setParent(this);
     interaction_list.setPositionInfo({ .offset = {border_px, -border_px}, .relative_to = {0,1} });
