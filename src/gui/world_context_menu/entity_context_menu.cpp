@@ -109,7 +109,7 @@ gui::Entity_context_menu::Entity_context_menu(World& world, const entt::entity e
 
     constexpr auto border_px = 4;
     const auto descriptionHeight = [&] {
-        return std::min(description.length(), 320.f);
+        return std::min({ description.length(), 320.f, window.getSize().y * 0.3f});
     };
 
     description.setParent(this);
