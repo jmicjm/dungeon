@@ -1,4 +1,5 @@
 #include "body_part.h"
+#include <cmath>
 
 
 Body_part* Body_node::getParent()
@@ -133,6 +134,42 @@ std::string Body_part::describe(const std::string& pronoun) const
 Inventory* Body_part::getInventory(entt::registry& registry)
 {
     return registry.valid(inventory_entity) ? registry.try_get<Inventory>(inventory_entity) : nullptr;
+}
+
+const Inventory* Body_part::getInventory(const entt::registry& registry) const
+{
+    return registry.valid(inventory_entity) ? registry.try_get<Inventory>(inventory_entity) : nullptr;
+}
+
+Body_part_attribute_t Body_part::getAttribute(const entt::registry& registry, Body_part_attribute attr) const
+{
+    Body_part_attribute_t attr_val = 0;
+
+    if (const auto it = base_attributes.attributes.find(attr); it != base_attributes.attributes.end())
+    {
+        attr_val += it->second;
+
+        if (const auto inv = getInventory(registry))
+        {
+            Body_part_attribute_modifier modifier;
+
+            inv->foreach([&](auto entity) {
+                if (const auto modifiers = registry.try_get<Body_part_attribute_modifiers>(entity))
+                {
+                    if (const auto it = modifiers->modifiers.find(attr); it != modifiers->modifiers.end())
+                    {
+                        modifier.absolute += it->second.absolute;
+                        modifier.percentage += it->second.percentage;
+                    }
+                }
+            });
+
+            attr_val += modifier.absolute;
+            attr_val = std::round(attr_val * (1 + modifier.percentage));
+        }
+    }
+
+    return attr_val;
 }
 
 std::string toString(Body_part_type bpt)

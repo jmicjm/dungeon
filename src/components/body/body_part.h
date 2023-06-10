@@ -1,4 +1,6 @@
 #pragma once
+#include "body_part_stats.h"
+#include "body_part_attributes.h"
 #include "../inventory.h"
 #include <entt/entt.hpp>
 #include <memory>
@@ -65,6 +67,10 @@ struct Body_part : Body_node
     Body_part_type type;
     std::string prefix;
     bool prefix_as_name = false;
+
+    Body_part_base_stats base_stats;
+    Body_part_base_attributes base_attributes;
+
     entt::entity inventory_entity = entt::null;
 
     Body_part(Body_part_type type, std::string prefix = "", bool prefix_as_name = false);
@@ -75,6 +81,9 @@ struct Body_part : Body_node
     std::string describe(const std::string& pronoun) const;
 
     Inventory* getInventory(entt::registry& registry);
+    const Inventory* getInventory(const entt::registry& registry) const;
+
+    Body_part_attribute_t getAttribute(const entt::registry& registry, Body_part_attribute attr) const;
 };
 
 
