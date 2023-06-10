@@ -23,19 +23,23 @@
 #include "../entities/chest.h"
 #include "../entities/items/createItem.h"
 #include "../components/description.h"
+#include "../components/body/body.h"
 
 
 void World::initRegistry()
 {
     registry.on_destroy<Inventory>().connect<[](entt::registry& registry, entt::entity entity) {
         auto& inventory = registry.get<Inventory>(entity);
-        for (auto&& interval : inventory.usedSlots())
-        {
-            for (auto slot = interval.lower(); slot < interval.upper(); slot++)
-            {
-                registry.destroy(inventory.get(slot));
-            }
-        }
+        inventory.foreach([&](entt::entity entity) {
+            if (registry.valid(entity)) registry.destroy(entity);
+        });
+    }>();
+
+    registry.on_destroy<Body>().connect<[](entt::registry& registry, entt::entity entity) {
+        auto& body = registry.get<Body>(entity);
+        body.graph.foreach([&](Body_part& bp) {
+            if (registry.valid(bp.inventory_entity)) registry.destroy(bp.inventory_entity);
+        });
     }>();
 }
 
