@@ -86,6 +86,9 @@ struct Body_part : Body_node
 
     std::optional<Body_part_stat_t> getStat(Body_part_stat stat) const;
     std::optional<Body_part_attribute_t> getAttribute(const entt::registry& registry, Body_part_attribute attr) const;
+
+    void updateStats(const entt::registry& registry);
+    void clampStats(const entt::registry& registry);
 };
 
 

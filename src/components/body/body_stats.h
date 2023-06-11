@@ -15,7 +15,7 @@ struct Body_stats
     using enum Body_stat;
 
     std::map<Body_stat, Body_stat_t> stats = {
-        { MANA, 100 },
+        { MANA, 50 },
         { SATIETY, 100 }
     };
 };

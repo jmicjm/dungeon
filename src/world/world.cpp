@@ -73,6 +73,7 @@ void World::progressTurn(const sf::RenderTarget& rt)
     for (const auto entity : registry.view<Character_awaiting_update>())
     {
         registry.erase<Character_awaiting_update>(entity);
+        if (auto body = registry.try_get<Body>(entity)) body->updateStats(registry);
         if (!updateCharacter(entity))
         {
             registry.emplace<Character_updating>(entity);           

@@ -20,6 +20,8 @@ struct Body
     std::optional<Body_stat_t> getStat(Body_stat stat) const;
     std::optional<Body_part_stat_t> getPartsStat(Body_part_stat stat) const;
 
+    void updateStats(const entt::registry& registry);
+    void clampStats(const entt::registry& registry);
 
     std::string describe(const std::string& pronoun) const;
 };

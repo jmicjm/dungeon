@@ -1,6 +1,10 @@
 #include "body.h"
 
 
+using enum Body_stat;
+using enum Body_attribute;
+using enum Body_part_attribute;
+
 std::optional<Body_attribute_t> Body::getAttribute(const entt::registry& registry, Body_attribute attr) const
 {
     if (const auto it = base_attributes.attributes.find(attr); it != base_attributes.attributes.end())
@@ -71,6 +75,40 @@ std::optional<Body_part_stat_t> Body::getPartsStat(Body_part_stat stat) const
     });
 
     return have_stat ? std::optional{ stat_val } : std::optional<Body_part_stat_t>{};
+}
+
+void Body::updateStats(const entt::registry& registry)
+{
+    graph.foreach([&](Body_part& bp) {
+        bp.updateStats(registry);
+    });
+
+    if (const auto mana = getStat(MANA))
+    {
+        stats.stats[MANA] = std::clamp(*mana + getAttribute(registry, MANA_REGEN).value_or(0), 0.f, getAttribute(registry, MAX_MANA).value_or(0));
+    }
+
+    if (const auto satiety = getStat(SATIETY))
+    {
+        stats.stats[SATIETY] = std::clamp(*satiety - getPartsAttribute(registry, SATIETY_USE).value_or(0), 0.f, getAttribute(registry, MAX_SATIETY).value_or(0));
+    }
+}
+
+void Body::clampStats(const entt::registry& registry)
+{
+    graph.foreach([&](Body_part& bp) {
+        bp.clampStats(registry);
+    });
+
+    if (const auto mana = getStat(MANA))
+    {
+        stats.stats[MANA] = std::clamp(*mana, 0.f, getAttribute(registry, MAX_MANA).value_or(0));
+    }
+
+    if (const auto satiety = getStat(SATIETY))
+    {
+        stats.stats[SATIETY] = std::clamp(*satiety, 0.f, getAttribute(registry, MAX_SATIETY).value_or(0));
+    }
 }
 
 std::string Body::describe(const std::string& pronoun) const

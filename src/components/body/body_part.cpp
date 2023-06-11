@@ -1,6 +1,9 @@
 #include "body_part.h"
 
 
+using enum Body_part_stat;
+using enum Body_part_attribute;
+
 Body_part* Body_node::getParent()
 {
     return parent;
@@ -175,6 +178,22 @@ std::optional<Body_part_attribute_t> Body_part::getAttribute(const entt::registr
     }
 
     return {};
+}
+
+void Body_part::updateStats(const entt::registry& registry)
+{
+    if (const auto hp = getStat(HP))
+    {
+        stats.stats[HP] = std::clamp(*hp + getAttribute(registry, HP_REGEN).value_or(0), 0.f, getAttribute(registry, MAX_HP).value_or(0));
+    }
+}
+
+void Body_part::clampStats(const entt::registry& registry)
+{
+    if (const auto hp = getStat(HP))
+    {
+        stats.stats[HP] = std::clamp(*hp, 0.f, getAttribute(registry, MAX_HP).value_or(0));
+    }
 }
 
 std::string toString(Body_part_type bpt)
