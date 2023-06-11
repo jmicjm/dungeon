@@ -83,6 +83,7 @@ add_executable(dungeon
     src/components/inventory.cpp
     src/components/stackable_item.cpp 
     src/components/body/body_part.cpp
+    src/components/body/body.cpp
     src/entities/characters/body_templates.cpp
 )
 

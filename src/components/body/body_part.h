@@ -68,7 +68,7 @@ struct Body_part : Body_node
     std::string prefix;
     bool prefix_as_name = false;
 
-    Body_part_base_stats base_stats;
+    Body_part_stats stats;
     Body_part_base_attributes base_attributes;
 
     entt::entity inventory_entity = entt::null;
@@ -83,6 +83,7 @@ struct Body_part : Body_node
     Inventory* getInventory(entt::registry& registry);
     const Inventory* getInventory(const entt::registry& registry) const;
 
+    Body_part_stat_t getStat(Body_part_stat stat) const;
     Body_part_attribute_t getAttribute(const entt::registry& registry, Body_part_attribute attr) const;
 };
 

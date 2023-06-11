@@ -1,8 +1,18 @@
 #pragma once
+#include <map>
 
-using Body_part_stat_t = int;
+using Body_part_stat_t = float;
 
-struct Body_part_base_stats
+enum class Body_part_stat
 {
-    Body_part_stat_t hp = 100;
+    HP
+};
+
+struct Body_part_stats
+{
+    using enum Body_part_stat;
+
+    std::map<Body_part_stat, Body_part_stat_t> stats = {
+        { HP, 100 }
+    };
 };
