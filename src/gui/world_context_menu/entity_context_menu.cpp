@@ -69,7 +69,7 @@ std::vector<std::unique_ptr<gui::Gui_component>> gui::Entity_context_menu::gener
             addButton("drop", [&, inventory, entity, inventory_slot, on_action] {
                 if (auto inventory_component = world.getRegistry().try_get<::Inventory>(inventory))
                 {
-                    inventory_component->remove(inventory_slot);
+                    inventory_component->remove(world.getRegistry(), inventory_slot);
                     if (auto player_pos = world.getRegistry().try_get<Position>(world.getPlayer()))
                     {
                         world.getRegistry().emplace_or_replace<Position>(entity, player_pos->replicate(entity));

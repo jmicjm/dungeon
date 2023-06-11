@@ -61,7 +61,7 @@ void gui::Item_swapper::update()
 
                 else if (!isHolding() && Input::isPressedConsume(sf::Mouse::Left))
                 {
-                    if (auto selected_item = inventory.inventory()->remove(slot_idx); world.getRegistry().valid(selected_item))
+                    if (auto selected_item = inventory.inventory()->remove(world.getRegistry(), slot_idx); world.getRegistry().valid(selected_item))
                     {
                         hold_item = selected_item;
                         src_slot = slot_idx;
@@ -86,7 +86,7 @@ void gui::Item_swapper::update()
                     }
                     else if (auto hovered_item = inventory.inventory()->get(slot_idx); world.getRegistry().valid(hovered_item))
                     {
-                        inventory.inventory()->remove(slot_idx);
+                        inventory.inventory()->remove(world.getRegistry(), slot_idx);
                         inventory.inventory()->insert(world.getRegistry(), hold_item, slot_idx);
                         src_inventory->inventory()->insert(world.getRegistry(), hovered_item, src_slot);
                         hold_item = entt::null;

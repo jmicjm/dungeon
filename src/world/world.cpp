@@ -41,6 +41,16 @@ void World::initRegistry()
             if (registry.valid(bp.inventory_entity)) registry.destroy(bp.inventory_entity);
         });
     }>();
+
+    registry.on_construct<Body>().connect<[](entt::registry& registry, entt::entity entity) {
+        auto& body = registry.get<Body>(entity);
+        body.graph.foreach([&](Body_part& bp) {
+            if (registry.valid(bp.inventory_entity))
+            {
+                if (auto inventory = registry.try_get<Inventory>(bp.inventory_entity)) inventory->setAssociatedBody(entity);
+            }
+        });
+    }>();
 }
 
 void World::createPlayer()
