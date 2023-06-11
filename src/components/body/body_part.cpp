@@ -140,22 +140,17 @@ const Inventory* Body_part::getInventory(const entt::registry& registry) const
     return registry.valid(inventory_entity) ? registry.try_get<Inventory>(inventory_entity) : nullptr;
 }
 
-Body_part_stat_t Body_part::getStat(Body_part_stat stat) const
+std::optional<Body_part_stat_t> Body_part::getStat(Body_part_stat stat) const
 {
-    auto stat_val = 0;
-
-    if (const auto it = stats.stats.find(stat); it != stats.stats.end()) stat_val += it->second;
-
-    return stat_val;
+    if (const auto it = stats.stats.find(stat); it != stats.stats.end()) return it->second;
+    return {};
 }
 
-Body_part_attribute_t Body_part::getAttribute(const entt::registry& registry, Body_part_attribute attr) const
+std::optional<Body_part_attribute_t> Body_part::getAttribute(const entt::registry& registry, Body_part_attribute attr) const
 {
-    Body_part_attribute_t attr_val = 0;
-
     if (const auto it = base_attributes.attributes.find(attr); it != base_attributes.attributes.end())
     {
-        attr_val += it->second;
+        Body_part_attribute_t attr_val = it->second;
 
         if (const auto inv = getInventory(registry))
         {
@@ -175,9 +170,11 @@ Body_part_attribute_t Body_part::getAttribute(const entt::registry& registry, Bo
             attr_val += modifier.absolute;
             attr_val = attr_val * (1 + modifier.percentage);
         }
+
+        return attr_val;
     }
 
-    return attr_val;
+    return {};
 }
 
 std::string toString(Body_part_type bpt)

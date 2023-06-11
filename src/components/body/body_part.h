@@ -8,6 +8,7 @@
 #include <string>
 #include <concepts>
 #include <utility>
+#include <optional>
 
 
 enum class Body_part_type
@@ -83,8 +84,8 @@ struct Body_part : Body_node
     Inventory* getInventory(entt::registry& registry);
     const Inventory* getInventory(const entt::registry& registry) const;
 
-    Body_part_stat_t getStat(Body_part_stat stat) const;
-    Body_part_attribute_t getAttribute(const entt::registry& registry, Body_part_attribute attr) const;
+    std::optional<Body_part_stat_t> getStat(Body_part_stat stat) const;
+    std::optional<Body_part_attribute_t> getAttribute(const entt::registry& registry, Body_part_attribute attr) const;
 };
 
 

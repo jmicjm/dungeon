@@ -1,13 +1,11 @@
 #include "body.h"
 
 
-Body_attribute_t Body::getAttribute(const entt::registry& registry, Body_attribute attr) const
+std::optional<Body_attribute_t> Body::getAttribute(const entt::registry& registry, Body_attribute attr) const
 {
-    Body_attribute_t attr_val = 0;
-
     if (const auto it = base_attributes.attributes.find(attr); it != base_attributes.attributes.end())
     {
-        attr_val += it->second;
+        Body_attribute_t attr_val = it->second;
 
         graph.foreach([&](const Body_part& bp) {
             if (const auto inv = bp.getInventory(registry))
@@ -29,40 +27,50 @@ Body_attribute_t Body::getAttribute(const entt::registry& registry, Body_attribu
                 attr_val = attr_val * (1 + modifier.percentage);
             }
         }); 
+
+        return attr_val;
     }
 
-    return attr_val;
+    return {};
 }
 
-Body_part_attribute_t Body::getPartsAttribute(const entt::registry& registry, Body_part_attribute attr) const
+std::optional<Body_part_attribute_t> Body::getPartsAttribute(const entt::registry& registry, Body_part_attribute attr) const
 {
     Body_part_attribute_t attr_val = 0;
+    bool have_attr = false;
 
     graph.foreach([&](const Body_part& bp) {
-        attr_val += bp.getAttribute(registry, attr);
+        if (const auto bpattr = bp.getAttribute(registry, attr))
+        {
+            attr_val += *bpattr;
+            have_attr = true;
+        }
     });
 
-    return attr_val;
+    return have_attr ? std::optional{ attr_val } : std::optional<Body_part_stat_t>{};
 }
 
-Body_stat_t Body::getStat(Body_stat stat) const
+std::optional<Body_stat_t> Body::getStat(Body_stat stat) const
 {
-    auto stat_val = 0;
-
-    if (const auto it = stats.stats.find(stat); it != stats.stats.end()) stat_val += it->second;
-
-    return stat_val;
+    if (const auto it = stats.stats.find(stat); it != stats.stats.end()) return it->second;
+    return {};
 }
 
-Body_part_stat_t Body::getPartsStat(Body_part_stat stat) const
+std::optional<Body_part_stat_t> Body::getPartsStat(Body_part_stat stat) const
 {
     Body_part_stat_t stat_val = 0;
+    bool have_stat = false;
 
     graph.foreach([&](const Body_part& bp) {
-        stat_val += bp.getStat(stat);
-        });
+        if (const auto bpstat = bp.getStat(stat))
+        {
+            stat_val += *bpstat;
+            have_stat = true;
+        }
+        
+    });
 
-    return stat_val;
+    return have_stat ? std::optional{ stat_val } : std::optional<Body_part_stat_t>{};
 }
 
 std::string Body::describe(const std::string& pronoun) const
