@@ -72,6 +72,7 @@ namespace gui
 
     void Gauge_bar::setMinValue(float val)
     {
+        if (min_value == val) return;
         min_value = val;
         max_value = std::max(max_value, min_value);
         render_required = true;
@@ -84,6 +85,7 @@ namespace gui
 
     void Gauge_bar::setMaxValue(float val)
     {
+        if (max_value == val) return;
         max_value = val;
         min_value = std::min(min_value, max_value);
         render_required = true;
@@ -96,6 +98,7 @@ namespace gui
 
     void Gauge_bar::setValue(float val)
     {
+        if (current_value == val) return;
         current_value = std::clamp(val, min_value, max_value);
         render_required = true;
     }
