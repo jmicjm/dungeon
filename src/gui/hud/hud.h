@@ -28,6 +28,7 @@ namespace gui
         float scale = 3;
 
         void rescale();
+        void updateBars();
 
         void redraw() override;
         void activateEvent() override;

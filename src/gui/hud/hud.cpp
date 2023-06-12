@@ -3,6 +3,7 @@
 #include "../../global/gui_component_stack.h"
 #include "../inventory/player_inventory.h"
 #include "../../world/world.h"
+#include "../../components/body/body.h"
 
 #include "SFML/Graphics/Sprite.hpp"
 
@@ -36,6 +37,23 @@ void gui::Hud::redraw()
     quick_select.draw();
     inventory_button.draw();
     controls.draw();
+}
+
+void gui::Hud::updateBars()
+{
+    using enum Body_attribute;
+    using enum Body_stat;
+    using enum Body_part_attribute;
+    using enum Body_part_stat;
+
+    if (const auto player_body = world.getRegistry().try_get<Body>(player))
+    {
+        hp_bar.setValue(player_body->getPartsStat(HP).value_or(0));
+        hp_bar.setMaxValue(player_body->getPartsAttribute(world.getRegistry(), MAX_HP).value_or(0));
+
+        mana_bar.setValue(player_body->getStat(MANA).value_or(0));
+        mana_bar.setMaxValue(player_body->getAttribute(world.getRegistry(), MAX_MANA).value_or(0));
+    }
 }
 
 void gui::Hud::activateEvent()
@@ -125,6 +143,8 @@ gui::Hud::Hud(World& world, entt::entity player)
 
 void gui::Hud::update()
 {
+    updateBars();
+
     player_frame.update();
     hp_bar.update();
     mana_bar.update();
