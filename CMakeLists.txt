@@ -76,6 +76,7 @@ add_executable(dungeon
     src/gui/inventory/body_inventory_entry.cpp
     src/gui/world_context_menu/world_context_menu.cpp
     src/gui/world_context_menu/entity_context_menu.cpp
+    src/gui/stats/body_stats.cpp
     src/input/input.cpp
     src/utils/utf8ToUtf32.cpp
     src/world/world.cpp 

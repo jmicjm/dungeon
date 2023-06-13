@@ -7,7 +7,7 @@
 #include "inventory.h"
 #include "body_inventory.h"
 #include "item_swapper.h"
-#include "../../components/inventory.h"
+#include "../stats/body_stats.h"
 #include <entt/entt.hpp>
 
 
@@ -22,6 +22,7 @@ namespace gui
         Inventory inventory;
         Item_swapper item_swapper;
         Body_inventory body_inventory;
+        Body_stats body_stats;
 
 
         void redraw() override;

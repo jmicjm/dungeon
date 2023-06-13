@@ -122,7 +122,7 @@ gui::Hud::Hud(World& world, entt::entity player)
     auto inventory_button_f = [this]
     {
         auto inv = std::make_unique<gui::Player_inventory>(this->world, this->player);
-        inv->setSizeInfo({ {0,0}, {0.5,0.5} });
+        inv->setSizeInfo({ {0,0}, {0.7,0.9} });
         inv->setPositionInfo({ {0,0}, {0,0}, {0.5,0.5} });    
         Component_stack::Component_config cfg;
         cfg.on_close = [this] 
