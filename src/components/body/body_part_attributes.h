@@ -31,7 +31,7 @@ struct Body_part_attribute_modifier
     Body_part_attribute_t percentage = 0;
 
     using covers_f = bool(const Body_part& equipped_on, const Body_part& other);
-    covers_f* cover_check = nullptr;
+    covers_f* cover_check = [](const Body_part& equipped_on, const Body_part& other) { return &equipped_on == &other; };
 
     bool covers(const Body_part& equipped_on, const Body_part& other) const
     {
