@@ -9,6 +9,7 @@
 #include <concepts>
 #include <utility>
 #include <optional>
+#include <ranges>
 
 
 enum class Body_part_type
@@ -45,6 +46,8 @@ class Body_node
 
     void swap(Body_node& other);
 
+    void foreachImpl(std::invocable<const Body_part&> auto f, const Body_node* entry_point) const;
+
 public:
     Body_part* getParent();
     const Body_part* getParent() const;
@@ -55,6 +58,9 @@ public:
     Body_part& addChild(Body_part part);
     Body_part& addChild(std::unique_ptr<Body_part> part);
     std::unique_ptr<Body_part> removeChild(decltype(childs)::size_type idx);
+
+    void foreach(std::invocable<Body_part&> auto f);
+    void foreach(std::invocable<const Body_part&> auto f) const;
 
     void foreachChild(std::invocable<Body_part&> auto f);
     void foreachChild(std::invocable<const Body_part&> auto f) const;
@@ -91,6 +97,25 @@ struct Body_part : Body_node
     void clampStats(const entt::registry& registry);
 };
 
+void Body_node::foreachImpl(std::invocable<const Body_part&> auto f, const Body_node* entry_point) const
+{
+    f(static_cast<const Body_part&>(*this));
+    if (parent && parent != entry_point) parent->foreachImpl(f, this);
+    for (const auto& child : childs)
+    {
+        if (child.get() != entry_point) child->foreachImpl(f, this);
+    }
+}
+
+void Body_node::foreach(std::invocable<Body_part&> auto f)
+{
+    foreachImpl([&](const Body_part& bp) { f(const_cast<Body_part&>(bp)); }, this);
+}
+
+void Body_node::foreach(std::invocable<const Body_part&> auto f) const
+{
+    foreachImpl(f, this);
+}
 
 void Body_node::foreachChild(std::invocable<Body_part&> auto f)
 {

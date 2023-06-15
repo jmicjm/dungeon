@@ -155,24 +155,26 @@ std::optional<Body_part_attribute_t> Body_part::getAttribute(const entt::registr
     {
         Body_part_attribute_t attr_val = it->second;
 
-        if (const auto inv = getInventory(registry))
-        {
-            Body_part_attribute_modifier modifier;
+        Body_part_attribute_modifier modifier;
 
-            inv->foreach([&](auto entity) {
-                if (const auto modifiers = registry.try_get<Body_part_attribute_modifiers>(entity))
-                {
-                    if (const auto it = modifiers->modifiers.find(attr); it != modifiers->modifiers.end())
+        foreach([&](const Body_part& bp) {
+            if (const auto inv = bp.getInventory(registry))
+            {
+                inv->foreach([&](auto entity) {
+                    if (const auto modifiers = registry.try_get<Body_part_attribute_modifiers>(entity))
                     {
-                        modifier.absolute += it->second.absolute;
-                        modifier.percentage += it->second.percentage;
+                        if (const auto it = modifiers->modifiers.find(attr); it != modifiers->modifiers.end() && it->second.covers(bp, *this))
+                        {
+                            modifier.absolute += it->second.absolute;
+                            modifier.percentage += it->second.percentage;
+                        }
                     }
-                }
-            });
+                });
+            }
+        });
 
-            attr_val += modifier.absolute;
-            attr_val = attr_val * (1 + modifier.percentage);
-        }
+        attr_val += modifier.absolute;
+        attr_val = attr_val * (1 + modifier.percentage);
 
         return attr_val;
     }

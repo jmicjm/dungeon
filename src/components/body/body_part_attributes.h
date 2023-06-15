@@ -1,4 +1,5 @@
 #pragma once
+#include "body_part.fwd.h";
 #include <map>
 
 
@@ -28,6 +29,14 @@ struct Body_part_attribute_modifier
 {
     Body_part_attribute_t absolute = 0;
     Body_part_attribute_t percentage = 0;
+
+    using covers_f = bool(const Body_part& equipped_on, const Body_part& other);
+    covers_f* cover_check = nullptr;
+
+    bool covers(const Body_part& equipped_on, const Body_part& other) const
+    {
+        return cover_check ? cover_check(equipped_on, other) : false;
+    }
 };
 
 struct Body_part_attribute_modifiers
