@@ -7,6 +7,8 @@ namespace items
         LONGSWORD,
         DAGGER,
         BLOODTHIRSTY_BLADE,
+        FUR_ARMOR_UPPER_TORSO,
+        CHAINMAIL_ARMOR_UPPER_TORSO,
         COINS
     };
 }

@@ -52,6 +52,7 @@ add_executable(dungeon
     src/entities/characters/npc/smuggler.cpp
     src/entities/characters/npc/infected_zombie.cpp
     src/entities/items/createItem.cpp
+    src/entities/items/armors.cpp
     src/gui/gui_component.cpp 
     src/gui/surface.cpp
     src/gui/primitives/button/button.cpp   

@@ -47,14 +47,14 @@ auto Body_node::childCount() const -> decltype(childs)::size_type
     return childs.size();
 }
 
-Body_node& Body_node::getChild(decltype(childs)::size_type idx)
+Body_part& Body_node::getChild(decltype(childs)::size_type idx)
 {
-    return *childs[idx];
+    return static_cast<Body_part&>(*childs[idx]);
 }
 
-const Body_node& Body_node::getChild(decltype(childs)::size_type idx) const
+const Body_part& Body_node::getChild(decltype(childs)::size_type idx) const
 {
-    return *childs[idx];
+    return static_cast<const Body_part&>(*childs[idx]);
 }
 
 Body_node::Body_node(const Body_node& other)

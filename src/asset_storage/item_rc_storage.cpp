@@ -39,7 +39,14 @@ std::unordered_map<Item_id, Render_component> Item_rc_storage::rc_map = []
             return std::make_shared<Animated_sprite_frames>(tex, rects);
         }();
 
-        map.insert({ info.id, Render_component{ { { zlevel::item, { Animated_sprite{ frames, info.fps } } } } } });
+        map.insert({ 
+            info.id,
+            Render_component{
+                .zlevel_animation_map = {
+                    { zlevel::item, { Animated_sprite{ frames, info.fps } } } 
+                } 
+            } 
+        });
     }
     return map;
 }();
@@ -50,5 +57,9 @@ Render_component Item_rc_storage::getRc(const Item_id id)
     {
         return it->second;
     }
-    return Render_component{ { { zlevel::item, { Animated_sprite{ std::make_shared<Animated_sprite_frames>(), 1 } } } } };
+    return Render_component{ 
+        .zlevel_animation_map = {
+            { zlevel::item, { Animated_sprite{ std::make_shared<Animated_sprite_frames>(), 1 } } } 
+        } 
+    };
 }

@@ -52,8 +52,8 @@ public:
     Body_part* getParent();
     const Body_part* getParent() const;
     auto childCount() const -> decltype(childs)::size_type;
-    Body_node& getChild(decltype(childs)::size_type idx);
-    const Body_node& getChild(decltype(childs)::size_type idx) const;
+    Body_part& getChild(decltype(childs)::size_type idx);
+    const Body_part& getChild(decltype(childs)::size_type idx) const;
 
     Body_part& addChild(Body_part part);
     Body_part& addChild(std::unique_ptr<Body_part> part);

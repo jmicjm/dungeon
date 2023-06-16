@@ -7,6 +7,7 @@
 #include "../../components/description.h"
 #include "../../asset_storage/item_rc_storage.h"
 #include "../../gfx/zlevels.h"
+#include "armors.h"
 #include <functional>
 #include <unordered_map>
 #include <string>
@@ -38,6 +39,8 @@ namespace items
             { Item_id::DAGGER, std::bind(createSimpleWeapon, _1, _2, Weapon{ 16 }, "dagger")},
             { Item_id::BLOODTHIRSTY_BLADE, std::bind(createSimpleWeapon, _1, _2, Weapon{ 48 }, "bloodthirsty blade")},
             { Item_id::COINS, createCoins },
+            { Item_id::FUR_ARMOR_UPPER_TORSO, createFurArmorUpperTorso },
+            { Item_id::CHAINMAIL_ARMOR_UPPER_TORSO, createChainmailArmorUpperTorso }
         };
 
         if (auto it = create_function_map.find(id); it != create_function_map.end())
