@@ -186,7 +186,8 @@ void Body_part::updateStats(const entt::registry& registry)
 {
     if (const auto hp = getStat(HP))
     {
-        stats.stats[HP] = std::clamp(*hp + getAttribute(registry, HP_REGEN).value_or(0), 0.f, getAttribute(registry, MAX_HP).value_or(0));
+        const auto max_hp = getAttribute(registry, MAX_HP).value_or(0);
+        stats.stats[HP] = std::clamp(*hp + getAttribute(registry, HP_REGEN).value_or(0), std::min(0.f, max_hp), max_hp);
     }
 }
 
@@ -194,7 +195,8 @@ void Body_part::clampStats(const entt::registry& registry)
 {
     if (const auto hp = getStat(HP))
     {
-        stats.stats[HP] = std::clamp(*hp, 0.f, getAttribute(registry, MAX_HP).value_or(0));
+        const auto max_hp = getAttribute(registry, MAX_HP).value_or(0);
+        stats.stats[HP] = std::clamp(*hp, std::min(0.f, max_hp), max_hp);
     }
 }
 

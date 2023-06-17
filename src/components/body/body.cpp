@@ -85,12 +85,14 @@ void Body::updateStats(const entt::registry& registry)
 
     if (const auto mana = getStat(MANA))
     {
-        stats.stats[MANA] = std::clamp(*mana + getAttribute(registry, MANA_REGEN).value_or(0), 0.f, getAttribute(registry, MAX_MANA).value_or(0));
+        const auto max_mana = getAttribute(registry, MAX_MANA).value_or(0);
+        stats.stats[MANA] = std::clamp(*mana + getAttribute(registry, MANA_REGEN).value_or(0), std::min(0.f, max_mana), max_mana);
     }
 
     if (const auto satiety = getStat(SATIETY))
     {
-        stats.stats[SATIETY] = std::clamp(*satiety - getPartsAttribute(registry, SATIETY_USE).value_or(0), 0.f, getAttribute(registry, MAX_SATIETY).value_or(0));
+        const auto max_satiety = getAttribute(registry, MAX_SATIETY).value_or(0);
+        stats.stats[SATIETY] = std::clamp(*satiety - getPartsAttribute(registry, SATIETY_USE).value_or(0), std::min(0.f, max_satiety), max_satiety);
     }
 }
 
@@ -102,12 +104,14 @@ void Body::clampStats(const entt::registry& registry)
 
     if (const auto mana = getStat(MANA))
     {
-        stats.stats[MANA] = std::clamp(*mana, 0.f, getAttribute(registry, MAX_MANA).value_or(0));
+        const auto max_mana = getAttribute(registry, MAX_MANA).value_or(0);
+        stats.stats[MANA] = std::clamp(*mana, std::min(0.f, max_mana), max_mana);
     }
 
     if (const auto satiety = getStat(SATIETY))
     {
-        stats.stats[SATIETY] = std::clamp(*satiety, 0.f, getAttribute(registry, MAX_SATIETY).value_or(0));
+        const auto max_satiety = getAttribute(registry, MAX_SATIETY).value_or(0);
+        stats.stats[SATIETY] = std::clamp(*satiety, std::min(0.f, max_satiety), max_satiety);
     }
 }
 
