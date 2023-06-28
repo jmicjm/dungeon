@@ -84,7 +84,10 @@ void gui::Item_swapper::update()
                         hold_item = entt::null;
                         src_inventory = nullptr;
                     }
-                    else if (auto hovered_item = inventory.inventory()->get(slot_idx); world.getRegistry().valid(hovered_item))
+                    else if (auto hovered_item = inventory.inventory()->get(slot_idx);
+                             world.getRegistry().valid(hovered_item) 
+                          && src_inventory->inventory()->isAllowed(world.getRegistry(), hovered_item)
+                          && inventory.inventory()->isAllowed(world.getRegistry(), hold_item))
                     {
                         inventory.inventory()->remove(world.getRegistry(), slot_idx);
                         inventory.inventory()->insert(world.getRegistry(), hold_item, slot_idx);
