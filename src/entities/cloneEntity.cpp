@@ -7,7 +7,7 @@ entt::entity cloneEntity(entt::registry& registry, entt::entity to_clone)
     {
         if (storage.contains(to_clone))
         {
-            storage.emplace(new_entity, storage.get(to_clone));
+            storage.push(new_entity, storage.value(to_clone));
         }
     }
     return new_entity;
